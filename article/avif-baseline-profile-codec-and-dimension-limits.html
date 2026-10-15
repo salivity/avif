@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Baseline Profile: Codec and Dimension Limits - avif</title>
+    <meta name="description" content="The AVIF Baseline Profile establishes standardized limits on AV1 codec configurations and image dimensions to guarantee widespread interoperability across web browsers and resource-constrained hardware. By restricting the underlying AV1 bitstream to speci">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-baseline-profile-codec-and-dimension-limits">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Baseline Profile: Codec and Dimension Limits - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-baseline-profile-codec-and-dimension-limits" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The AVIF Baseline Profile establishes standardized limits on AV1 codec configurations and image dimensions to guarantee widespread interoperability across web browsers and resource-constrained hardware. By restricting the underlying AV1 bitstream to speci" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-baseline-profile-codec-and-dimension-limits">AVIF Baseline
+Profile: Codec and Dimension Limits</h1>
+<p>The AVIF Baseline Profile establishes standardized limits on AV1
+codec configurations and image dimensions to guarantee widespread
+interoperability across web browsers and resource-constrained hardware.
+By restricting the underlying AV1 bitstream to specific profiles and
+performance levels, the specification ensures that decoders can reliably
+process images without excessive memory or compute overhead. This
+article breaks down the explicit constraints enforced by the AVIF
+Baseline Profile, including codec profile requirements, bit depth,
+chroma subsampling limits, and dimensional ceilings governed by AV1
+Level 5.1.</p>
+<h2 id="av1-codec-profile-restriction">AV1 Codec Profile
+Restriction</h2>
+<p>The AVIF specification defines two primary profiles: Baseline
+(<code>avif</code>) and Advanced (<code>avis</code>). The Baseline
+Profile strictly requires the underlying AV1 bitstream to conform to the
+<strong>AV1 Main Profile</strong> (<code>seq_profile</code> = 0).</p>
+<p>By mandating Profile 0, the Baseline Profile deliberately
+excludes:</p>
+<ul>
+<li><strong>AV1 High Profile (Profile 1):</strong> Which adds support
+for 4:4:4 chroma subsampling.</li>
+<li><strong>AV1 Professional Profile (Profile 2):</strong> Which adds
+support for 12-bit color depths and 4:2:2 chroma subsampling.</li>
+</ul>
+<p>Restricting baseline files to the Main Profile ensures that common
+hardware video decoders—which overwhelmingly target Profile 0 for
+streaming video—can decode AVIF still images without falling back to
+slower software implementations.</p>
+<h2 id="bit-depth-and-chroma-subsampling-constraints">Bit Depth and
+Chroma Subsampling Constraints</h2>
+<p>Because the Baseline Profile requires AV1 Main Profile conformance,
+it imposes strict boundaries on pixel formats:</p>
+<ul>
+<li><strong>Bit Depth:</strong> Allowed bit depths are limited to
+<strong>8-bit</strong> and <strong>10-bit</strong>. 12-bit images are
+prohibited in the Baseline Profile and must be encoded using the
+Advanced Profile.</li>
+<li><strong>Chroma Subsampling:</strong> Only <strong>4:2:0</strong> and
+<strong>4:0:0 (Monochrome)</strong> formats are permitted.</li>
+<li><strong>Prohibited Formats:</strong> 4:2:2 and 4:4:4 sampling modes
+cannot be used in baseline AVIF files.</li>
+</ul>
+<p>For full-color photographic images, 4:2:0 is the default. If an image
+requires an alpha channel (transparency), it is encoded as an auxiliary
+monochrome (4:0:0) image item that runs parallel to the primary color
+item, matching its dimensions.</p>
+<h2 id="decoder-level-and-resolution-limits">Decoder Level and
+Resolution Limits</h2>
+<p>The Baseline Profile constrains the maximum complexity of an image by
+capping the operating point level. Specifically, the AV1 sequence header
+parameter <code>seq_level_idx_0</code> must be set to <strong>Level 5.1
+or lower</strong> (index 19 or below).</p>
+<p>AV1 Level 5.1 enforces strict bounds on single-frame dimensions and
+total pixel count:</p>
+<ul>
+<li><strong>Maximum Picture Size (<code>MaxPicSizeLuma</code>):</strong>
+8,912,896 luma samples (approximately 8.9 megapixels). A standard 4K
+frame (3840 × 2160 = 8,294,400 pixels) falls safely within this
+limit.</li>
+<li><strong>Maximum Frame Width (<code>MaxHSizeLuma</code>):</strong>
+8,192 pixels.</li>
+<li><strong>Maximum Frame Height (<code>MaxVSizeLuma</code>):</strong>
+4,352 pixels.</li>
+</ul>
+<p>Single-coded frames exceeding these limits cannot be marked with the
+baseline AVIF brand.</p>
+<h2 id="bypassing-resolution-caps-via-grid-items">Bypassing Resolution
+Caps via Grid Items</h2>
+<p>While a single coded frame is limited to approximately 8.9 megapixels
+under Level 5.1, the AVIF specification allows baseline files to display
+higher overall resolutions through <strong>image grids</strong>
+(<code>grid</code> derived image items).</p>
+<p>When an image exceeds Level 5.1 dimensions:</p>
+<ol type="1">
+<li>The image is split into smaller rectangular tiles.</li>
+<li>Each tile is encoded as an independent AV1 image item conforming to
+Main Profile and Level 5.1 limits.</li>
+<li>The container's <code>grid</code> item instructs the parser to
+reconstruct the complete image from the individual tiles at display
+time.</li>
+</ol>
+<p>This mechanism enables the baseline profile to support
+ultra-high-resolution images while preserving compatibility with
+hardware decoders that have strict single-frame buffer limits.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

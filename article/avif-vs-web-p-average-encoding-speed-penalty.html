@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF vs WebP: Average Encoding Speed Penalty - avif</title>
+    <meta name="description" content="While the AVIF image format offers superior compression ratios and better visual fidelity at lower file sizes than WebP, it introduces a significant encoding speed penalty. On average, encoding an image to AVIF takes roughly 5 to 20 times longer than enco">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-vs-web-p-average-encoding-speed-penalty">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF vs WebP: Average Encoding Speed Penalty - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-vs-web-p-average-encoding-speed-penalty" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="While the AVIF image format offers superior compression ratios and better visual fidelity at lower file sizes than WebP, it introduces a significant encoding speed penalty. On average, encoding an image to AVIF takes roughly 5 to 20 times longer than enco" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-vs-webp-average-encoding-speed-penalty">AVIF vs WebP:
+Average Encoding Speed Penalty</h1>
+<p>While the AVIF image format offers superior compression ratios and
+better visual fidelity at lower file sizes than WebP, it introduces a
+significant encoding speed penalty. On average, encoding an image to
+AVIF takes roughly <strong>5 to 20 times longer</strong> than encoding
+to standard WebP under comparable visual quality targets and balanced
+production settings. This article breaks down the benchmark differences,
+the technical reasons behind the performance gap, and the architectural
+implications for web delivery pipelines.</p>
+<h3 id="the-benchmark-comparison">The Benchmark Comparison</h3>
+<p>In standard production workflows, WebP is typically encoded using
+<code>libwebp</code> with default or moderate compression effort levels
+(such as <code>-m 4</code>). Under these conditions, WebP can encode a
+high-resolution photograph in tens to hundreds of milliseconds.</p>
+<p>In contrast, AVIF encoding typically utilizes <code>libaom</code> or
+<code>svt-av1</code>. Under standard production presets (such as a CPU
+effort setting of <code>speed 4</code> to <code>speed 6</code>), AVIF
+encoding typically requires hundreds to thousands of milliseconds per
+image.</p>
+<ul>
+<li><strong>Fast/Low-effort presets:</strong> AVIF is roughly <strong>3x
+to 5x slower</strong> than WebP.</li>
+<li><strong>Balanced/Production presets:</strong> AVIF is approximately
+<strong>8x to 12x slower</strong> than WebP.</li>
+<li><strong>High-compression/Archival presets:</strong> AVIF can reach
+<strong>30x to 50x+ slower</strong> than WebP.</li>
+</ul>
+<p>Across real-world asset pipelines, a 10x penalty is the widely
+accepted rule of thumb when targeting a balanced trade-off between file
+size savings and compute time.</p>
+<h3 id="why-avif-encodes-slower-than-webp">Why AVIF Encodes Slower Than
+WebP</h3>
+<p>The disparity in encoding times stems directly from the architectural
+complexity of their underlying video codecs:</p>
+<ol type="1">
+<li><strong>Underlying Codec Architecture:</strong> WebP is derived from
+the older VP8 video codec, whereas AVIF is derived from the modern AV1
+video codec. AV1 was designed to maximize data compression regardless of
+computational overhead.</li>
+<li><strong>Block Partitioning Complexity:</strong> WebP uses simple,
+fixed macroblock partitioning (typically 16x16 down to 4x4). AVIF
+utilizes recursive partition trees ranging from 128x128 blocks down to
+4x4 blocks, requiring the encoder to test exponentially more
+combinations to find the optimal division.</li>
+<li><strong>Intra-Prediction Modes:</strong> AVIF evaluates dozens of
+directional intra-prediction modes alongside complex filtering
+techniques (such as Constrained Directional Enhancement Filter and loop
+restoration), whereas WebP evaluates only a handful of basic prediction
+modes.</li>
+</ol>
+<h3 id="real-world-pipeline-implications">Real-World Pipeline
+Implications</h3>
+<p>Because of the 5x to 20x latency penalty, adopting AVIF requires
+careful infrastructure planning:</p>
+<ul>
+<li><strong>Static Asset Pipelines:</strong> For static site generators
+or offline build processes, the speed penalty is often acceptable. The
+CPU cost is paid once during build time to achieve permanent 15% to 30%
+bandwidth savings over WebP.</li>
+<li><strong>Dynamic, On-the-Fly Resizing:</strong> For image CDNs and
+services generating responsive images at the edge, the AVIF encoding
+delay often exceeds acceptable HTTP response timeouts. To use AVIF
+dynamically, systems typically rely on background asynchronous
+processing or fast encoder presets that sacrifice some compression
+efficiency to narrow the latency gap.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

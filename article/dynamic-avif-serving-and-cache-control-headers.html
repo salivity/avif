@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic AVIF Serving and Cache-Control Headers - avif</title>
+    <meta name="description" content="Dynamically serving AVIF images based on incoming client headers dramatically reduces payload sizes, but it introduces critical caching challenges across intermediate proxies, Content Delivery Networks (CDNs), and browser caches. Because the same asset UR">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/dynamic-avif-serving-and-cache-control-headers">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Dynamic AVIF Serving and Cache-Control Headers - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/dynamic-avif-serving-and-cache-control-headers" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Dynamically serving AVIF images based on incoming client headers dramatically reduces payload sizes, but it introduces critical caching challenges across intermediate proxies, Content Delivery Networks (CDNs), and browser caches. Because the same asset UR" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="dynamic-avif-serving-and-cache-control-headers">Dynamic AVIF
+Serving and Cache-Control Headers</h1>
+<p>Dynamically serving AVIF images based on incoming client headers
+dramatically reduces payload sizes, but it introduces critical caching
+challenges across intermediate proxies, Content Delivery Networks
+(CDNs), and browser caches. Because the same asset URL can yield
+multiple binary formats (such as AVIF, WebP, or JPEG) depending on
+client support, misconfigured caching rules can cause incompatible
+formats to be cached and served to unsupported browsers. Correctly
+orchestrating the <code>Cache-Control</code> and <code>Vary</code> HTTP
+headers is essential to ensure high cache hit ratios, prevent cache
+poisoning, and minimize server compute load.</p>
+<h3 id="the-critical-role-of-vary-accept">The Critical Role of
+<code>Vary: Accept</code></h3>
+<p>When serving AVIF dynamically, the origin server inspects the
+client’s <code>Accept</code> request header to determine whether the
+browser supports <code>image/avif</code>. Because the response body
+changes depending on this header, the origin must include:</p>
+<pre class="http"><code>Vary: Accept</code></pre>
+<p>The <code>Vary: Accept</code> header instructs downstream caches
+(both local browser caches and shared CDNs) to store distinct cached
+representations of the resource indexed by the client's
+<code>Accept</code> header. Omitting <code>Vary: Accept</code> leads to
+cache pollution: if an AVIF-capable browser requests
+<code>/image.jpg</code> first, a cache without <code>Vary</code> will
+store the AVIF payload under that URL. Subsequent requests from an older
+browser will then receive the cached AVIF file, leading to a broken
+image display.</p>
+<h3
+id="cache-control-directives-for-dynamically-transcoded-media"><code>Cache-Control</code>
+Directives for Dynamically Transcoded Media</h3>
+<p>AVIF encoding requires substantial CPU resources compared to legacy
+formats. Caching these responses aggressively is mandatory to prevent
+performance degradation at the origin.</p>
+<ul>
+<li><strong><code>public</code></strong>: Explicitly permits
+intermediate proxies and CDNs to store the response, which is required
+for shared caching.</li>
+<li><strong><code>max-age</code> and <code>s-maxage</code></strong>: Use
+a long duration (e.g., <code>max-age=31536000</code>) for immutable or
+static media. Use <code>s-maxage</code> to control edge cache retention
+independently from browser retention.</li>
+<li><strong><code>stale-while-revalidate</code></strong>: This directive
+allows the CDN to serve a stale cached version of the image immediately
+while fetching or transcoding an updated version in the background,
+smoothing latency spikes during cache churn.</li>
+</ul>
+<p>An optimal production header configuration often looks like:</p>
+<pre class="http"><code>Cache-Control: public, max-age=86400, s-maxage=31536000, stale-while-revalidate=604800
+Vary: Accept</code></pre>
+<h3 id="cdn-cache-key-fragmentation-and-normalization">CDN Cache Key
+Fragmentation and Normalization</h3>
+<p>While <code>Vary: Accept</code> guarantees correctness, it creates a
+performance issue known as cache key fragmentation. Browsers send
+diverse, lengthy <code>Accept</code> headers. For instance, Chrome,
+Firefox, and Safari each send slightly different MIME type lists in
+their <code>Accept</code> strings.</p>
+<p>If a CDN adheres strictly to the raw <code>Accept</code> string, it
+will create separate cache entries for identical AVIF files, lowering
+the CDN cache hit ratio and triggering unnecessary dynamic encoding on
+the origin.</p>
+<p>To resolve this, edge servers or CDNs must normalize the
+<code>Accept</code> header before evaluating the cache key. The CDN edge
+worker or cache rule should parse the <code>Accept</code> header and
+classify it into discrete buckets:</p>
+<ol type="1">
+<li>Supports AVIF (<code>image/avif</code>)</li>
+<li>Supports WebP (<code>image/webp</code>)</li>
+<li>Fallback (standard JPEG/PNG)</li>
+</ol>
+<p>By modifying the cache key to depend on the normalized format bucket
+rather than the raw <code>Accept</code> header string, you maintain
+correctness without fragmenting the cache.</p>
+<h3 id="entity-tags-etags-and-conditional-requests">Entity Tags (ETags)
+and Conditional Requests</h3>
+<p>When serving multiple representations from a single URL, weak
+validation becomes necessary if the representations share semantic
+meaning but have different byte streams.</p>
+<p>If you use strong ETags (e.g., <code>ETag: "12345"</code>), a
+validator generated for an AVIF payload will clash if an intermediate
+cache checks it against a fallback JPEG representation. When using
+dynamic format negotiation, apply representation-specific ETags (e.g.,
+<code>ETag: W/"12345-avif"</code>) to prevent erroneous
+<code>304 Not Modified</code> responses across different image
+formats.</p>
+<h3
+id="header-based-negotiation-vs-file-extension-rewriting">Header-Based
+Negotiation vs. File Extension Rewriting</h3>
+<p>Header-based dynamic negotiation maintains a clean URL structure
+(e.g., <code>&lt;img src="photo.jpg"&gt;</code> serving AVIF
+transparently). However, because of the reliance on complex
+<code>Vary</code> semantics and CDN edge logic, many high-scale
+architectures choose to decouple format selection from HTTP headers
+entirely.</p>
+<p>By handling format detection at the application layer or edge
+(rewriting the markup to output <code>&lt;picture&gt;</code> elements
+pointing to distinct static URLs like <code>photo.avif</code> and
+<code>photo.webp</code>), caching simplifies considerably. Static URLs
+allow standard, straightforward <code>Cache-Control</code> headers
+without the overhead of <code>Vary: Accept</code> parsing and edge cache
+normalization.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

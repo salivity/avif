@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Decoder Error Handling for Corrupted OBUs - avif</title>
+    <meta name="description" content="When decoding AVIF (AV1 Image File Format) images, bitstream corruption within Open Bitstream Units (OBUs) can cause crashes, visual artifacts, or security vulnerabilities. This article details the standard error-handling procedures an AVIF decoder must i">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-decoder-error-handling-for-corrupted-ob-us">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Decoder Error Handling for Corrupted OBUs - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-decoder-error-handling-for-corrupted-ob-us" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="When decoding AVIF (AV1 Image File Format) images, bitstream corruption within Open Bitstream Units (OBUs) can cause crashes, visual artifacts, or security vulnerabilities. This article details the standard error-handling procedures an AVIF decoder must i" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-decoder-error-handling-for-corrupted-obus">AVIF Decoder
+Error Handling for Corrupted OBUs</h1>
+<p>When decoding AVIF (AV1 Image File Format) images, bitstream
+corruption within Open Bitstream Units (OBUs) can cause crashes, visual
+artifacts, or security vulnerabilities. This article details the
+standard error-handling procedures an AVIF decoder must implement when
+encountering malformed or corrupted OBUs, covering parsing validation,
+critical versus non-critical classification, safe recovery mechanisms,
+and memory security.</p>
+<h2 id="1-bitstream-validation-and-bounds-checking">1. Bitstream
+Validation and Bounds Checking</h2>
+<p>Before decoding payloads, the decoder must validate the syntactic
+integrity of the OBU framing.</p>
+<ul>
+<li><strong>Header Verification:</strong> Parse the
+<code>obu_header()</code> to ensure the <code>obu_type</code> is valid
+according to the AV1 specification and that reserved bits are handled
+appropriately.</li>
+<li><strong>Size Field Consistency:</strong> If
+<code>obu_has_size_field</code> is set, check whether the declared
+<code>obu_size</code> exceeds the actual remaining byte length of the
+container (the ISOBMFF <code>mdat</code> or item payload). If the
+declared size extends beyond available data, immediately flag an
+truncation error.</li>
+<li><strong>Trailing Bits Check:</strong> Verify that
+<code>trailing_bits()</code> adhere to the required stop-bit pattern
+(<code>1</code> followed by zero or more <code>0</code> bits). Failure
+here strongly indicates bitstream desynchronization.</li>
+</ul>
+<h2 id="2-distinguishing-critical-from-non-critical-obus">2.
+Distinguishing Critical from Non-Critical OBUs</h2>
+<p>An AVIF decoder must not treat all OBUs equally when errors occur.
+Instead, it must classify the unit to decide whether to abort or
+proceed.</p>
+<ul>
+<li><strong>Critical OBUs:</strong> Units essential for image
+reconstruction, such as <code>OBU_SEQUENCE_HEADER</code> and
+<code>OBU_FRAME_HEADER</code> (or <code>OBU_FRAME</code>). If these
+contain syntax errors or invalid configuration parameters (e.g.,
+unsupported bit depth, invalid profile, or out-of-bounds dimensions),
+decoding must be safely terminated, and the decoder must return an
+invalid bitstream error.</li>
+<li><strong>Non-Critical OBUs:</strong> Auxiliary units such as
+<code>OBU_METADATA</code> (e.g., HDR mastering display metadata, color
+volume) or unknown/reserved OBU types. If corruption occurs within these
+units, the decoder should log a warning, discard the unit, and proceed
+to the next OBU.</li>
+</ul>
+<h2 id="3-safe-skipping-via-size-delimitation">3. Safe Skipping via Size
+Delimitation</h2>
+<p>When an error is detected in an OBU that is not fatal to the overall
+decode process:</p>
+<ul>
+<li>Use the <code>obu_size</code> field to advance the read pointer
+directly past the corrupted payload to the start of the next OBU.</li>
+<li>If <code>obu_has_size_field</code> is not set, the decoder must
+terminate parsing for that temporal unit because it cannot reliably
+determine where the current OBU ends and the next begins.</li>
+</ul>
+<h2 id="4-tile-level-error-concealment">4. Tile-Level Error
+Concealment</h2>
+<p>AVIF images often utilize tiling for parallel decoding. If a
+corruption occurs within an <code>OBU_TILE_GROUP</code>:</p>
+<ul>
+<li><strong>Discard Malformed Tiles:</strong> If entropy decoding (using
+the Daala multi-symbol arithmetic coder) hits an illegal state, isolate
+the failure to the specific tile.</li>
+<li><strong>Partial Rendering:</strong> Depending on the implementation
+policy, the decoder can either reject the frame entirely or render the
+intact tiles while filling corrupted tile areas with a solid background
+color (e.g., neutral gray or transparent black).</li>
+<li><strong>Reference Frame Invalidation:</strong> For animated AVIF
+files (AVIFS), any frame relying on an inter-frame reference that
+suffered corruption must not be used as a predictor for subsequent
+frames to prevent error propagation.</li>
+</ul>
+<h2 id="5-security-and-memory-safety-controls">5. Security and Memory
+Safety Controls</h2>
+<p>Corrupted OBUs are a frequent vector for exploitation. Decoders must
+enforce strict runtime guards:</p>
+<ul>
+<li><strong>Prevent Allocation Bombs:</strong> Never allocate memory
+based strictly on dimensions declared in an untrusted OBU header without
+validating those dimensions against the containing AVIF image properties
+(such as the <code>ispe</code> box in the MP4 container).</li>
+<li><strong>Prevent Buffer Overflows:</strong> Ensure arithmetic decoder
+states are strictly bounded to designated input buffers, immediately
+trapping any out-of-bounds read or write attempts.</li>
+<li><strong>Integer Overflow Protection:</strong> Validate tile size and
+coordinate offsets during header parsing using checked arithmetic to
+prevent wrapping vulnerabilities.</li>
+</ul>
+<h2 id="6-deterministic-error-signaling">6. Deterministic Error
+Signaling</h2>
+<p>An AVIF decoder must exit cleanly when corruption prevents successful
+processing. It should return specific, actionable status codes (such as
+<code>AVIF_RESULT_BMFF_PARSE_FAILED</code>,
+<code>AVIF_RESULT_CORRUPTED_DATA</code>, or
+<code>AVIF_RESULT_DECODE_FRAME_FAILED</code>) rather than failing
+silently or causing application-level crashes. State machines must be
+reset to allow the decoder context to be safely reused or destroyed
+without memory leaks.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Tile Rendering in Modern Image Zoom Viewers - avif</title>
+    <meta name="description" content="Modern image zoom viewers achieve smooth, high-resolution rendering across massive images by combining dynamic Level of Detail (LoD) algorithms with AVIF-encoded image pyramids. This article explains how viewers generate and structure AVIF tile pyramids,">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-tile-rendering-in-modern-image-zoom-viewers">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Tile Rendering in Modern Image Zoom Viewers - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-tile-rendering-in-modern-image-zoom-viewers" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Modern image zoom viewers achieve smooth, high-resolution rendering across massive images by combining dynamic Level of Detail (LoD) algorithms with AVIF-encoded image pyramids. This article explains how viewers generate and structure AVIF tile pyramids," />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-tile-rendering-in-modern-image-zoom-viewers">AVIF Tile
+Rendering in Modern Image Zoom Viewers</h1>
+<p>Modern image zoom viewers achieve smooth, high-resolution rendering
+across massive images by combining dynamic Level of Detail (LoD)
+algorithms with AVIF-encoded image pyramids. This article explains how
+viewers generate and structure AVIF tile pyramids, determine visible
+tiles within a user's viewport, leverage AVIF's compression and
+browser-native decoding features, and manage GPU memory to deliver
+seamless panning and zooming experiences.</p>
+<h3 id="the-image-pyramid-architecture">The Image Pyramid
+Architecture</h3>
+<p>Deep zoom viewers do not load a single massive image. Instead, the
+source image is pre-processed into an image pyramid—a hierarchical
+multi-resolution structure.</p>
+<ol type="1">
+<li><strong>Mipmapping Levels:</strong> Level 0 represents the entire
+image scaled down to fit within a single tile. Each subsequent level
+doubles the dimensions of the previous one until the final level reaches
+the original, native resolution.</li>
+<li><strong>Tile Grid Partitioning:</strong> Each resolution level is
+divided into fixed-size square tiles, typically 256×256 or 512×512
+pixels.</li>
+<li><strong>Addressing Scheme:</strong> Tiles are saved using a standard
+coordinate convention, often organized as
+<code>{level}/{x}_{y}.avif</code>.</li>
+</ol>
+<h3 id="viewport-coordinate-mapping-and-tile-selection">Viewport
+Coordinate Mapping and Tile Selection</h3>
+<p>During runtime, the viewer maintains a virtual camera state
+consisting of a center coordinate <code>(x, y)</code> and a zoom factor
+<code>z</code>. To render a frame:</p>
+<ul>
+<li><strong>LoD Calculation:</strong> The viewer maps the screen pixel
+density and zoom factor to the closest matching pyramid level where one
+image pixel corresponds as closely as possible to one screen pixel. This
+avoids aliasing from downsampling and blurriness from upsampling.</li>
+<li><strong>Bounding Box Intersect:</strong> The viewer projects its
+screen bounds into the coordinate space of the selected level to
+identify the range of visible column (<code>x</code>) and row
+(<code>y</code>) indices.</li>
+<li><strong>Parent Fallback:</strong> If a target high-resolution tile
+has not yet loaded, the viewer renders the corresponding
+lower-resolution parent tile from a lower level, scaling it up
+temporarily to prevent blank spaces.</li>
+</ul>
+<h3 id="advantages-of-avif-for-tiling-engines">Advantages of AVIF for
+Tiling Engines</h3>
+<p>AVIF (AV1 Image File Format) offers distinct technical advantages
+over legacy formats like JPEG and WebP in tiled viewing pipelines:</p>
+<ul>
+<li><strong>Superior Compression Efficiency:</strong> AVIF utilizes the
+AV1 intra-frame coding toolset, yielding smaller file sizes at identical
+visual fidelity. Smaller file payloads reduce network transmission
+delays, allowing tiles to arrive faster over constrained
+connections.</li>
+<li><strong>Artifact Control at Seams:</strong> AVIF's advanced
+deblocking and directional transforms minimize edge discontinuities
+between adjacent tiles, ensuring seams remain invisible when stitched on
+a canvas.</li>
+<li><strong>Wide Color Gamut and Bit Depth:</strong> Native support for
+10-bit and 12-bit color spaces allows specialized scientific, medical,
+and photographic platforms to retain dynamic range without tile-to-tile
+banding.</li>
+</ul>
+<h3 id="asynchronous-loading-and-hardware-decoding">Asynchronous Loading
+and Hardware Decoding</h3>
+<p>Modern viewers utilize modern web APIs to avoid blocking the main UI
+thread during tile loading:</p>
+<ul>
+<li><strong>Native Browser Decoding:</strong> Viewers load tiles via the
+<code>fetch()</code> API or <code>ImageDecoder</code> web interface,
+enabling asynchronous bitstream processing.</li>
+<li><strong>Hardware Acceleration:</strong> Browsers increasingly
+offload AV1 parsing and decoding directly to the GPU. This drastically
+cuts down decode times and CPU power consumption during rapid
+panning.</li>
+<li><strong>Decoded Frame Transfer:</strong> Decoded tile buffers are
+uploaded directly to GPU memory as WebGL or WebGPU textures.</li>
+</ul>
+<h3 id="memory-caching-and-tile-disposal">Memory Caching and Tile
+Disposal</h3>
+<p>Because an image pyramid can contain hundreds of thousands of tiles,
+viewers must strictly control memory consumption.</p>
+<ul>
+<li><strong>Least Recently Used (LRU) Cache:</strong> The viewer retains
+decoded tiles in a fixed-size memory cache. When the cache hits its
+threshold, tiles furthest from the current viewport are purged.</li>
+<li><strong>Texture Pooling:</strong> WebGL implementations reuse
+allocated texture memory instead of constantly creating and destroying
+GPU buffers, which prevents garbage collection pauses during continuous
+zoom actions.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

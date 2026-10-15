@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C2PA Metadata Location in AVIF ISOBMFF Containers - avif</title>
+    <meta name="description" content="This article explains the physical location and structural mapping of Coalition for Content Provenance and Authenticity (C2PA) metadata within an AVIF file. AVIF is built on the ISO Base Media File Format (ISOBMFF), which organizes data into hierarchical">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/c-2-pa-metadata-location-in-avif-isobmff-containers">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="C2PA Metadata Location in AVIF ISOBMFF Containers - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/c-2-pa-metadata-location-in-avif-isobmff-containers" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explains the physical location and structural mapping of Coalition for Content Provenance and Authenticity (C2PA) metadata within an AVIF file. AVIF is built on the ISO Base Media File Format (ISOBMFF), which organizes data into hierarchical" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="c2pa-metadata-location-in-avif-isobmff-containers">C2PA Metadata
+Location in AVIF ISOBMFF Containers</h1>
+<p>This article explains the physical location and structural mapping of
+Coalition for Content Provenance and Authenticity (C2PA) metadata within
+an AVIF file. AVIF is built on the ISO Base Media File Format (ISOBMFF),
+which organizes data into hierarchical structures called boxes or atoms.
+In an AVIF container, C2PA manifest stores are stored as dedicated
+metadata items defined inside the <code>meta</code> box, physically
+located within the file's payload data (typically the <code>mdat</code>
+box), and linked to the primary image item using explicit item
+references.</p>
+<h3 id="the-isobmff-architecture-for-c2pa">The ISOBMFF Architecture for
+C2PA</h3>
+<p>AVIF does not store arbitrary metadata in loose header fields.
+Instead, it relies on the standardized ISOBMFF item framework under the
+top-level <code>meta</code> box. The C2PA specification prescribes that
+provenance manifests must be packaged as a JUMBF (JPEG Universal
+Metadata Box Format) container and registered as an independent item in
+the ISOBMFF structural hierarchy.</p>
+<h3 id="1-item-declaration-iinf-and-infe">1. Item Declaration
+(<code>iinf</code> and <code>infe</code>)</h3>
+<p>To declare the presence of C2PA metadata, the container uses the Item
+Information Box (<code>iinf</code>), located inside the root
+<code>meta</code> box:</p>
+<ul>
+<li>Inside <code>iinf</code>, there is an Item Information Entry
+(<code>infe</code>) box assigned specifically to the C2PA manifest.</li>
+<li>The <code>item_type</code> field in this <code>infe</code> entry is
+set to the FourCC (four-character code) <code>'c2pa'</code>.</li>
+<li>The entry assigns a unique <code>item_ID</code> to represent this
+specific provenance manifest item throughout the container.</li>
+</ul>
+<h3 id="2-physical-data-storage-iloc-and-mdat">2. Physical Data Storage
+(<code>iloc</code> and <code>mdat</code>)</h3>
+<p>The binary content of the C2PA manifest—which consists of signed
+assertions, claims, and the manifest store—is physically stored in the
+media data space:</p>
+<ul>
+<li><strong>Physical Payload:</strong> The actual raw bytes of the C2PA
+manifest are written directly inside the <code>mdat</code> (Media Data)
+box alongside the compressed AV1 image data.</li>
+<li><strong>Byte Offset Mapping:</strong> The Item Location Box
+(<code>iloc</code>), located within the <code>meta</code> box, maps the
+C2PA <code>item_ID</code> to its exact physical location. The
+<code>iloc</code> specifies the base offset, extent offset, and byte
+length within the file where the reader can extract the raw C2PA
+payload.</li>
+</ul>
+<h3 id="3-associating-metadata-with-the-image-iref">3. Associating
+Metadata with the Image (<code>iref</code>)</h3>
+<p>For a reader to know which visual asset the C2PA metadata applies to,
+an explicit association is created inside the Item Reference Box
+(<code>iref</code>):</p>
+<ul>
+<li>An item reference entry is added with the reference type set to
+<code>'cdsc'</code> (content describes).</li>
+<li>The <code>from_item_ID</code> points to the C2PA metadata item.</li>
+<li>The <code>to_item_ID</code> points to the primary visual item (the
+AV1 image item ID designated by the <code>pitm</code> box).</li>
+</ul>
+<h3 id="alternative-placement-the-uuid-box">Alternative Placement: The
+<code>uuid</code> Box</h3>
+<p>While the item-based method using <code>meta</code>,
+<code>infe</code>, and <code>iloc</code> is the required standard for
+still image AVIF containers, ISOBMFF video tracks or non-item
+configurations may alternative encapsulate C2PA manifests inside a
+top-level <code>uuid</code> box. For AVIF still images, however,
+conforming implementations look exclusively inside the <code>meta</code>
+box item collection for an item of type <code>'c2pa'</code>.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

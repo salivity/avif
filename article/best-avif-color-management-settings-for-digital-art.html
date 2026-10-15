@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Best AVIF Color Management Settings for Digital Art - avif</title>
+    <meta name="description" content="Exporting digital artwork to the AVIF format allows creators to achieve superior compression while preserving vivid colors, subtle gradients, and sharp details. To prevent visual artifacts, color shifts, or banding when art is viewed on different web brow">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/best-avif-color-management-settings-for-digital-art">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Best AVIF Color Management Settings for Digital Art - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/best-avif-color-management-settings-for-digital-art" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Exporting digital artwork to the AVIF format allows creators to achieve superior compression while preserving vivid colors, subtle gradients, and sharp details. To prevent visual artifacts, color shifts, or banding when art is viewed on different web brow" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="best-avif-color-management-settings-for-digital-art">Best AVIF
+Color Management Settings for Digital Art</h1>
+<p>Exporting digital artwork to the AVIF format allows creators to
+achieve superior compression while preserving vivid colors, subtle
+gradients, and sharp details. To prevent visual artifacts, color shifts,
+or banding when art is viewed on different web browsers and devices,
+artists must configure specific color management settings during export.
+This guide details the essential parameters for color spaces, bit depth,
+chroma subsampling, and color range to ensure your digital art renders
+accurately and consistently.</p>
+<h3 id="1-color-space-and-profile-embedding">1. Color Space and Profile
+Embedding</h3>
+<ul>
+<li><strong>For Standard Web Delivery (Universal
+Compatibility):</strong> Use the <strong>sRGB</strong> color space. It
+remains the default baseline for standard dynamic range (SDR) monitors.
+If your target audience views your work across diverse, uncalibrated, or
+budget displays, exporting in sRGB ensures the most reliable
+representation.</li>
+<li><strong>For Wide-Gamut Displays:</strong> Use <strong>Display
+P3</strong>. AVIF natively supports wide color gamuts (WCG). If your
+artwork features saturated neons, rich reds, or deep greens that exceed
+sRGB limits, Display P3 preserves these hues on modern smartphones,
+tablets, and wide-gamut monitors.</li>
+<li><strong>Color Metadata (ICC vs. NCLX):</strong> AVIF can store color
+metadata using either embedded ICC profiles or NCLX (Color Primaries,
+Transfer Characteristics, Matrix Coefficients) tags.
+<ul>
+<li>Whenever possible, use <strong>NCLX signaling</strong> (e.g.,
+Primaries: BT.709 or Display P3, Transfer: sRGB/BT.709, Matrix: Identity
+or BT.709). NCLX metadata takes up almost zero file size and is parsed
+faster by AVIF decoders.</li>
+<li>If using an exotic or custom calibrated profile, embed a minimal
+<strong>ICC v4 or v2 profile</strong>, but be aware it slightly
+increases overall file weight.</li>
+</ul></li>
+</ul>
+<h3 id="2-bit-depth-choose-10-bit">2. Bit Depth: Choose 10-Bit</h3>
+<p>Digital artwork often includes smooth gradients, airbrush shading,
+and atmospheric lighting that suffer from color banding in 8-bit formats
+like standard JPEG or WebP.</p>
+<ul>
+<li><strong>Recommended: 10-bit.</strong> AVIF handles 10-bit encoding
+exceptionally well without a significant file size penalty. Opting for
+10-bit depth eliminates color banding, smooths tonal transitions, and
+produces visibly cleaner illustrations.</li>
+<li><strong>Avoid: 8-bit.</strong> While supported, 8-bit AVIF negates
+one of the format's primary advantages over older formats.</li>
+<li><strong>Optional: 12-bit.</strong> 12-bit is generally unnecessary
+for digital art unless mastering for high-end archival or production
+pipelines, as most consumer displays cannot render 12-bit color.</li>
+</ul>
+<h3 id="3-chroma-subsampling-choose-yuv-444">3. Chroma Subsampling:
+Choose YUV 4:4:4</h3>
+<p>Chroma subsampling reduces color resolution relative to luminance to
+save data. While photographic images tolerate heavy subsampling, digital
+art with crisp line work and saturated contrast does not.</p>
+<ul>
+<li><strong>Recommended: YUV 4:4:4 (No subsampling).</strong> This
+preserves full color resolution for every pixel. It keeps sharp ink
+lines, pixel art, high-contrast edges, and small colored text completely
+crisp without color bleeding or fringing.</li>
+<li><strong>Avoid: YUV 4:2:0.</strong> Although 4:2:0 yields smaller
+files and is standard for video, it smears saturated edges (such as
+bright red lines against dark backgrounds).</li>
+</ul>
+<h3 id="4-color-range-full-range">4. Color Range: Full Range</h3>
+<p>Video formats often use "Limited" (or "Studio") range, which clamps
+color values between 16–235. Digital artwork requires the full dynamic
+spectrum.</p>
+<ul>
+<li><strong>Recommended: Full Range (PC Range, 0–255 for 8-bit, 0–1023
+for 10-bit).</strong> Ensure your exporter is set to full range so black
+stays at true zero and highlights reach maximum brightness without
+clipping or crushing.</li>
+</ul>
+<h3 id="recommended-export-checklist">Recommended Export Checklist</h3>
+<p>For the best visual fidelity and color accuracy when exporting
+digital art to AVIF, apply these settings in your graphics software or
+command-line encoder:</p>
+<ul>
+<li><strong>Color Profile:</strong> sRGB (safe for all web viewers) or
+Display P3 (for wide-gamut vibrancy).</li>
+<li><strong>Metadata:</strong> Enable NCLX tags matching your working
+space; retain embedded profile if exporting from Photoshop or
+Affinity.</li>
+<li><strong>Bit Depth:</strong> 10-bit.</li>
+<li><strong>Pixel Format / Subsampling:</strong> YUV 4:4:4.</li>
+<li><strong>Color Range:</strong> Full.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chroma from Luma: Reducing AVIF Color Payload - avif</title>
+    <meta name="description" content="This article examines the Chroma from Luma (CfL) prediction tool, an intra-prediction mechanism within the AV1 video codec and AVIF image format. You will learn how CfL exploits the correlation between brightness and color components, the mechanics behind">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/chroma-from-luma-reducing-avif-color-payload">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Chroma from Luma: Reducing AVIF Color Payload - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/chroma-from-luma-reducing-avif-color-payload" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article examines the Chroma from Luma (CfL) prediction tool, an intra-prediction mechanism within the AV1 video codec and AVIF image format. You will learn how CfL exploits the correlation between brightness and color components, the mechanics behind" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="chroma-from-luma-reducing-avif-color-payload">Chroma from Luma:
+Reducing AVIF Color Payload</h1>
+<p>This article examines the Chroma from Luma (CfL) prediction tool, an
+intra-prediction mechanism within the AV1 video codec and AVIF image
+format. You will learn how CfL exploits the correlation between
+brightness and color components, the mechanics behind cross-component
+modeling, and how this technique drastically minimizes color channel
+payload to yield smaller, high-fidelity AVIF files.</p>
+<h3 id="understanding-chroma-from-luma-cfl">Understanding Chroma from
+Luma (CfL)</h3>
+<p>The AVIF image format stores image data using color spaces like YUV
+(or YCbCr), separating an image into one luminance (Y, or luma) channel
+representing brightness, and two chrominance (U and V, or chroma)
+channels representing color. Human visual perception is substantially
+more sensitive to brightness variations and fine edges than to subtle
+color shifts.</p>
+<p>Traditional intra-frame prediction models each channel independently,
+predicting pixel values based on adjacent reconstructed pixels in the
+same plane. Chroma from Luma (CfL) is an intra-prediction tool that
+breaks this independence. Instead of guessing chroma values solely from
+neighboring chroma pixels, CfL predicts the chroma planes directly from
+the reconstructed luma pixels of the same block.</p>
+<h3 id="the-mechanics-of-cfl-prediction">The Mechanics of CfL
+Prediction</h3>
+<p>CfL relies on the physical reality of image capture: sharp edges,
+textures, and gradients present in the brightness channel almost always
+correspond directly to the boundaries and transitions in the color
+channels.</p>
+<p>The tool functions through a streamlined linear model:</p>
+<ol type="1">
+<li><strong>Downsampling the Luma Signal:</strong> When an image uses
+chroma subsampling (such as 4:2:0, where chroma resolution is half that
+of luma), the reconstructed luma pixels are first downsampled to match
+the chroma block's dimensions.</li>
+<li><strong>AC Residual Extraction:</strong> The average DC value of the
+downsampled luma block is calculated and subtracted from each pixel,
+leaving only the AC variation (the structural details and
+textures).</li>
+<li><strong>Linear Scaling:</strong> The prediction for a chroma pixel
+is formed by multiplying this AC luma variation by a scaling factor
+(<span class="math inline">\(\alpha\)</span>) and adding the DC
+prediction derived from neighboring chroma pixels.</li>
+<li><strong>Parameter Signaling:</strong> The encoder only needs to
+determine and transmit the optimal scaling parameter (<span
+class="math inline">\(\alpha\)</span>) for the Cb and Cr planes to the
+bitstream, rather than calculating and transmitting complex directional
+intra-modes.</li>
+</ol>
+<h3 id="how-cfl-reduces-avif-color-payload">How CfL Reduces AVIF Color
+Payload</h3>
+<p>By sharing structural data between planes, CfL dramatically slashes
+the data footprint of the chroma channels:</p>
+<ul>
+<li><strong>Lower Residual Energy:</strong> When standard
+intra-prediction fails to accurately map complex shapes or gradients,
+the encoder must spend bits sending a "residual" (the error difference
+between the prediction and reality). Because luma already contains
+high-precision structural boundaries, using it to predict chroma reduces
+this error to near zero. A smaller residual requires significantly fewer
+bits to encode via transform and quantization stages.</li>
+<li><strong>Minimal Signaling Overhead:</strong> Instead of transmitting
+dedicated directional prediction modes, block partitions, or transform
+instructions for the chroma channels, AVIF simply signals that CfL is
+active alongside a compact scaling factor.</li>
+<li><strong>Optimized Subsampled and Full-Res Formats:</strong> While
+CfL provides substantial efficiency gains in standard 4:2:0 subsampled
+images, it is also highly effective in high-fidelity 4:4:4 profiles. In
+4:4:4 profiles, where chroma data typically accounts for two-thirds of
+the raw data, CfL prevents the file size from inflating excessively
+while preserving fine color edges.</li>
+</ul>
+<p>Through this cross-component modeling, CfL eliminates structural
+redundancy across color channels, allowing AVIF to achieve sharper color
+fidelity at a fraction of the data overhead required by legacy
+formats.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

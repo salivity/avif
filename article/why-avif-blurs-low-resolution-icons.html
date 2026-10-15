@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why AVIF Blurs Low-Resolution Icons - avif</title>
+    <meta name="description" content="AVIF is widely celebrated for its superior compression efficiency when handling complex photographic content, yet it frequently produces blurry, smeared results when applied to very low-resolution icons. This paradox occurs because the AV1 video codec arc">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/why-avif-blurs-low-resolution-icons">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Why AVIF Blurs Low-Resolution Icons - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/why-avif-blurs-low-resolution-icons" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="AVIF is widely celebrated for its superior compression efficiency when handling complex photographic content, yet it frequently produces blurry, smeared results when applied to very low-resolution icons. This paradox occurs because the AV1 video codec arc" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="why-avif-blurs-low-resolution-icons">Why AVIF Blurs
+Low-Resolution Icons</h1>
+<p>AVIF is widely celebrated for its superior compression efficiency
+when handling complex photographic content, yet it frequently produces
+blurry, smeared results when applied to very low-resolution icons. This
+paradox occurs because the AV1 video codec architecture underlying AVIF
+was built to prioritize smooth gradients and artifact suppression over
+hard, pixel-level boundaries. In very small images, features such as
+aggressive in-loop filtering, default chroma subsampling, and
+frequency-based transform coding actively discard the sharp,
+high-contrast transitions that define tiny icons.</p>
+<h3 id="aggressive-in-loop-filtering">Aggressive In-Loop Filtering</h3>
+<p>The AV1 codec relies heavily on internal post-processing filters to
+eliminate compression artifacts and keep file sizes small. The primary
+culprits behind blurred icons are the deblocking filter, the Constrained
+Directional Enhancement Filter (CDEF), and loop restoration.</p>
+<p>In photographic images, these filters successfully smooth out harsh
+block boundaries and ringing artifacts. However, low-resolution
+icons—such as 16x16 or 32x32 favicons—consist almost entirely of
+deliberate, hard-edged transitions. AV1's filtering pipeline cannot
+distinguish between an unwanted compression artifact and an intentional,
+sharp 1-pixel border. As a result, the encoder identifies these sharp
+pixel contrasts as noise or blocking, smoothing them out and causing
+immediate blurriness.</p>
+<h3 id="transform-coding-discards-high-frequencies">Transform Coding
+Discards High Frequencies</h3>
+<p>AVIF utilizes transform coding (such as the Discrete Cosine
+Transform) to convert spatial pixel data into frequency
+representations.</p>
+<ul>
+<li><strong>Low frequencies</strong> define overall color and general
+shapes.</li>
+<li><strong>High frequencies</strong> define sharp borders, fine lines,
+and abrupt color changes.</li>
+</ul>
+<p>To minimize file size, lossy quantization algorithms discard
+high-frequency data first, assuming the human eye will not notice the
+missing detail in a natural scene. In a miniature graphic, virtually the
+entire image relies on high frequencies to retain its shape. Once
+quantization removes those frequencies, crisp vector-like edges degrade
+into soft gradients.</p>
+<h3 id="chroma-subsampling-bleeds-color">Chroma Subsampling Bleeds
+Color</h3>
+<p>Many standard AVIF encoders default to the YUV420 pixel format to
+maximize space savings. In YUV420, color information (chrominance) is
+sampled at half the horizontal and vertical resolution of brightness
+information (luminance).</p>
+<p>If a 16x16 icon is converted using YUV420, its color map is
+effectively compressed into an 8x8 grid. With only a quarter of the
+color resolution available, adjacent colors bleed into one another. A
+sharp red line on a white background immediately gains a pink, fuzzy
+halo around its perimeter.</p>
+<h3 id="block-size-constraints">Block Size Constraints</h3>
+<p>AV1 organizes image data into nested blocks called superblocks, which
+can be subdivided down to 4x4 pixel blocks. While a 4x4 block is tiny
+relative to a 4K video frame, it represents over 6% of the entire canvas
+on a 16x16 icon.</p>
+<p>Because prediction and transform operations occur within these
+blocks, the encoder cannot isolate individual pixel values efficiently
+without dedicating disproportionate bit budget to signaling block
+partitions. The overhead needed to accurately encode individual pixel
+variations often forces the rate-distortion optimization algorithms to
+smooth the entire block instead.</p>
+<h3 id="better-alternatives-for-small-icons">Better Alternatives for
+Small Icons</h3>
+<p>When serving low-resolution user interface elements and icons,
+alternative formats typically outperform lossy AVIF:</p>
+<ul>
+<li><strong>SVG:</strong> Ideal for simple shapes and icons, providing
+infinite scalability with zero blur.</li>
+<li><strong>PNG:</strong> The standard choice for raster icons, using
+lossless deflate compression that preserves exact pixel boundaries.</li>
+<li><strong>Lossless WebP or Lossless AVIF:</strong> If a modern web
+format is required, using AVIF in full lossless mode with YUV444 (or
+RGB) color space bypasses the blur-inducing filters and subsampling,
+though file sizes will be comparable to optimized PNGs.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

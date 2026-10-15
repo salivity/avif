@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Dithering Prevents Banding on 8-Bit Displays - avif</title>
+    <meta name="description" content="When a high-fidelity 10-bit AVIF image is rendered on a standard 8-bit screen, downsampling often creates harsh, stepped color transitions known as color banding. Dithering resolves this issue by scattering micro-patterns of alternating pixels along gradi">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-dithering-prevents-banding-on-8-bit-displays">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How Dithering Prevents Banding on 8-Bit Displays - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-dithering-prevents-banding-on-8-bit-displays" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="When a high-fidelity 10-bit AVIF image is rendered on a standard 8-bit screen, downsampling often creates harsh, stepped color transitions known as color banding. Dithering resolves this issue by scattering micro-patterns of alternating pixels along gradi" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-dithering-prevents-banding-on-8-bit-displays">How Dithering
+Prevents Banding on 8-Bit Displays</h1>
+<p>When a high-fidelity 10-bit AVIF image is rendered on a standard
+8-bit screen, downsampling often creates harsh, stepped color
+transitions known as color banding. Dithering resolves this issue by
+scattering micro-patterns of alternating pixels along gradient
+boundaries, utilizing the natural limits of human visual perception to
+simulate the missing tonal values. This article explains the technical
+mechanics behind quantization errors and how dithering algorithms bridge
+the bit-depth gap without sacrificing gradient smoothness.</p>
+<h3 id="the-bit-depth-mismatch-and-quantization">The Bit-Depth Mismatch
+and Quantization</h3>
+<p>A 10-bit image format like AVIF stores 1,024 shades per color channel
+(red, green, and blue), allowing for over 1.07 billion potential colors.
+In contrast, an 8-bit display can only output 256 shades per channel,
+totaling roughly 16.7 million colors.</p>
+<p>When an image decoder attempts to display a 10-bit image on an 8-bit
+panel without processing, it must drop the two least significant bits
+through truncation or simple rounding. Because four distinct 10-bit
+values map to a single 8-bit step, subtle color variations across
+continuous gradients—such as clear skies or soft shadows—collapse into
+flat blocks of identical color. The abrupt jump between these adjacent
+blocks creates visible, sharp contour lines known as banding.</p>
+<h3 id="how-dithering-eliminates-banding">How Dithering Eliminates
+Banding</h3>
+<p>Dithering prevents hard edges by introducing deliberate, controlled
+noise or spatial patterns to the image during color conversion. Instead
+of rounding every 10-bit pixel within a region to the exact same 8-bit
+value, dithering algorithms distribute the rounding error across
+neighboring pixels.</p>
+<p>There are two primary methods used in this process:</p>
+<ul>
+<li><strong>Ordered Dithering:</strong> Applies a predetermined
+mathematical threshold matrix (such as a Bayer matrix) across the image.
+The matrix determines whether individual pixels round up or down based
+on their relative position and target color value, producing a uniform,
+high-frequency pattern.</li>
+<li><strong>Error Diffusion:</strong> Calculates the mathematical
+difference (quantization error) between the ideal 10-bit value and the
+rendered 8-bit value for each pixel. It then pushes that remainder to
+adjacent, unprocessed pixels using algorithms like Floyd-Steinberg. This
+creates a natural, organic distribution of color shades without rigid
+geometric patterns.</li>
+</ul>
+<h3 id="spatial-integration-and-visual-perception">Spatial Integration
+and Visual Perception</h3>
+<p>Dithering works because the human visual system acts as a natural
+low-pass filter. At normal viewing distances, the eye cannot resolve
+individual sub-pixels.</p>
+<p>If an original 10-bit color falls precisely halfway between 8-bit
+value 120 and 121, dithering alternates those two values in a balanced,
+checkerboard-like ratio. The human eye blends the light reflected from
+these adjacent pixels, perceiving the intermediate shade as a smooth,
+continuous gradient rather than two alternating solid colors. By
+converting discrete mathematical rounding steps into high-frequency
+spatial variation, dithering preserves the visual fidelity of 10-bit
+AVIF media on limited display hardware.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

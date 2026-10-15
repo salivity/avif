@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How AVIF Prevents Blocking Artifacts in Compression - avif</title>
+    <meta name="description" content="AVIF (AV1 Image File Format) maintains impressive visual clarity at extremely low bitrates where legacy formats like JPEG degrade into severe pixelation. Traditional formats typically suffer from harsh, grid-like &quot;checkerboard&quot; blocking artifacts when hea">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-avif-prevents-blocking-artifacts-in-compression">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How AVIF Prevents Blocking Artifacts in Compression - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-avif-prevents-blocking-artifacts-in-compression" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="AVIF (AV1 Image File Format) maintains impressive visual clarity at extremely low bitrates where legacy formats like JPEG degrade into severe pixelation. Traditional formats typically suffer from harsh, grid-like &quot;checkerboard&quot; blocking artifacts when hea" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-avif-prevents-blocking-artifacts-in-compression">How AVIF
+Prevents Blocking Artifacts in Compression</h1>
+<p>AVIF (AV1 Image File Format) maintains impressive visual clarity at
+extremely low bitrates where legacy formats like JPEG degrade into
+severe pixelation. Traditional formats typically suffer from harsh,
+grid-like "checkerboard" blocking artifacts when heavily compressed.
+AVIF circumvents this problem by employing technologies derived from the
+AV1 video codec, primarily multi-stage in-loop filtering, flexible
+recursive block partitioning, and advanced transform kernels that adapt
+to image content dynamically.</p>
+<h3 id="flexible-block-partitioning">Flexible Block Partitioning</h3>
+<p>Legacy image formats like JPEG divide an image into rigid 8x8 pixel
+blocks, quantizing each block independently regardless of content
+complexity. When quantization is aggressive, the sharp differences
+between adjacent blocks create visible seams.</p>
+<p>AVIF replaces rigid grids with dynamic superblocks up to 128x128
+pixels. These superblocks can be recursively split using a tree
+structure into sizes as small as 4x4 pixels, supporting square,
+rectangular, and asymmetrical splits (such as 1:2, 2:1, 1:4, and 4:1).
+Flat regions, like a clear sky or smooth background, are encoded using
+large continuous blocks, eliminating internal block boundaries
+altogether. Smaller blocks are reserved solely for high-detail areas,
+drastically reducing the total number of artificial seams in an
+image.</p>
+<h3 id="multi-stage-in-loop-filtering">Multi-Stage In-Loop
+Filtering</h3>
+<p>The primary defense against edge discontinuities in AVIF is its
+sequential in-loop filtering pipeline. Because these filters run inside
+the encoding and decoding loop, future predictions rely on the filtered
+image, preventing artifacts from compounding.</p>
+<ol type="1">
+<li><p><strong>Deblocking Filter:</strong> The first stage targets the
+grid lines directly. It analyzes the boundaries between transform blocks
+and applies adaptive smoothing based on the quantization level and edge
+sharpness. If a boundary matches the mathematical footprint of a
+compression artifact rather than a real object edge, the filter blurs
+the seam across the boundary to restore continuity.</p></li>
+<li><p><strong>Constrained Directional Enhancement Filter
+(CDEF):</strong> After deblocking, CDEF addresses ringing and remaining
+block edges. It determines the primary direction of edges within each
+8x8 block and applies an adaptive 1D filter along that specific
+direction. By filtering parallel to detected edges rather than across
+them, CDEF smooths out boundary noise without dulling sharp lines or
+structural contrast.</p></li>
+<li><p><strong>Loop Restoration:</strong> The final stage applies either
+a separable Wiener filter or a Self-Guided Restoration filter. These
+mathematical algorithms compare the filtered result against the original
+uncompressed source, reconstructing high-frequency details and fine
+textures that may have been over-smoothed during earlier filtering
+stages.</p></li>
+</ol>
+<h3 id="diverse-transform-types">Diverse Transform Types</h3>
+<p>JPEG relies exclusively on the Discrete Cosine Transform (DCT), which
+assumes symmetrical boundary conditions that often fail at high
+compression levels, producing prominent edge steps.</p>
+<p>AVIF utilizes an extensive library of transforms, including standard
+DCT, Asymmetric Discrete Sine Transforms (ADST), flipped ADST, and
+Identity transforms. By allowing horizontal and vertical passes to use
+different transform types, the encoder can model directional gradients,
+shadows, and sharp cutoffs accurately. This mathematical flexibility
+ensures that the reconstructed pixels align naturally with neighboring
+blocks, preventing the frequency mismatch that causes visible
+blocking.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

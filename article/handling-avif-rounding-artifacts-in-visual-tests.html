@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Handling AVIF Rounding Artifacts in Visual Tests - avif</title>
+    <meta name="description" content="Automated visual regression testing often flags false positives when rendering AVIF images due to sub-pixel rounding, hardware acceleration differences, and lossy compression quirks. Because different browser engines, CPU architectures, and GPU decoders h">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/handling-avif-rounding-artifacts-in-visual-tests">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Handling AVIF Rounding Artifacts in Visual Tests - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/handling-avif-rounding-artifacts-in-visual-tests" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Automated visual regression testing often flags false positives when rendering AVIF images due to sub-pixel rounding, hardware acceleration differences, and lossy compression quirks. Because different browser engines, CPU architectures, and GPU decoders h" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="handling-avif-rounding-artifacts-in-visual-tests">Handling AVIF
+Rounding Artifacts in Visual Tests</h1>
+<p>Automated visual regression testing often flags false positives when
+rendering AVIF images due to sub-pixel rounding, hardware acceleration
+differences, and lossy compression quirks. Because different browser
+engines, CPU architectures, and GPU decoders handle floating-point math
+differently during AV1 decoding, test suites must separate genuine
+visual defects from microscopic mathematical variance. Modern testing
+frameworks resolve this challenge using perceptual diffing algorithms,
+tolerance thresholds, standardized software rasterization, and
+image-decoding preprocessors.</p>
+<h3 id="the-cause-of-avif-rounding-artifacts">The Cause of AVIF Rounding
+Artifacts</h3>
+<p>AVIF relies on the AV1 video codec standard, which employs discrete
+transforms, directional intra-prediction, and optional chroma
+subsampling (such as 4:2:0). When a browser decodes an AVIF file to
+display raw pixels on the screen, it translates compressed frequency
+data back into RGB color values.</p>
+<p>Minor rounding differences occur due to:</p>
+<ul>
+<li><strong>Decoder Implementations:</strong> Hardware-accelerated
+decoders (GPU) and software fallbacks (CPU libraries like
+<code>libgav1</code> or <code>dav1d</code>) calculate color-space
+transformations with varying floating-point or integer precision.</li>
+<li><strong>Chroma Reconstruction:</strong> Reconstructing
+full-resolution color from subsampled chroma planes requires
+interpolation, which varies slightly across rendering engines (Blink,
+Gecko, WebKit).</li>
+<li><strong>Color Space Conversion:</strong> Mapping YUV signals to sRGB
+often produces ±1 value variations in 8-bit color channels.</li>
+</ul>
+<h3 id="perceptual-diffing-algorithms">Perceptual Diffing
+Algorithms</h3>
+<p>Standard binary or strict pixel-by-pixel comparison tools fail when
+evaluating AVIF files because a single-value change in an RGB channel
+marks the test as failed. Modern test suites replace direct equality
+checks with perceptual comparison algorithms:</p>
+<ul>
+<li><strong>CIELAB and Delta E (<span class="math inline">\(\Delta
+E\)</span>):</strong> Instead of calculating mathematical differences in
+RGB space, frameworks convert pixels to the CIELAB color space,
+measuring color differences according to human visual perception.
+Variations within a <span class="math inline">\(\Delta E\)</span> of
+less than 1.0 or 2.0 are invisible to human users and are treated as
+matching.</li>
+<li><strong>SSIM (Structural Similarity Index Measure):</strong> Rather
+than evaluating pixels in isolation, SSIM measures luminance, contrast,
+and structural patterns within local pixel neighborhoods. This prevents
+high-frequency compression noise along the edges of an AVIF asset from
+triggering failures.</li>
+</ul>
+<h3 id="anti-aliasing-and-threshold-configuration">Anti-Aliasing and
+Threshold Configuration</h3>
+<p>Visual regression engines such as Pixelmatch, Resemble.js, and native
+browser test runners (Playwright, Cypress) allow teams to configure
+sensitivity thresholds:</p>
+<ul>
+<li><strong>Color Difference Threshold
+(<code>threshold</code>):</strong> Defines the tolerance for individual
+pixel value divergence (typically set between <code>0.1</code> and
+<code>0.2</code> on a scale of 0 to 1). This absorbs the 1-bit shifts
+common to AVIF YUV-to-RGB conversions.</li>
+<li><strong>Failure Ratio (<code>maxDiffPixelRatio</code>):</strong>
+Specifies the maximum allowable percentage of mismatched pixels across
+the entire snapshot before the test fails. Setting a threshold like
+<code>0.05%</code> permits scattered rounding noise while still catching
+layout shifts or missing elements.</li>
+<li><strong>Anti-Aliasing Detection:</strong> Algorithms identify edge
+pixels undergoing color transitions and automatically widen the
+comparison tolerance, neutralizing sub-pixel edge shifts caused by AVIF
+block deblocking filters.</li>
+</ul>
+<h3 id="environment-standardization">Environment Standardization</h3>
+<p>To eliminate hardware-induced rounding discrepancies, visual testing
+pipelines standardize the execution runtime:</p>
+<ul>
+<li><strong>Software Rasterization:</strong> Disabling GPU acceleration
+in headless browsers forces the browser to use CPU-based software
+rasterizers (e.g., SwiftShader in Chromium). Command-line flags such as
+<code>--disable-gpu</code>, <code>--disable-software-rasterizer</code>,
+and <code>--enable-surface-synchronization</code> enforce deterministic
+rendering behavior across test runs.</li>
+<li><strong>Containerized Execution:</strong> Running tests inside
+standardized Docker containers guarantees that the same operating system
+libraries, fonts, and decoder binaries process the image assets,
+eliminating OS-level rendering variations between local developer
+environments and CI servers.</li>
+</ul>
+<h3 id="pre-rendering-normalization-and-masking">Pre-Rendering
+Normalization and Masking</h3>
+<p>When automated suites require pixel-perfect validation for
+surrounding interface elements without being affected by AVIF
+instability, teams employ targeted strategies:</p>
+<ul>
+<li><strong>Canvas Decoding:</strong> The test suite fetches the AVIF,
+decodes it into a shared HTML5 <code>&lt;canvas&gt;</code>, and converts
+it to uncompressed PNG data using a single deterministic library prior
+to rendering.</li>
+<li><strong>Dynamic Masking:</strong> If an AVIF graphic is strictly
+decorative or loaded from dynamic sources, test configurations define
+bounding-box ignore regions (masks) over the image element, allowing the
+test suite to validate the layout and typography without diffing the
+image contents.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

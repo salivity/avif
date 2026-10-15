@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automating AVIF Generation with Webpack and Vite - avif</title>
+    <meta name="description" content="Modern web performance relies heavily on next-generation image formats like AVIF, which offer superior compression compared to legacy formats like JPEG and PNG. This article explains how modern build tools, specifically Webpack and Vite, automate the conv">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/automating-avif-generation-with-webpack-and-vite">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Automating AVIF Generation with Webpack and Vite - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/automating-avif-generation-with-webpack-and-vite" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Modern web performance relies heavily on next-generation image formats like AVIF, which offer superior compression compared to legacy formats like JPEG and PNG. This article explains how modern build tools, specifically Webpack and Vite, automate the conv" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="automating-avif-generation-with-webpack-and-vite">Automating
+AVIF Generation with Webpack and Vite</h1>
+<p>Modern web performance relies heavily on next-generation image
+formats like AVIF, which offer superior compression compared to legacy
+formats like JPEG and PNG. This article explains how modern build tools,
+specifically Webpack and Vite, automate the conversion of standard
+source images into AVIF assets during compilation. By leveraging Node.js
+processing engines and dedicated asset plugins, developers can implement
+automated build pipelines that output optimized AVIF images without
+manual conversion workflows.</p>
+<h2 id="the-core-conversion-engine">The Core Conversion Engine</h2>
+<p>Behind both Webpack and Vite, AVIF generation almost exclusively
+relies on <strong>Sharp</strong>, a high-performance Node.js image
+processing library built on <code>libvips</code>. Rather than
+re-encoding images manually, build plugins hook into the compilation
+lifecycle, pass source image buffers directly to Sharp, and output
+converted AVIF files along with their respective metadata.</p>
+<h2 id="automating-avif-in-webpack">Automating AVIF in Webpack</h2>
+<p>Webpack handles AVIF generation primarily through its loader pipeline
+and optimization plugins, the most standard being
+<code>image-minimizer-webpack-plugin</code>.</p>
+<h3 id="the-compilation-workflow">The Compilation Workflow</h3>
+<ol type="1">
+<li><strong>Asset Interception</strong>: When a source file (e.g.,
+<code>.png</code> or <code>.jpg</code>) is imported or referenced in a
+stylesheet, Webpack's Asset Modules capture the file path.</li>
+<li><strong>Generator Hooks</strong>: Using
+<code>image-minimizer-webpack-plugin</code> configured with the Sharp
+adapter, Webpack registers a transformation rule. Instead of merely
+compressing the original format, the plugin exposes an AVIF generator
+function.</li>
+<li><strong>Dual Output Generation</strong>: Webpack compiles the
+original asset while simultaneously emitting a transformed
+<code>.avif</code> sibling file into the output directory.</li>
+</ol>
+<p>A typical configuration uses
+<code>ImageMinimizerPlugin.sharpGenerate</code> configured specifically
+for <code>format: 'avif'</code>, setting quality metrics (typically
+between 50 and 80) and effort levels directly within
+<code>webpack.config.js</code>.</p>
+<h2 id="automating-avif-in-vite">Automating AVIF in Vite</h2>
+<p>Vite approaches asset bundling differently, using native ES modules
+during development and Rollup for production builds. To automate AVIF
+generation, Vite developers typically use plugins like
+<code>vite-imagetools</code> or
+<code>vite-plugin-image-optimizer</code>.</p>
+<h3 id="the-query-based-approach-vite-imagetools">The Query-Based
+Approach (<code>vite-imagetools</code>)</h3>
+<p><code>vite-imagetools</code> provides direct, explicit control over
+image transformations using import directives:</p>
+<ol type="1">
+<li><p><strong>URL Directives</strong>: Developers import images using
+URL query parameters:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> avifImage <span class="im">from</span> <span class="st">&#39;./hero.jpg?format=avif&amp;quality=75&#39;</span><span class="op">;</span></span></code></pre></div></li>
+<li><p><strong>Rollup Resolution</strong>: Vite resolves the query,
+passes the file path to Sharp during the transform hook, generates the
+AVIF buffer, and replaces the import statement with the final resolved
+URL of the compiled asset.</p></li>
+<li><p><strong>Picture Generation</strong>: The tool can also generate
+an entire metadata object (<code>?as=picture</code>) that yields AVIF
+along with original fallback sources automatically.</p></li>
+</ol>
+<h3 id="the-passive-build-approach-vite-plugin-image-optimizer">The
+Passive Build Approach (<code>vite-plugin-image-optimizer</code>)</h3>
+<p>For projects where modifying import paths is undesirable, plugins
+like <code>vite-plugin-image-optimizer</code> operate during the
+<code>generateBundle</code> hook:</p>
+<ol type="1">
+<li>The plugin scans emitted image assets in the output chunk map.</li>
+<li>If an image matches configured target extensions, it produces an
+equivalent <code>.avif</code> file alongside the original file.</li>
+<li>The manifest is updated to ensure proper cache busting and
+deployment tracking.</li>
+</ol>
+<h2 id="delivering-generated-assets">Delivering Generated Assets</h2>
+<p>Automating AVIF generation solves the asset creation challenge, but
+delivery still requires graceful degradation for browsers without AVIF
+support. Both Webpack and Vite setups are designed to pair with the HTML
+<code>&lt;picture&gt;</code> element:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode html"><code class="sourceCode html"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">picture</span><span class="dt">&gt;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">source</span><span class="ot"> srcset</span><span class="op">=</span><span class="st">&quot;image.avif&quot;</span><span class="ot"> type</span><span class="op">=</span><span class="st">&quot;image/avif&quot;</span><span class="ot"> </span><span class="dt">/&gt;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">source</span><span class="ot"> srcset</span><span class="op">=</span><span class="st">&quot;image.webp&quot;</span><span class="ot"> type</span><span class="op">=</span><span class="st">&quot;image/webp&quot;</span><span class="ot"> </span><span class="dt">/&gt;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">img</span><span class="ot"> src</span><span class="op">=</span><span class="st">&quot;image.jpg&quot;</span><span class="ot"> alt</span><span class="op">=</span><span class="st">&quot;Optimized example&quot;</span><span class="ot"> </span><span class="dt">/&gt;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">picture</span><span class="dt">&gt;</span></span></code></pre></div>
+<p>By hooking conversion libraries into build lifecycle events, Webpack
+and Vite transform source-controlled JPEGs and PNGs into
+production-ready AVIF files automatically, ensuring smaller payload
+sizes and faster page loads without complicating developer
+workflows.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

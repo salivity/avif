@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Best Quality Metric for Automated AVIF Tuning - avif</title>
+    <meta name="description" content="Automating AVIF compression requires an objective metric that accurately reflects human visual perception rather than raw mathematical differences. While traditional metrics like PSNR and SSIM struggle to evaluate AVIF&#39;s distinct smoothing and texture-ret">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/best-quality-metric-for-automated-avif-tuning">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Best Quality Metric for Automated AVIF Tuning - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/best-quality-metric-for-automated-avif-tuning" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Automating AVIF compression requires an objective metric that accurately reflects human visual perception rather than raw mathematical differences. While traditional metrics like PSNR and SSIM struggle to evaluate AVIF&#39;s distinct smoothing and texture-ret" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="best-quality-metric-for-automated-avif-tuning">Best Quality
+Metric for Automated AVIF Tuning</h1>
+<p>Automating AVIF compression requires an objective metric that
+accurately reflects human visual perception rather than raw mathematical
+differences. While traditional metrics like PSNR and SSIM struggle to
+evaluate AVIF's distinct smoothing and texture-retention
+characteristics, modern perceptual metrics provide significantly better
+results. This article explores why SSIMULACRA 2 is currently the optimum
+visual quality target metric for automated AVIF optimization pipelines,
+how it compares to alternatives like Butteraugli and VMAF, and how to
+apply it effectively.</p>
+<h3 id="why-legacy-metrics-fail-with-avif">Why Legacy Metrics Fail with
+AVIF</h3>
+<p>AVIF relies on the AV1 video codec architecture, utilizing advanced
+directional transforms, intra-prediction modes, and strong in-loop
+filtering (such as deblocking and Constrained Directional Enhancement
+Filters). These features make AVIF highly efficient, but they introduce
+unique compression artifacts:</p>
+<ul>
+<li><strong>Over-smoothing and texture loss:</strong> Rather than
+exhibiting the distinct high-frequency blockiness common to legacy JPEG,
+low-to-medium bitrate AVIF images tend to blur micro-textures and fine
+details.</li>
+<li><strong>Chroma shifts and ringing:</strong> Aggressive subsampling
+and quantization can cause color bleed or subtle halos around sharp
+contrasts.</li>
+</ul>
+<p>Legacy metrics like Peak Signal-to-Noise Ratio (PSNR) and standard
+Structural Similarity (SSIM) treat all pixel-level discrepancies
+uniformly. They often reward AVIF's smooth, artifact-free surfaces with
+artificially high scores, failing to register the severe loss of
+high-frequency detail and skin textures that a human viewer immediately
+notices.</p>
+<h3 id="the-optimum-choice-ssimulacra-2">The Optimum Choice: SSIMULACRA
+2</h3>
+<p>For automated still-image tuning, <strong>SSIMULACRA 2</strong> is
+currently the industry's premier visual quality metric. Developed
+specifically to evaluate modern image codecs like AVIF and JPEG XL, it
+correlates far higher with human Mean Opinion Scores (MOS) than legacy
+alternatives.</p>
+<h4 id="key-advantages-of-ssimulacra-2-for-avif">Key Advantages of
+SSIMULACRA 2 for AVIF:</h4>
+<ul>
+<li><strong>Perceptual Color Space Handling:</strong> SSIMULACRA 2
+operates in the JzAzBz color space, which closely mirrors human
+perception of luminance and chrominance across standard and High Dynamic
+Range (HDR) content.</li>
+<li><strong>Sensitivity to Blurring and Texture Smearing:</strong>
+Unlike SSIM, it penalizes the specific edge-blurring and texture erasure
+characteristic of AV1 intra-frame coding.</li>
+<li><strong>Multi-Scale Feature Analysis:</strong> It evaluates
+structural deviations, contrast changes, and artifact visibility across
+multiple scales, mimicking human fixation patterns.</li>
+</ul>
+<h4 id="recommended-target-scores">Recommended Target Scores</h4>
+<p>SSIMULACRA 2 scores typically range from 0 to 100:</p>
+<ul>
+<li><strong>85–90+:</strong> Visually lossless under close inspection.
+Ideal for hero images, photography portfolios, and archival
+delivery.</li>
+<li><strong>70–80:</strong> High-efficiency web delivery. Perceptually
+clean under typical viewing conditions with minimal noticeable
+degradation.</li>
+<li><strong>Below 65:</strong> Visible blur and structural degradation
+become noticeable to casual viewers.</li>
+</ul>
+<h3 id="viable-alternatives">Viable Alternatives</h3>
+<p>While SSIMULACRA 2 provides the highest visual correlation, two
+alternative metrics are frequently used depending on specific
+infrastructure constraints:</p>
+<h4 id="1-butteraugli">1. Butteraugli</h4>
+<p>Developed by Google, Butteraugli models the psychophysics of the
+human eye, calculating differences in units where a score of 1.0
+represents the threshold of just-noticeable difference (JND). It is
+exceptionally reliable for targeting high-fidelity, visually lossless
+outputs (typically targeting scores between 1.0 and 1.5). However, it is
+computationally intensive and less reliable than SSIMULACRA 2 at
+aggressive, lower-bitrate compression levels.</p>
+<h4 id="2-vmaf-video-multi-method-assessment-fusion">2. VMAF (Video
+Multi-Method Assessment Fusion)</h4>
+<p>Because AVIF originates from the AV1 video standard, systems with
+existing video-processing infrastructure often rely on Netflix's VMAF.
+While VMAF performs well on video sequences, standard VMAF models are
+trained on motion artifacts and temporal pooling. If utilizing VMAF for
+static AVIF encoding, systems must disable temporal features and run
+frame-level assessments, aiming for scores between 93 and 96 for
+high-quality static delivery.</p>
+<h3 id="recommended-implementation-strategy">Recommended Implementation
+Strategy</h3>
+<p>To implement automated AVIF quality tuning:</p>
+<ol type="1">
+<li><strong>Set Quality Bounds:</strong> Constrain your AV1 encoder
+(such as <code>libaom-av1</code> or <code>rav1e</code>) to a constant
+quality (CRF/CQ) range—typically between CQ 18 and CQ 45—to prevent
+runaway processing times.</li>
+<li><strong>Execute a Bisection Search:</strong> Use a binary search
+algorithm over the encoder's quantization parameters, encoding test
+frames and evaluating each candidate with SSIMULACRA 2.</li>
+<li><strong>Optimize for Target Thresholds:</strong> Terminate the
+search once an image reaches your desired threshold (e.g., an SSIMULACRA
+2 score of 75 for standard responsive web assets).</li>
+<li><strong>Tune Encoder Pre-filters:</strong> If retaining grain is
+required, pair your metric thresholds with AV1's synthetic film-grain
+synthesis rather than lowering quantization, which saves bandwidth while
+keeping SSIMULACRA 2 scores balanced.</li>
+</ol></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

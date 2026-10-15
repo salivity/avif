@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sharp Image Processing AVIF Support for Web Backends - avif</title>
+    <meta name="description" content="This article explores how the Sharp library integrates AVIF support into Node.js web backends to deliver ultra-compact images. It examines the underlying architecture utilizing libvips and AV1 codecs, explains how to configure Sharp&#39;s AVIF encoding option">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/sharp-image-processing-avif-support-for-web-backends">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Sharp Image Processing AVIF Support for Web Backends - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/sharp-image-processing-avif-support-for-web-backends" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explores how the Sharp library integrates AVIF support into Node.js web backends to deliver ultra-compact images. It examines the underlying architecture utilizing libvips and AV1 codecs, explains how to configure Sharp&#39;s AVIF encoding option" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="sharp-image-processing-avif-support-for-web-backends">Sharp
+Image Processing AVIF Support for Web Backends</h1>
+<p>This article explores how the Sharp library integrates AVIF support
+into Node.js web backends to deliver ultra-compact images. It examines
+the underlying architecture utilizing <code>libvips</code> and AV1
+codecs, explains how to configure Sharp's AVIF encoding options,
+outlines integration patterns for HTTP request handling and content
+negotiation, and provides strategies to balance encoding speed against
+server CPU load.</p>
+<h3 id="underlying-architecture-libvips-and-codec-bindings">Underlying
+Architecture: Libvips and Codec Bindings</h3>
+<p>Sharp does not process image data natively in JavaScript. Instead, it
+serves as a high-performance Node.js wrapper around
+<code>libvips</code>, an image processing library written in C. To
+support the AVIF (AV1 Image File Format) standard, Sharp’s precompiled
+<code>libvips</code> binaries incorporate <code>libheif</code> alongside
+dedicated AV1 codecs:</p>
+<ul>
+<li><strong><code>dav1d</code></strong>: Used as the primary decoding
+engine. It is heavily optimized for multi-threaded speed, allowing web
+backends to read AVIF files with minimal latency.</li>
+<li><strong><code>libaom</code> or <code>rav1e</code></strong>: Used for
+encoding. These libraries convert raw pixel buffers into compressed AV1
+video frames encapsulated within HEIF containers.</li>
+</ul>
+<p>Because these C-level libraries are bundled within the prebuilt
+binaries distributed via npm, Node.js applications require no external
+system-level dependencies to read or write AVIF files.</p>
+<h3 id="backend-implementation-and-content-negotiation">Backend
+Implementation and Content Negotiation</h3>
+<p>Integrating Sharp with an HTTP server (such as Express, Fastify, or
+native Node.js HTTP) involves inspecting incoming client capabilities
+and transforming images dynamically or through a processing queue.</p>
+<p>Modern browsers advertise AVIF support via the <code>Accept</code>
+request header. A web backend inspects this header to decide whether to
+serve AVIF:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> sharp <span class="op">=</span> <span class="pp">require</span>(<span class="st">&#39;sharp&#39;</span>)<span class="op">;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">async</span> <span class="kw">function</span> <span class="fu">handleImageRequest</span>(req<span class="op">,</span> res<span class="op">,</span> sourceImagePath) {</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> acceptHeader <span class="op">=</span> req<span class="op">.</span><span class="at">headers</span>[<span class="st">&#39;accept&#39;</span>] <span class="op">||</span> <span class="st">&#39;&#39;</span><span class="op">;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> supportsAvif <span class="op">=</span> acceptHeader<span class="op">.</span><span class="fu">includes</span>(<span class="st">&#39;image/avif&#39;</span>)<span class="op">;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> pipeline <span class="op">=</span> <span class="fu">sharp</span>(sourceImagePath)<span class="op">;</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (supportsAvif) {</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    res<span class="op">.</span><span class="fu">setHeader</span>(<span class="st">&#39;Content-Type&#39;</span><span class="op">,</span> <span class="st">&#39;image/avif&#39;</span>)<span class="op">;</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    pipeline <span class="op">=</span> pipeline<span class="op">.</span><span class="fu">avif</span>({</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>      <span class="dt">quality</span><span class="op">:</span> <span class="dv">65</span><span class="op">,</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>      <span class="dt">effort</span><span class="op">:</span> <span class="dv">4</span><span class="op">,</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>      <span class="dt">chromaSubsampling</span><span class="op">:</span> <span class="st">&#39;4:2:0&#39;</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    })<span class="op">;</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Fallback to WebP or JPEG</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    res<span class="op">.</span><span class="fu">setHeader</span>(<span class="st">&#39;Content-Type&#39;</span><span class="op">,</span> <span class="st">&#39;image/webp&#39;</span>)<span class="op">;</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    pipeline <span class="op">=</span> pipeline<span class="op">.</span><span class="fu">webp</span>({ <span class="dt">quality</span><span class="op">:</span> <span class="dv">80</span> })<span class="op">;</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  pipeline<span class="op">.</span><span class="fu">pipe</span>(res)<span class="op">;</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<h3 id="tuning-avif-options-in-sharp">Tuning AVIF Options in Sharp</h3>
+<p>The <code>.avif()</code> method provides parameters designed to
+control the trade-off between output size and processing duration:</p>
+<ul>
+<li><strong><code>quality</code> (Number, 1–100)</strong>: Sets the
+lossy compression level. Values between 50 and 70 typically yield visual
+parity with JPEG quality levels of 75 to 85, while reducing file size by
+up to 50%.</li>
+<li><strong><code>effort</code> (Number, 0–9)</strong>: Dictates the CPU
+effort spent optimizing compression. The default value is 4. Lower
+values (e.g., 2–3) significantly reduce processing time at the expense
+of slightly larger files, making them ideal for dynamic, on-demand
+conversion. Higher values (7–9) are suitable for offline batch
+processing.</li>
+<li><strong><code>lossless</code> (Boolean)</strong>: Encodes the image
+without visual degradation, though file sizes are significantly larger
+than lossy AVIF.</li>
+<li><strong><code>chromaSubsampling</code> (String)</strong>: Defaults
+to <code>'4:2:0'</code> for maximum compression. Setting this to
+<code>'4:4:4'</code> preserves edge crispness and high-frequency color
+detail, which is particularly useful for text or UI screenshots.</li>
+</ul>
+<h3 id="mitigating-backend-cpu-overhead">Mitigating Backend CPU
+Overhead</h3>
+<p>AVIF encoding is computationally intensive compared to older formats
+like JPEG or WebP. Running on-the-fly AVIF conversion under high traffic
+can saturate server CPU resources and increase response latency. Backend
+architectures mitigate this through several patterns:</p>
+<ol type="1">
+<li><strong>Persistent Caching</strong>: Transformed AVIF streams should
+be written to a local file cache, object storage (e.g., AWS S3), or a
+Content Delivery Network (CDN) so that subsequent requests bypass Sharp
+entirely.</li>
+<li><strong>Asynchronous Background Processing</strong>: High-resolution
+user uploads should be processed into multiple AVIF sizes using worker
+threads or background job queues (e.g., BullMQ) rather than blocking
+standard request cycles.</li>
+<li><strong>Optimizing Concurrency</strong>: Sharp automatically
+utilizes all available CPU cores via libvips's internal thread pool. In
+containerized environments with strict CPU limits, adjust the
+concurrency using <code>sharp.concurrency(n)</code> to avoid CPU
+throttling and context-switching overhead.</li>
+</ol></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

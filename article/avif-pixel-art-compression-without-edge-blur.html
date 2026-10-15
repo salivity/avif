@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Pixel Art Compression Without Edge Blur - avif</title>
+    <meta name="description" content="AVIF can effectively compress synthetic pixel art without introducing edge blur, but only when configured in a true lossless mode with full color sampling. By default, AVIF relies on lossy video compression techniques that smooth hard boundaries and intro">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-pixel-art-compression-without-edge-blur">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Pixel Art Compression Without Edge Blur - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-pixel-art-compression-without-edge-blur" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="AVIF can effectively compress synthetic pixel art without introducing edge blur, but only when configured in a true lossless mode with full color sampling. By default, AVIF relies on lossy video compression techniques that smooth hard boundaries and intro" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-pixel-art-compression-without-edge-blur">AVIF Pixel Art
+Compression Without Edge Blur</h1>
+<p>AVIF can effectively compress synthetic pixel art without introducing
+edge blur, but only when configured in a true lossless mode with full
+color sampling. By default, AVIF relies on lossy video compression
+techniques that smooth hard boundaries and introduce color bleeding
+around sharp, high-contrast pixels. This article examines why standard
+lossy AVIF blurs pixel art, how lossless AVIF prevents it, and whether
+AVIF is the right tool compared to traditional formats like PNG.</p>
+<h2 id="why-standard-lossy-avif-blurs-pixel-art">Why Standard Lossy AVIF
+Blurs Pixel Art</h2>
+<p>AVIF is derived from the AV1 video codec, an architecture engineered
+primarily for continuous-tone photographic images and natural video. It
+relies on frequency-domain transformations, such as the Discrete Cosine
+Transform (DCT), to discard high-frequency data that human vision
+typically overlooks in photographs.</p>
+<p>Pixel art is the opposite of a photograph. It consists almost
+entirely of high-frequency data: razor-sharp boundaries, intentional
+hard edges, and single-pixel color shifts. When lossy AVIF processes
+these structures, several artifacts occur:</p>
+<ul>
+<li><strong>Ringing Artifacts:</strong> Frequency transforms cannot
+replicate an instantaneous transition between two contrasting colors
+without generating oscillating waves near the boundary, resulting in
+visual halos.</li>
+<li><strong>Deblocking and In-Loop Filters:</strong> AV1 utilizes
+smoothing filters across block grids to prevent blockiness in video. On
+pixel art, these filters actively smudge crisp pixels.</li>
+<li><strong>Chroma Subsampling:</strong> Default lossy AVIF pipelines
+often downsample color channels to 4:2:0, halving color resolution and
+bleeding adjacent hues into one another.</li>
+</ul>
+<p>Under standard lossy settings, AVIF consistently degrades the sharp
+grid of pixel art.</p>
+<h2 id="how-to-prevent-edge-blur-in-avif">How to Prevent Edge Blur in
+AVIF</h2>
+<p>To eliminate edge blur completely, AVIF must be encoded using strict
+parameters that bypass its lossy photographic optimizations:</p>
+<ol type="1">
+<li><strong>Enable True Lossless Mode:</strong> The encoder must be set
+to transform-bypass lossless mode (e.g., <code>crf=0</code> or
+<code>--lossless</code>). This disables lossy quantization and preserves
+exact spatial values.</li>
+<li><strong>Use 4:4:4 Chroma or RGB:</strong> Chrominance downsampling
+must be disabled. Using full YUV 4:4:4 or native RGB color spaces
+ensures color boundaries remain aligned with pixel boundaries.</li>
+<li><strong>Disable In-Loop Restoration Filters:</strong> Deblocking and
+directional enhancement filters must be turned off to prevent
+post-process smoothing.</li>
+</ol>
+<p>When these settings are applied, AVIF guarantees mathematical
+preservation of every pixel, eliminating edge blur entirely.</p>
+<h2 id="compression-efficiency-avif-vs-png-and-webp">Compression
+Efficiency: AVIF vs. PNG and WebP</h2>
+<p>While AVIF <em>can</em> preserve pixel art losslessly, it is rarely
+the most efficient format for doing so.</p>
+<p>Synthetic pixel art typically features limited color palettes, large
+areas of flat color, and repeating geometric tiles. Formats like PNG
+(using DEFLATE) and lossless WebP (using LZ77 and spatial transformation
+models) are purpose-built for this exact profile:</p>
+<ul>
+<li><strong>File Size:</strong> Lossless AVIF files for low-color,
+low-resolution pixel art are often significantly larger than optimized
+PNGs (via tools like Oxipng or Zopfli) or lossless WebP files. AV1's
+intra-prediction algorithms are computationally heavier and less suited
+to discrete, palettized data.</li>
+<li><strong>Decoding Performance:</strong> Lossless AV1 decoding
+requires substantially more CPU memory and processing time than PNG,
+which decodes almost instantaneously in browsers and game engines.</li>
+<li><strong>Scaling Behavior:</strong> Pixel art displayed on the web
+requires nearest-neighbor scaling (via CSS
+<code>image-rendering: pixelated</code>). If any lossy compression
+altered pixel values even slightly, scaling up the art magnifies those
+inconsistencies.</li>
+</ul>
+<h2 id="summary">Summary</h2>
+<p>AVIF avoids edge blur on synthetic pixel art only when encoded
+losslessly with 4:4:4 chroma sampling. However, because its compression
+engine is designed for complex visual gradients rather than indexed,
+hard-edged graphics, using lossless AVIF for pixel art usually results
+in larger file sizes and slower rendering speeds than optimized PNG or
+lossless WebP.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

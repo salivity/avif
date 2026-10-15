@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Lighthouse Calculates AVIF Byte Savings - avif</title>
+    <meta name="description" content="Google Lighthouse evaluates page performance by identifying opportunities to reduce payload sizes, including migrating legacy image formats to next-generation formats like AVIF. Instead of performing intensive, real-time image re-encoding during an audit,">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-lighthouse-calculates-avif-byte-savings">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How Lighthouse Calculates AVIF Byte Savings - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-lighthouse-calculates-avif-byte-savings" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Google Lighthouse evaluates page performance by identifying opportunities to reduce payload sizes, including migrating legacy image formats to next-generation formats like AVIF. Instead of performing intensive, real-time image re-encoding during an audit," />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-lighthouse-calculates-avif-byte-savings">How Lighthouse
+Calculates AVIF Byte Savings</h1>
+<p>Google Lighthouse evaluates page performance by identifying
+opportunities to reduce payload sizes, including migrating legacy image
+formats to next-generation formats like AVIF. Instead of performing
+intensive, real-time image re-encoding during an audit, Lighthouse
+relies on empirical heuristic models to estimate the compressed size of
+images converted to AVIF. By subtracting this estimated file size from
+the original transfer size and filtering the results against specific
+minimum thresholds, Lighthouse calculates the total potential byte
+savings reported in its audits.</p>
+<h3 id="1-identifying-eligible-images">1. Identifying Eligible
+Images</h3>
+<p>Before any calculations occur, Lighthouse analyzes the page’s network
+activity to identify candidate images during the "Modern Image Formats"
+audit. The tool inspects network requests and filters for raster formats
+that benefit from modern compression, primarily JPEG, PNG, and older
+WebP files. Vector graphics (SVG), icons, and images that are already
+served as AVIF are excluded from the calculation.</p>
+<h3 id="2-heuristic-size-estimation">2. Heuristic Size Estimation</h3>
+<p>Encoding full-resolution images into AVIF during a client-side audit
+would require excessive CPU resources and significantly slow down the
+auditing process. To avoid this overhead, Lighthouse uses an empirical
+estimation algorithm based on image dimensions and visual density rather
+than performing actual compression:</p>
+<ul>
+<li><strong>Pixel Area Calculation:</strong> Lighthouse determines the
+display and intrinsic dimensions of the image to compute total pixel
+count.</li>
+<li><strong>Target Bytes-per-Pixel Heuristic:</strong> Based on
+extensive benchmarking of AVIF compression efficiency at standard web
+quality settings (typically around quality 50–60, where AVIF retains
+strong fidelity), Lighthouse applies a baseline bytes-per-pixel or
+target compression ratio.</li>
+<li><strong>Format-Specific Comparison:</strong> For typical JPEG or PNG
+images, AVIF generally offers 20% to 50% better compression than WebP
+and substantially higher savings over standard JPEG/PNG. Lighthouse uses
+these benchmarked ratios to model the expected file size of the
+converted asset.</li>
+</ul>
+<h3 id="3-calculating-potential-byte-savings">3. Calculating Potential
+Byte Savings</h3>
+<p>Once the estimated AVIF size is calculated, Lighthouse determines the
+savings for each image:</p>
+<p><span class="math display">\[\text{Byte Savings} = \text{Original
+Transfer Size} - \text{Estimated AVIF Size}\]</span></p>
+<p>If the original image is already compressed heavily enough that an
+AVIF version would yield negligible or negative savings, the calculation
+returns zero savings for that file.</p>
+<h3 id="4-applying-minimum-thresholds">4. Applying Minimum
+Thresholds</h3>
+<p>To keep audit reports actionable and prevent flagging minor
+optimizations that have virtually no impact on page load times,
+Lighthouse applies thresholds:</p>
+<ul>
+<li><strong>Per-Image Minimum:</strong> Individual images must provide a
+minimum byte reduction (typically at least 2 KiB to 4 KiB) to appear in
+the audit recommendations.</li>
+<li><strong>Audit Failure Threshold:</strong> The overall audit only
+flags the recommendation if total potential savings across all candidate
+images exceed a meaningful performance threshold (commonly 8 KiB or
+more).</li>
+</ul>
+<h3 id="5-final-aggregation-and-scoring">5. Final Aggregation and
+Scoring</h3>
+<p>Lighthouse aggregates all individual byte savings that exceed the
+threshold to display the total potential data reduction in KiB or MiB.
+It also estimates the potential load time improvement (in milliseconds)
+based on the simulated network conditions of the run, giving developers
+a clear metric of how adopting AVIF will improve page delivery.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How 10-Bit AVIF Prevents Color Banding - avif</title>
+    <meta name="description" content="Color banding, or posterization, occurs when an image lacks sufficient tonal values to render smooth transitions between shades, turning gradients in skies, shadows, and lighting into distinct, jagged steps. While standard 8-bit image formats like JPEG, P">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-10-bit-avif-prevents-color-banding">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How 10-Bit AVIF Prevents Color Banding - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-10-bit-avif-prevents-color-banding" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Color banding, or posterization, occurs when an image lacks sufficient tonal values to render smooth transitions between shades, turning gradients in skies, shadows, and lighting into distinct, jagged steps. While standard 8-bit image formats like JPEG, P" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-10-bit-avif-prevents-color-banding">How 10-Bit AVIF Prevents
+Color Banding</h1>
+<p>Color banding, or posterization, occurs when an image lacks
+sufficient tonal values to render smooth transitions between shades,
+turning gradients in skies, shadows, and lighting into distinct, jagged
+steps. While standard 8-bit image formats like JPEG, PNG, and standard
+WebP frequently suffer from this visual artifact due to their limited
+color palette, 10-bit AVIF eliminates banding through a massive increase
+in color depth, advanced transform block handling, and built-in film
+grain synthesis. This guide details the specific technical mitigations
+that 10-bit AVIF provides over legacy 8-bit formats to deliver flawless
+tonal continuity.</p>
+<h3 id="a-64-fold-increase-in-color-precision">A 64-Fold Increase in
+Color Precision</h3>
+<p>The primary cause of color banding in 8-bit formats is mathematical
+limitation. An 8-bit channel can only express 256 discrete values per
+color channel (red, green, and blue), yielding approximately 16.7
+million total colors. When a broad gradient—such as a twilight sky or a
+soft spotlight—stretches across hundreds of pixels, there simply are not
+enough numerical steps between shades. Adjacent pixels are forced to
+share the same value until the gradient jumps to the next available
+number, creating visible lines.</p>
+<p>10-bit AVIF expands each color channel to 1,024 discrete values,
+generating over 1.07 billion distinct colors. By quadrupling the
+precision per channel, the total available tonal values increase by a
+factor of 64. The visual "distance" between adjacent shades becomes so
+small that the human eye can no longer discern individual steps,
+resulting in continuous, seamless gradients even across large display
+areas.</p>
+<h3 id="high-dynamic-range-and-wide-gamut-stability">High Dynamic Range
+and Wide Gamut Stability</h3>
+<p>Standard 8-bit images are inherently tied to standard dynamic range
+(SDR) and narrow color spaces, predominantly sRGB. When an 8-bit
+container is forced to encode Wide Color Gamut (WCG) profiles like
+DCI-P3 or Rec. 2020, or High Dynamic Range (HDR) transfer functions like
+PQ (Perceptual Quantizer) or HLG, banding worsens significantly. Because
+the 256 available values must stretch across a far broader luminance and
+color spectrum, the gaps between each step widen.</p>
+<p>10-bit AVIF is natively designed for modern color architectures. The
+1,024 steps provide the code-word density required to distribute values
+across the extended dynamic range of HDR and the wider boundaries of
+Rec. 2020 without spreading the steps so thin that posterization
+occurs.</p>
+<h3 id="advanced-av1-coding-tools-and-block-partitioning">Advanced AV1
+Coding Tools and Block Partitioning</h3>
+<p>Traditional JPEG compression divides images into rigid 8x8-pixel
+blocks. In smooth areas, aggressive quantization rounds off
+high-frequency details, turning subtle gradients into flat, blocked
+regions that emphasize banding.</p>
+<p>AVIF is derived from the AV1 video codec, which employs sophisticated
+spatial decomposition:</p>
+<ul>
+<li><strong>Variable Transform Sizes:</strong> AV1 supports flexible
+transform block sizes ranging from 4x4 up to 64x64 pixels. For smooth
+gradients, large transform blocks preserve broad color shifts across the
+image without dividing them into small, blocky artifacts.</li>
+<li><strong>Directional Transforms:</strong> Alongside the standard
+Discrete Cosine Transform (DCT), AV1 utilizes the Asymmetric Discrete
+Sine Transform (ADST) and identity transforms. These algorithms
+specifically model directional changes in luminance and chrominance,
+mapping smooth ramps and transitions far more accurately than legacy DCT
+algorithms.</li>
+</ul>
+<h3 id="decoder-side-film-grain-synthesis">Decoder-Side Film Grain
+Synthesis</h3>
+<p>In 8-bit formats, the only way to break up severe banding without
+increasing bit depth is dithering—introducing artificial noise across
+the gradient. However, encoding random noise in 8-bit JPEG or WebP
+creates complex high-frequency data, which dramatically bloats file
+sizes or gets scrubbed away by aggressive compression algorithms,
+returning the banding.</p>
+<p>AVIF resolves this with Film Grain Synthesis. Rather than compressing
+and storing noisy pixels, the AV1 encoder analyzes the grain
+characteristics of the source image, strips the noise during encoding to
+keep file sizes extremely small, and transmits mathematical parameters
+describing that grain. The client's decoder then synthesizes and
+overlays this grain during playback. This micro-texture masks any
+residual quantization boundaries at virtually zero bandwidth cost.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

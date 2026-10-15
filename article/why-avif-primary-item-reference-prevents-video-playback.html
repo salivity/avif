@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why AVIF Primary Item Reference Prevents Video Playback - avif</title>
+    <meta name="description" content="This article explains how the ISO Base Media File Format (ISOBMFF) architecture distinguishes still image formats like AVIF from continuous video files like AV1 MP4s. While both formats share the same container structure and video compression codecs, the">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/why-avif-primary-item-reference-prevents-video-playback">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Why AVIF Primary Item Reference Prevents Video Playback - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/why-avif-primary-item-reference-prevents-video-playback" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explains how the ISO Base Media File Format (ISOBMFF) architecture distinguishes still image formats like AVIF from continuous video files like AV1 MP4s. While both formats share the same container structure and video compression codecs, the" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="why-avif-primary-item-reference-prevents-video-playback">Why
+AVIF Primary Item Reference Prevents Video Playback</h1>
+<p>This article explains how the ISO Base Media File Format (ISOBMFF)
+architecture distinguishes still image formats like AVIF from continuous
+video files like AV1 MP4s. While both formats share the same container
+structure and video compression codecs, the primary item reference
+(<code>pitm</code>) box within the structural header signals to parsers
+that the payload is a discrete, untimed image item rather than a
+continuous video stream, effectively preventing media engines from
+treating the file as playable video.</p>
+<h2 id="tracks-versus-items-in-isobmff">Tracks Versus Items in
+ISOBMFF</h2>
+<p>The fundamental architecture of ISOBMFF defines media data in two
+distinct ways: tracks and items.</p>
+<ul>
+<li><strong>Tracks (<code>trak</code> boxes inside a <code>moov</code>
+container):</strong> Used for timed media such as video and audio.
+Tracks rely on sample tables (<code>stbl</code>) containing decoding
+timestamps, presentation timestamps, and synchronization sample markers
+that drive a continuous playback clock.</li>
+<li><strong>Items (defined within the <code>meta</code>
+container):</strong> Used for untimed or non-continuous data, such as
+still images, metadata, and auxiliary data. Items do not rely on sample
+tables or playback clocks; instead, they are addressed directly by an
+identifier (<code>item_ID</code>) and resolved via an item location box
+(<code>iloc</code>).</li>
+</ul>
+<p>Because AVIF relies on the AV1 video codec to encode pixel data, the
+encoded data resembles an intra-frame (keyframe) from a video stream.
+However, its structural encapsulation in the container dictates how a
+parser processes it.</p>
+<h2 id="the-role-of-the-primary-item-reference-pitm">The Role of the
+Primary Item Reference (<code>pitm</code>)</h2>
+<p>The primary item reference is declared inside the <code>pitm</code>
+box, which sits inside the top-level <code>meta</code> box. The
+<code>pitm</code> structure contains a single 16-bit or 32-bit field:
+the <code>item_ID</code> of the file's primary image.</p>
+<p>When an ISOBMFF-compliant parser loads a media file, it reads the
+header boxes to determine the presentation pipeline:</p>
+<ol type="1">
+<li><strong>Identity Declaration:</strong> The parser inspects the
+<code>meta</code> box and locates the <code>pitm</code> box.</li>
+<li><strong>Target Isolation:</strong> The <code>pitm</code> box
+explicitly declares that the primary visual representation of the file
+is a specific item referenced in the item information box
+(<code>iinf</code>), not a sequence of samples in a media track.</li>
+<li><strong>Pipeline Routing:</strong> By resolving the target
+<code>item_ID</code>, the parser directs the underlying AV1 decoder to
+treat the payload as a static, single-frame extraction rather than
+feeding frames sequentially into a display buffer synchronized with an
+audio or system clock.</li>
+</ol>
+<h2 id="preventing-playback-loops-and-video-execution">Preventing
+Playback Loops and Video Execution</h2>
+<p>Video players rely on the presence of a playable track
+(<code>trak</code>) configured with a visual media handler
+(<code>vide</code>). In a compliant, single-image AVIF:</p>
+<ul>
+<li>The actual AV1 compressed bitstream is stored as an unsegmented item
+in the media data box (<code>mdat</code>), mapped via the
+<code>iloc</code> box rather than chunk offsets and sample sizes in a
+track.</li>
+<li>No continuous playback clock, time-to-sample box
+(<code>stts</code>), or composition time offset box (<code>ctts</code>)
+is linked to the primary image item.</li>
+<li>Without these timing tables, media frameworks (such as FFmpeg,
+AVFoundation, or web browser media engines) cannot construct a timeline,
+frame rate, or playback duration.</li>
+</ul>
+<p>Even if an AVIF file contains image sequences (such as animated
+AVIFs) or thumbnail tracks alongside the main image, the parser
+evaluates <code>pitm</code> first to identify the definitive static
+presentation. If a video player ignores the <code>meta</code> structure
+and looks strictly for a <code>moov</code> box containing timed video
+tracks, it will either find no tracks to initialize or fail to find the
+presentation stream designated by <code>pitm</code>, halting video
+playback execution before it starts.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

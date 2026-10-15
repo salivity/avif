@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How CDEF Improves Visual Quality in AVIF Images - avif</title>
+    <meta name="description" content="The Constrained Directional Enhancement Filter (CDEF) is a core in-loop filtering technology used in the AVIF image format, inherited from the AV1 video codec. It significantly enhances visual fidelity by targeting and eliminating ringing artifacts and co">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-cdef-improves-visual-quality-in-avif-images">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How CDEF Improves Visual Quality in AVIF Images - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-cdef-improves-visual-quality-in-avif-images" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The Constrained Directional Enhancement Filter (CDEF) is a core in-loop filtering technology used in the AVIF image format, inherited from the AV1 video codec. It significantly enhances visual fidelity by targeting and eliminating ringing artifacts and co" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-cdef-improves-visual-quality-in-avif-images">How CDEF
+Improves Visual Quality in AVIF Images</h1>
+<p>The Constrained Directional Enhancement Filter (CDEF) is a core
+in-loop filtering technology used in the AVIF image format, inherited
+from the AV1 video codec. It significantly enhances visual fidelity by
+targeting and eliminating ringing artifacts and compression noise along
+high-contrast boundaries without blurring the underlying picture. By
+analyzing edge directions and applying adaptive, non-linear smoothing
+parallel to those edges, CDEF ensures that AVIF files retain sharp
+lines, clean text, and natural textures even at aggressive compression
+levels.</p>
+<h3 id="the-problem-cdef-solves-ringing-artifacts">The Problem CDEF
+Solves: Ringing Artifacts</h3>
+<p>Block-based transform coding, which forms the foundation of formats
+like AVIF, naturally introduces high-frequency noise known as ringing
+artifacts (or the Gibbs phenomenon). When an image contains strong
+contrast—such as dark text on a bright background or hard architectural
+silhouettes—the quantization process discards fine frequency components.
+This results in visible ripples, halos, or speckled noise around sharp
+contours. While traditional deblocking filters smooth the seams between
+block boundaries, they cannot address ringing artifacts situated inside
+the blocks.</p>
+<h3 id="step-1-direction-estimation">Step 1: Direction Estimation</h3>
+<p>To address these artifacts without destroying fine details, CDEF
+first performs a directional search. The encoder divides the image into
+small blocks (typically 8x8 pixels) and analyzes the gradient vectors to
+determine the dominant direction of any edges present in that area. It
+selects one of eight possible directions (ranging from 0 to 157.5
+degrees). If an area lacks a distinct edge or is flat, the filter
+identifies this state to avoid applying directional bias.</p>
+<h3 id="step-2-adaptive-non-linear-filtering">Step 2: Adaptive
+Non-Linear Filtering</h3>
+<p>Once the dominant direction is established, CDEF applies a non-linear
+spatial filter tailored to that specific angle:</p>
+<ul>
+<li><strong>Primary Filter Taps:</strong> The filter applies taps along
+the detected direction of the edge. Because the smoothing occurs
+parallel to the edge rather than across it, the sharpness of the
+boundary is fully preserved while noise along the edge is
+flattened.</li>
+<li><strong>Secondary Filter Taps:</strong> To capture residual noise,
+secondary taps are applied at an angle to the primary direction. These
+taps use much lower weights to prevent blurring across the contour.</li>
+<li><strong>Threshold Clamping (The "Constrained" Mechanism):</strong>
+Unlike traditional linear filters, CDEF uses a mathematical threshold
+(damping) that limits how much a pixel's value can shift relative to its
+neighbors. If a neighboring pixel differs significantly in luminance or
+color, the filter ignores it. This constraint ensures that real image
+features and fine textures are not mistaken for compression noise and
+accidentally smoothed away.</li>
+</ul>
+<h3 id="placement-in-the-avif-pipeline">Placement in the AVIF
+Pipeline</h3>
+<p>CDEF operates as an in-loop filter, meaning it processes the image
+data directly inside the decoding pipeline:</p>
+<ol type="1">
+<li><strong>Deblocking Filter:</strong> Smooths the grid-like block
+boundaries.</li>
+<li><strong>CDEF:</strong> Cleans up ringing and preserves edge
+directionality.</li>
+<li><strong>Loop Restoration:</strong> Restores fine textures using
+Wiener or self-guided filters.</li>
+</ol>
+<p>By running immediately after the deblocking stage, CDEF provides
+clean, noise-free edges for the subsequent restoration step, preventing
+later algorithms from amplifying compression errors.</p>
+<h3 id="direct-impact-on-user-experience">Direct Impact on User
+Experience</h3>
+<p>By actively reconstructing edge integrity, CDEF allows AVIF to excel
+where older formats like JPEG struggle:</p>
+<ul>
+<li><strong>Legibility:</strong> Small typography and graphical user
+interface elements remain crisp without the halo artifacts that
+typically degrade readability.</li>
+<li><strong>Efficiency:</strong> Because CDEF cleans up high-frequency
+errors effectively, encoders can quantize images more heavily, yielding
+file size reductions of 30% to 50% compared to JPEG and WebP while
+maintaining perceived sharpness.</li>
+<li><strong>Clean Illustrations and Vector Art:</strong> Visual assets
+with flat colors and sharp divides stay pristine, making AVIF highly
+versatile for photographic and non-photographic web content alike.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

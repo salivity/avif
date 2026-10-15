@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How AOMedia Tracks and Fixes AVIF Vulnerabilities - avif</title>
+    <meta name="description" content="The Alliance for Open Media (AOMedia) tracks and resolves security vulnerabilities in the AV1 Image File Format (AVIF) through coordinated vulnerability disclosure, rigorous automated testing, and transparent patch management across its reference implemen">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-ao-media-tracks-and-fixes-avif-vulnerabilities">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How AOMedia Tracks and Fixes AVIF Vulnerabilities - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-ao-media-tracks-and-fixes-avif-vulnerabilities" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The Alliance for Open Media (AOMedia) tracks and resolves security vulnerabilities in the AV1 Image File Format (AVIF) through coordinated vulnerability disclosure, rigorous automated testing, and transparent patch management across its reference implemen" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-aomedia-tracks-and-fixes-avif-vulnerabilities">How AOMedia
+Tracks and Fixes AVIF Vulnerabilities</h1>
+<p>The Alliance for Open Media (AOMedia) tracks and resolves security
+vulnerabilities in the AV1 Image File Format (AVIF) through coordinated
+vulnerability disclosure, rigorous automated testing, and transparent
+patch management across its reference implementations. Because AVIF is
+both an open standard and a collection of open-source software
+libraries, AOMedia separates the remediation of abstract specification
+flaws from concrete memory safety and parsing bugs found in codebases
+like <code>libavif</code>. By leveraging private tracking channels, fuzz
+testing integration, and standard Common Vulnerabilities and Exposures
+(CVE) reporting, the consortium ensures that security flaws are patched
+and distributed to downstream vendors before public disclosure.</p>
+<h3 id="vulnerability-reporting-and-intake">Vulnerability Reporting and
+Intake</h3>
+<p>Security researchers and developers report potential vulnerabilities
+primarily through coordinated disclosure channels established in
+AOMedia’s open-source repositories, notably hosted on GitHub. For core
+reference projects like <code>libavif</code> and the underlying
+<code>libaom</code> codec, reporters use private vulnerability reporting
+via GitHub Security Advisories (GHSA) or direct contact with designated
+security maintainers. This private intake prevents premature public
+exposure of zero-day vulnerabilities affecting image decoders, which are
+historically high-risk attack surfaces in web browsers and operating
+systems.</p>
+<h3 id="continuous-testing-and-proactive-discovery">Continuous Testing
+and Proactive Discovery</h3>
+<p>Before vulnerabilities are reported externally, AOMedia relies
+heavily on automated, proactive discovery mechanisms:</p>
+<ul>
+<li><strong>OSS-Fuzz Integration:</strong> The reference libraries
+(<code>libavif</code> and <code>libaom</code>) are integrated into
+Google’s OSS-Fuzz service. Continuous fuzzing subjects the parser and
+decoding pipelines to millions of malformed and edge-case AVIF payloads
+to detect memory corruption, buffer overflows, and integer
+overflows.</li>
+<li><strong>Static Analysis and Sanitizers:</strong> Continuous
+integration workflows enforce AddressSanitizer (ASan),
+UndefinedBehaviorSanitizer (UBSan), and MemorySanitizer (MSan) to catch
+undefined behaviors and memory leaks during regular development.</li>
+</ul>
+<h3 id="triage-and-patch-development">Triage and Patch Development</h3>
+<p>Once a valid security issue is submitted or detected:</p>
+<ol type="1">
+<li><strong>Verification:</strong> Maintainers verify the report by
+reproducing the issue against the current main branch and active release
+tags.</li>
+<li><strong>Private Remediation:</strong> Discussions, pull requests,
+and code reviews take place within a private security advisory branch to
+maintain confidentiality.</li>
+<li><strong>Specification Assessment:</strong> The AOMedia working group
+determines if the vulnerability is strictly an implementation bug (such
+as an unchecked boundary in C) or an ambiguity in the AVIF/ISOBMFF
+specification itself. If the specification permits unsafe behavior, the
+working group drafts an amendment or clarification to the standard.</li>
+</ol>
+<h3 id="cve-assignment-and-coordinated-disclosure">CVE Assignment and
+Coordinated Disclosure</h3>
+<p>AOMedia coordinates with authorized Common Vulnerabilities and
+Exposures (CVE) Numbering Authorities (CNAs)—often via GitHub or
+participating member organizations such as Google—to assign CVE
+identifiers to confirmed vulnerabilities. A coordinated release date is
+established, allowing sufficient time for high-impact downstream
+consumers (such as Google Chrome, Mozilla Firefox, Android, and Linux
+distributions) to ingest the patch before details are published.</p>
+<h3 id="release-and-ecosystem-deployment">Release and Ecosystem
+Deployment</h3>
+<p>The resolution phase concludes with the publication of a point
+release containing the fix. The release notes detail the security patch,
+credit the reporting researcher, and link the advisory to the assigned
+CVE. Simultaneously, the private GitHub Security Advisory is converted
+into a public notice, alerting developers across the broader web
+ecosystem to update their AVIF parsing dependencies.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

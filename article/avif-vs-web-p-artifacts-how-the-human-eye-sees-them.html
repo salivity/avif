@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF vs WebP Artifacts: How the Human Eye Sees Them - avif</title>
+    <meta name="description" content="This article explores how the human visual system interprets compression degradation in AVIF and WebP image formats. While both formats reduce file sizes through lossy compression, they rely on fundamentally different underlying codecs—AV1 and VP8, respec">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-vs-web-p-artifacts-how-the-human-eye-sees-them">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF vs WebP Artifacts: How the Human Eye Sees Them - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-vs-web-p-artifacts-how-the-human-eye-sees-them" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explores how the human visual system interprets compression degradation in AVIF and WebP image formats. While both formats reduce file sizes through lossy compression, they rely on fundamentally different underlying codecs—AV1 and VP8, respec" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-vs-webp-artifacts-how-the-human-eye-sees-them">AVIF vs WebP
+Artifacts: How the Human Eye Sees Them</h1>
+<p>This article explores how the human visual system interprets
+compression degradation in AVIF and WebP image formats. While both
+formats reduce file sizes through lossy compression, they rely on
+fundamentally different underlying codecs—AV1 and VP8, respectively.
+Consequently, WebP tends to introduce sharp geometric blockiness and
+edge ringing, whereas AVIF typically degrades into soft blurriness and
+texture smearing, resulting in drastically different perceptual
+experiences for the human viewer.</p>
+<h3 id="edge-detection-and-blocking-artifacts">Edge Detection and
+Blocking Artifacts</h3>
+<p>The human visual system (HVS) relies heavily on edge-detection
+mechanisms driven by the visual cortex to recognize shapes and spatial
+relationships. Because the brain is naturally primed to spot
+high-contrast boundaries, it is acutely sensitive to the grid-like
+blocking artifacts common in WebP.</p>
+<p>WebP relies on the older VP8 codec, which divides images into rigid
+<span class="math inline">\(16 \times 16\)</span> macroblocks. When
+bandwidth is constrained, the discrete cosine transform (DCT)
+approximations within these blocks fail to match adjacent blocks,
+creating visible grid lines. The HVS interprets these artificial,
+orthogonal borders as distinct physical edges, making WebP compression
+immediately apparent and visually distracting.</p>
+<p>In contrast, AVIF is based on the modern AV1 video codec, which
+supports flexible recursive partitioning from <span
+class="math inline">\(128 \times 128\)</span> down to <span
+class="math inline">\(4 \times 4\)</span> blocks. Coupled with advanced
+in-loop deblocking filters and Constrained Directional Enhancement
+Filtering (CDEF), AVIF actively blends boundaries across partitions.
+Instead of seeing a broken grid, the human eye perceives a continuous
+surface, meaning AVIF artifacts rarely trigger the visual cortex's
+edge-detection alarms.</p>
+<h3 id="ringing-noise-vs-smooth-blurring">Ringing Noise vs. Smooth
+Blurring</h3>
+<p>Another significant visual distinction lies in how both formats
+handle high-contrast transitions, such as dark text on a light
+background.</p>
+<p>WebP frequently suffers from "ringing" or "mosquito
+noise"—oscillating patterns and halos that appear immediately adjacent
+to sharp lines. The human eye easily detects these high-frequency
+ripples because they disrupt uniform fields near focal points.</p>
+<p>AVIF suppresses ringing far more aggressively through its directional
+smoothing filters. However, this suppression creates a different type of
+artifact: localized blurring. When forced to discard data, AVIF softens
+high-frequency transitions rather than ringing them. To the human eye,
+soft blur is significantly more tolerable than high-frequency noise
+because the brain frequently encounters blur in nature (such as shallow
+depth of field or optical defocus) and subconsciously filters it
+out.</p>
+<h3 id="texture-loss-and-watercolor-smearing">Texture Loss and
+"Watercolor" Smearing</h3>
+<p>Where AVIF struggles perceptually is in preserving fine, stochastic
+textures, such as grass, gravel, fabric, or skin pores. At lower
+bitrates, AVIF’s smoothing filters can overcompensate, erasing subtle
+grain entirely. This creates a "plastic" or "watercolor" appearance
+where organic surfaces look artificially smooth.</p>
+<p>While the human eye readily accepts blur in out-of-focus backgrounds,
+this smearing effect becomes jarring when applied to human faces or
+focal subjects, as the brain expects tactile texture. WebP tends to
+preserve a rougher approximation of high-frequency noise in these areas;
+however, that noise is often corrupted into blocky pixelation rather
+than genuine detail.</p>
+<h3 id="color-banding-and-bit-depth-perception">Color Banding and
+Bit-Depth Perception</h3>
+<p>The human visual system is exceptionally sensitive to stepped
+transitions in smooth color gradients, such as sunsets, clear skies, or
+drop shadows.</p>
+<p>WebP is strictly an 8-bit format. At higher compression levels, color
+quantization causes noticeable "banding" or posterization, where smooth
+gradients turn into distinct, stair-stepped color zones.</p>
+<p>AVIF natively supports 10-bit and 12-bit color depth. Even when
+downsampled or compressed, the higher bit depth provides significantly
+more color values per channel. As a result, AVIF rarely exhibits
+noticeable banding, allowing the human eye to perceive subtle tonal
+variations as continuous transitions rather than segmented steps.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

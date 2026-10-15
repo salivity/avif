@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Role of the mif1 Brand in AVIF Files - avif</title>
+    <meta name="description" content="The AV1 Image File Format (AVIF) relies on the ISO Base Media File Format (ISOBMFF) container architecture, utilizing specific identifiers called &quot;brands&quot; inside its File Type Box (ftyp) to signal compatibility. This article explains the technical signifi">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/the-role-of-the-mif-1-brand-in-avif-files">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="The Role of the mif1 Brand in AVIF Files - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/the-role-of-the-mif-1-brand-in-avif-files" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The AV1 Image File Format (AVIF) relies on the ISO Base Media File Format (ISOBMFF) container architecture, utilizing specific identifiers called &quot;brands&quot; inside its File Type Box (ftyp) to signal compatibility. This article explains the technical signifi" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="the-role-of-the-mif1-brand-in-avif-files">The Role of the mif1
+Brand in AVIF Files</h1>
+<p>The AV1 Image File Format (AVIF) relies on the ISO Base Media File
+Format (ISOBMFF) container architecture, utilizing specific identifiers
+called "brands" inside its File Type Box (<code>ftyp</code>) to signal
+compatibility. This article explains the technical significance of the
+<code>mif1</code> brand in AVIF files, covering its origin within the
+High Efficiency Image File Format (HEIF) standard, its role in enforcing
+structural compliance, and how image parsers use it to handle container
+parsing independently of codec decoding.</p>
+<h3 id="the-file-type-box-and-brand-architecture">The File Type Box and
+Brand Architecture</h3>
+<p>Every compliant AVIF file begins with a File Type Box
+(<code>ftyp</code>). The <code>ftyp</code> box informs reading software
+about the specifications to which the file conforms. It contains three
+primary components:</p>
+<ol type="1">
+<li><strong><code>major_brand</code></strong>: The primary specification
+the file targets (typically <code>avif</code> for single images or
+<code>avis</code> for image sequences).</li>
+<li><strong><code>minor_version</code></strong>: The minor specification
+version.</li>
+<li><strong><code>compatible_brands</code></strong>: A list of
+four-character codes (4CCs) declaring compatibility with other
+established specifications.</li>
+</ol>
+<p>The <code>mif1</code> brand appears in this
+<code>compatible_brands</code> list.</p>
+<h3 id="origin-and-definition-of-mif1">Origin and Definition of
+<code>mif1</code></h3>
+<p>The <code>mif1</code> 4CC identifier is formally specified in
+<strong>ISO/IEC 23008-12</strong> (the HEIF standard). It designates
+compliance with the basic structural requirements of a HEIF image
+item.</p>
+<p>While AVIF defines how AV1-compressed bitstreams are stored, it does
+not invent an entirely new container architecture. Instead, AVIF is an
+application format that strictly profiles HEIF and the Multi-Image
+Application Format (MIAF / ISO/IEC 23000-22). Under these standards,
+<code>mif1</code> (short for <em>Multi-Image File format structural
+brand</em>) denotes that the file adheres to the generic structural
+rules for storing static image items.</p>
+<h3 id="technical-functionality-in-avif">Technical Functionality in
+AVIF</h3>
+<p>The inclusion of <code>mif1</code> in the
+<code>compatible_brands</code> array provides several distinct technical
+functions:</p>
+<ul>
+<li><strong>Structural Box Layout Validation:</strong> A parser seeing
+<code>mif1</code> knows the file contains standard HEIF structural boxes
+inside the <code>meta</code> box. This includes the Item Location Box
+(<code>iloc</code>), the Item Information Box (<code>iinf</code>), the
+Primary Item Box (<code>pitm</code>), and the Item Properties Box
+(<code>iprp</code>).</li>
+<li><strong>Decoupling Container Parsing from Codec Execution:</strong>
+The <code>mif1</code> brand allows generic media parsers to read,
+inspect, and extract container assets without needing an AV1 video
+decoder. A container tool can inspect image dimensions, color profiles
+(ICC or NCLX), transformation properties (rotations, mirroring), and
+auxiliary items (Exif, XMP, alpha channels) simply by understanding the
+<code>mif1</code> layout.</li>
+<li><strong>MIAF Profile Compliance:</strong> The MIAF specification
+dictates that baseline static image profiles must declare compatibility
+with <code>mif1</code>. Because AVIF specifies conformance with MIAF
+constraints, omitting <code>mif1</code> can cause an AVIF image to fail
+strict format conformance tests.</li>
+<li><strong>Sequence Distinction:</strong> HEIF distinguishes between
+still images and image collections or sequences. The <code>mif1</code>
+brand indicates single or collection-based image structures, whereas
+sequence-based media (such as animated AVIFs) reference the
+<code>msf1</code> (Image Sequence Format) brand instead.</li>
+</ul>
+<p>In summary, while the <code>avif</code> brand tells a software client
+that the underlying payload requires an AV1 decoder, the
+<code>mif1</code> brand guarantees that the structural container follows
+standard HEIF mechanics for static image items.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

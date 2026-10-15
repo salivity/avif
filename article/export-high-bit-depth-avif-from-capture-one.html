@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Export High-Bit-Depth AVIF from Capture One - avif</title>
+    <meta name="description" content="This article outlines the optimal workflow for converting high-bit-depth master images from Capture One into the modern AVIF format. Because Capture One does not natively export to AVIF, the process requires exporting an uncompressed 16-bit intermediate f">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/export-high-bit-depth-avif-from-capture-one">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Export High-Bit-Depth AVIF from Capture One - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/export-high-bit-depth-avif-from-capture-one" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article outlines the optimal workflow for converting high-bit-depth master images from Capture One into the modern AVIF format. Because Capture One does not natively export to AVIF, the process requires exporting an uncompressed 16-bit intermediate f" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="export-high-bit-depth-avif-from-capture-one">Export
+High-Bit-Depth AVIF from Capture One</h1>
+<p>This article outlines the optimal workflow for converting
+high-bit-depth master images from Capture One into the modern AVIF
+format. Because Capture One does not natively export to AVIF, the
+process requires exporting an uncompressed 16-bit intermediate file and
+encoding it using dedicated command-line utilities or graphical
+converters to preserve wide color gamuts and smooth tonal
+gradations.</p>
+<h3 id="1-configure-the-capture-one-export-recipe">1. Configure the
+Capture One Export Recipe</h3>
+<p>To produce a true high-bit-depth master, you must avoid data loss
+during the initial export stage.</p>
+<ul>
+<li><strong>Format:</strong> Select <strong>TIFF</strong>.</li>
+<li><strong>Bit Depth:</strong> Choose <strong>16-bit</strong>. This
+preserves the maximum tonal range captured by your camera sensor.</li>
+<li><strong>Compression:</strong> Set to <strong>None</strong> or
+<strong>ZIP</strong> (lossless).</li>
+<li><strong>Color Profile:</strong> Select a wide-gamut profile such as
+<strong>ProPhoto RGB</strong> or <strong>Adobe RGB (1998)</strong> for
+SDR mastering, or <strong>Rec. 2020</strong> if you are targeting HDR
+displays.</li>
+<li><strong>Resolution:</strong> 300 px/in (or native), with scale set
+to <strong>100% / Fixed</strong>.</li>
+</ul>
+<h3 id="2-choose-an-avif-encoding-tool">2. Choose an AVIF Encoding
+Tool</h3>
+<p>AVIF supports 8, 10, and 12-bit color depths. For photography
+masters, <strong>10-bit</strong> or <strong>12-bit</strong> encoding is
+necessary to eliminate color banding while maintaining efficient
+compression.</p>
+<ul>
+<li><strong>avifenc (libavif):</strong> The official reference encoder
+from the Alliance for Open Media (AOMedia). It is fast, highly
+configurable, and provides the best bit-depth control.</li>
+<li><strong>FFmpeg:</strong> Suitable if you already have it installed
+with <code>libaom-av1</code> enabled.</li>
+<li><strong>ImageMagick:</strong> A versatile tool that can process
+16-bit TIFF inputs directly into AVIF using libheif or libavif
+backends.</li>
+</ul>
+<h3 id="3-encode-the-intermediate-file">3. Encode the Intermediate
+File</h3>
+<p>Using the reference encoder <strong>avifenc</strong> delivers the
+most reliable conversion of ICC color profiles and high bit depths. Run
+the following command in your terminal:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">avifenc</span> <span class="at">--depth</span> 10 <span class="at">--yuv</span> 444 <span class="at">--min</span> 0 <span class="at">--max</span> 63 <span class="at">-a</span> cq-level=18 <span class="at">-s</span> 4 input.tif output.avif</span></code></pre></div>
+<ul>
+<li><code>--depth 10</code>: Encodes the file in 10-bit color (use
+<code>--depth 12</code> if you require 12-bit mastering).</li>
+<li><code>--yuv 444</code>: Uses 4:4:4 chroma subsampling to retain full
+color resolution, preventing edge degradation around fine details.</li>
+<li><code>-a cq-level=18</code>: Sets a near-visually-lossless quality
+level (values range from 0–63, where lower numbers mean higher quality;
+15–20 is optimal for archival masters).</li>
+<li><code>-s 4</code>: Compression speed setting (0 is slowest, 10 is
+fastest; 4 balances encoding time and file size).</li>
+<li>The encoder will automatically embed the ICC profile attached to
+your exported TIFF.</li>
+</ul>
+<h3 id="4-automate-the-workflow-in-capture-one">4. Automate the Workflow
+in Capture One</h3>
+<p>To streamline the conversion into a single step:</p>
+<ol type="1">
+<li>Create a script (Bash on macOS/Linux or a <code>.bat</code> file on
+Windows) that watches an export directory or accepts an input file
+argument to run the <code>avifenc</code> command.</li>
+<li>In Capture One's Export Recipe under <strong>Open With</strong>,
+select your conversion script or executable.</li>
+<li>Once configured, triggering an export in Capture One automatically
+generates the 16-bit TIFF and triggers the AVIF transcode without manual
+terminal intervention.</li>
+</ol></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Querying Device HDR Support for AVIF Assets - avif</title>
+    <meta name="description" content="Web developers can reliably query a device&#39;s High Dynamic Range (HDR) capabilities before deciding to serve an HDR AVIF asset. By utilizing CSS media queries, the HTML &lt;picture&gt; element, and the JavaScript matchMedia API, websites can detect whether an at">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/querying-device-hdr-support-for-avif-assets">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Querying Device HDR Support for AVIF Assets - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/querying-device-hdr-support-for-avif-assets" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Web developers can reliably query a device&#39;s High Dynamic Range (HDR) capabilities before deciding to serve an HDR AVIF asset. By utilizing CSS media queries, the HTML &lt;picture&gt; element, and the JavaScript matchMedia API, websites can detect whether an at" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="querying-device-hdr-support-for-avif-assets">Querying Device HDR
+Support for AVIF Assets</h1>
+<p>Web developers can reliably query a device's High Dynamic Range (HDR)
+capabilities before deciding to serve an HDR AVIF asset. By utilizing
+CSS media queries, the HTML <code>&lt;picture&gt;</code> element, and
+the JavaScript <code>matchMedia</code> API, websites can detect whether
+an attached display supports HDR rendering and wide color gamuts. This
+allows developers to deliver vibrant, high-luminance AVIF images to
+capable screens while serving Standard Dynamic Range (SDR) fallbacks to
+incompatible hardware to prevent visual artifacts and wasted
+bandwidth.</p>
+<h3 id="using-the-html-picture-element">Using the HTML
+<code>&lt;picture&gt;</code> Element</h3>
+<p>The most efficient, declarative way to load HDR AVIF assets
+conditionally is through the HTML <code>&lt;picture&gt;</code> element
+combined with the <code>dynamic-range</code> media feature. Browsers
+evaluate media queries before downloading the image source, preventing
+the client from downloading both SDR and HDR files.</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode html"><code class="sourceCode html"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">picture</span><span class="dt">&gt;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="co">&lt;!-- Load HDR AVIF on HDR-capable displays --&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">source</span><span class="ot"> </span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="ot">    srcset</span><span class="op">=</span><span class="st">&quot;photo-hdr.avif&quot;</span><span class="ot"> </span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="ot">    type</span><span class="op">=</span><span class="st">&quot;image/avif&quot;</span><span class="ot"> </span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="ot">    media</span><span class="op">=</span><span class="st">&quot;(dynamic-range: high)&quot;</span><span class="ot"> </span><span class="dt">/&gt;</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="co">&lt;!-- Fallback to SDR AVIF on SDR displays --&gt;</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">source</span><span class="ot"> </span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="ot">    srcset</span><span class="op">=</span><span class="st">&quot;photo-sdr.avif&quot;</span><span class="ot"> </span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="ot">    type</span><span class="op">=</span><span class="st">&quot;image/avif&quot;</span><span class="ot"> </span><span class="dt">/&gt;</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="co">&lt;!-- Standard fallback for older browsers --&gt;</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">img</span><span class="ot"> src</span><span class="op">=</span><span class="st">&quot;photo-sdr.jpg&quot;</span><span class="ot"> alt</span><span class="op">=</span><span class="st">&quot;A landscape view&quot;</span><span class="ot"> </span><span class="dt">/&gt;</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">picture</span><span class="dt">&gt;</span></span></code></pre></div>
+<p>In this setup, the browser checks if the display hardware supports
+high peak brightness, high contrast ratios, and high color depth via
+<code>(dynamic-range: high)</code>. If false, it falls back to the SDR
+source.</p>
+<h3 id="detecting-support-via-javascript">Detecting Support via
+JavaScript</h3>
+<p>When programmatic control is required—such as loading assets via a
+Canvas element, WebGL, or dynamic component state—developers can
+evaluate display capabilities using
+<code>window.matchMedia()</code>.</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> supportsHDR <span class="op">=</span> <span class="bu">window</span><span class="op">.</span><span class="fu">matchMedia</span>(<span class="st">&#39;(dynamic-range: high)&#39;</span>)<span class="op">.</span><span class="at">matches</span><span class="op">;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> imagePath <span class="op">=</span> <span class="st">&#39;hero-sdr.avif&#39;</span><span class="op">;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (supportsHDR) {</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  imagePath <span class="op">=</span> <span class="st">&#39;hero-hdr.avif&#39;</span><span class="op">;</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> img <span class="op">=</span> <span class="kw">new</span> <span class="fu">Image</span>()<span class="op">;</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>img<span class="op">.</span><span class="at">src</span> <span class="op">=</span> imagePath<span class="op">;</span></span></code></pre></div>
+<p>Developers can also attach listeners using
+<code>addEventListener('change', ...)</code> to handle dynamic events,
+such as a user dragging their browser window from an SDR laptop screen
+to an HDR external monitor.</p>
+<h3 id="complementary-media-features">Complementary Media Features</h3>
+<p>In addition to <code>dynamic-range</code>, developers can query color
+space capabilities using the <code>color-gamut</code> media query. Most
+HDR images are mastered in wide color spaces such as Display P3 or Rec.
+2020.</p>
+<ul>
+<li><code>(color-gamut: rec2020)</code>: Checks for ultra-wide color
+gamut support typical of high-end HDR workflows.</li>
+<li><code>(color-gamut: p3)</code>: Checks for wide-gamut support common
+on modern Apple and high-tier mobile displays.</li>
+</ul>
+<p>Combining these checks, such as
+<code>@media (dynamic-range: high) and (color-gamut: p3)</code>,
+provides fine-grained control to ensure the client's screen is properly
+equipped to render true HDR AVIF content without unintended tone-mapping
+or color clipping.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

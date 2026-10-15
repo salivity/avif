@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Next-Gen Video Codecs Impact AVIF&#39;s Future - avif</title>
+    <meta name="description" content="The AVIF image format, derived from the AV1 video codec, currently represents the cutting edge of web image compression, but its long-term future is closely tied to the evolution of video compression technology. Because modern still-image formats increasi">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-next-gen-video-codecs-impact-avif-s-future">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How Next-Gen Video Codecs Impact AVIF&#39;s Future - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-next-gen-video-codecs-impact-avif-s-future" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The AVIF image format, derived from the AV1 video codec, currently represents the cutting edge of web image compression, but its long-term future is closely tied to the evolution of video compression technology. Because modern still-image formats increasi" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-next-gen-video-codecs-impact-avifs-future">How Next-Gen
+Video Codecs Impact AVIF's Future</h1>
+<p>The AVIF image format, derived from the AV1 video codec, currently
+represents the cutting edge of web image compression, but its long-term
+future is closely tied to the evolution of video compression technology.
+Because modern still-image formats increasingly originate from
+intra-frame coding techniques developed for video, the rapid emergence
+of next-generation codecs like AV2 and VVC (Versatile Video Coding)
+directly threatens AVIF's dominance. This article examines how ongoing
+video codec advancements will challenge AVIF’s compression supremacy,
+influence hardware acceleration lifecycles, and shape the eventual
+adoption of successor formats.</p>
+<h2 id="the-historic-link-between-video-codecs-and-still-images">The
+Historic Link Between Video Codecs and Still Images</h2>
+<p>Most modern image formats did not emerge in isolation; they are
+byproducts of video compression standards. WebP was extracted from the
+VP8 video codec, HEIC/HEIF originated from HEVC (H.265), and AVIF was
+created by utilizing intra-frame compression from the royalty-free AV1
+codec developed by the Alliance for Open Media (AOMedia).</p>
+<p>Because video standards evolve faster than standalone image formats
+due to immense streaming bandwidth demands, image formats derived from
+video codecs carry a built-in obsolescence risk. As soon as a
+foundational video codec matures, its successor begins development,
+immediately starting the countdown for the associated image format.</p>
+<h2 id="emerging-codecs-the-direct-competitors">Emerging Codecs: The
+Direct Competitors</h2>
+<p>Two primary next-generation video codecs currently influence the
+trajectory of AVIF:</p>
+<ul>
+<li><strong>AOMedia Video 2 (AV2):</strong> The direct successor to AV1,
+currently under active development. AV2 aims for a 20% to 30% bit-rate
+reduction over AV1. A future "AVIF 2" based on AV2 will naturally offer
+far superior image fidelity at smaller file sizes than the original
+AVIF.</li>
+<li><strong>Versatile Video Coding (VVC / H.266):</strong> Developed by
+the Joint Video Experts Team (JVET), VVC demonstrates roughly 30% to 50%
+better compression efficiency than HEVC and outperforms AV1 in many
+scenarios. VVC-based still image profiles provide higher fidelity than
+AVIF at ultra-low bitrates, especially for high-resolution photography
+and wide-gamut imagery.</li>
+</ul>
+<h2 id="acceleration-and-hardware-ecosystem-challenges">Acceleration and
+Hardware Ecosystem Challenges</h2>
+<p>AVIF's primary real-world advantage is hardware decoding support
+integrated into modern mobile chips, GPUs, and web browsers, thanks to
+the widespread adoption of AV1. However, next-generation video codecs
+change hardware priorities:</p>
+<ol type="1">
+<li><strong>Silicon Real Estate:</strong> Chipmakers prioritize silicon
+space for newly standardized video codecs. As VVC and eventually AV2
+hardware decoders are integrated into consumer devices, AVIF will no
+longer represent the fastest or most energy-efficient format to decode
+on cutting-edge hardware.</li>
+<li><strong>Encoding Bottlenecks:</strong> AVIF already suffers from
+high computational encoding costs compared to legacy formats like JPEG
+and WebP. Next-generation codecs increase computational complexity
+significantly. While they promise better compression, encoding an image
+format based on AV2 or VVC will demand even more processing power,
+potentially extending AVIF's utility in real-time or low-compute
+production environments.</li>
+</ol>
+<h2 id="the-threat-of-a-shortened-lifespan">The Threat of a Shortened
+Lifespan</h2>
+<p>JPEG dominated the web for decades due to lack of viable
+alternatives, but the rapid turnover in video codecs prevents modern
+formats from establishing similar longevity. AVIF is just beginning to
+achieve ubiquitous browser support and platform adoption.</p>
+<p>The arrival of next-generation video codecs risks turning AVIF into a
+transitional format rather than a permanent standard. If developers and
+platforms face the choice of transitioning their infrastructure to AVIF
+today or waiting for a more efficient, AV2-based format or native VVC
+implementation tomorrow, many may skip AVIF adoption altogether or
+maintain hybrid ecosystems indefinitely.</p>
+<h2 id="the-road-ahead-for-avif">The Road Ahead for AVIF</h2>
+<p>AVIF remains highly competitive for the immediate future due to its
+royalty-free status, active browser support, and superior efficiency
+over JPEG and WebP. However, its ceiling is already defined by AV1's
+architecture. As next-generation video codecs finalize their
+specifications and establish hardware footprints, AVIF will steadily
+shift from being the cutting edge of image delivery to an established
+baseline, paving the way for the next wave of video-derived image
+formats.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

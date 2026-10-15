@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How MIAF Restricts AVIF for Interoperability - avif</title>
+    <meta name="description" content="The Multi-Image Application Format (MIAF) provides a standardized set of constraints that limits the vast optional features of the High Efficiency Image File Format (HEIF) and the AV1 codec. Because AVIF is fundamentally built on top of MIAF, it inherits">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-miaf-restricts-avif-for-interoperability">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How MIAF Restricts AVIF for Interoperability - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-miaf-restricts-avif-for-interoperability" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The Multi-Image Application Format (MIAF) provides a standardized set of constraints that limits the vast optional features of the High Efficiency Image File Format (HEIF) and the AV1 codec. Because AVIF is fundamentally built on top of MIAF, it inherits" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-miaf-restricts-avif-for-interoperability">How MIAF Restricts
+AVIF for Interoperability</h1>
+<p>The Multi-Image Application Format (MIAF) provides a standardized set
+of constraints that limits the vast optional features of the High
+Efficiency Image File Format (HEIF) and the AV1 codec. Because AVIF is
+fundamentally built on top of MIAF, it inherits these constraints to
+prevent fragmentation across operating systems, browsers, and hardware
+decoders. By establishing strict boundaries for codecs, color
+representations, structural transformations, and container layouts, MIAF
+ensures that any compliant AVIF image decodes consistently and reliably
+everywhere.</p>
+<h3 id="codec-profiles-and-level-constraints">Codec Profiles and Level
+Constraints</h3>
+<p>The raw AV1 video specification supports a wide range of decoding
+parameters, many of which exceed the capabilities of consumer hardware
+decoders. MIAF, together with the AVIF profile definitions, maps image
+decoding to specific AV1 profiles and operating levels.</p>
+<ul>
+<li><strong>Baseline Profile:</strong> Limits the AV1 configuration to
+the Main Profile, Level 5.1. This restricts image sizes to a maximum of
+approximately 8K resolution (or 8,912,896 pixels per frame) and
+restricts bit depth to 8-bit or 10-bit color.</li>
+<li><strong>Advanced Profile:</strong> Extends capability up to AV1
+Level 6.0, permitting resolutions up to roughly 16K (35,651,584 pixels)
+and allowing 12-bit color paths.</li>
+</ul>
+<p>By bounding resolutions, tile allocations, and bit depths to
+established hardware decoder levels, MIAF prevents scenarios where an
+encoder creates an arbitrary format that software fallbacks must decode
+inefficiently.</p>
+<h3 id="strict-color-and-subsampling-rules">Strict Color and Subsampling
+Rules</h3>
+<p>Color handling across the web often suffers from ambiguous or
+contradictory metadata. MIAF standardizes color signaling to avoid color
+rendering mismatches:</p>
+<ul>
+<li><strong>Chroma Subsampling:</strong> MIAF primarily permits 4:2:0
+and 4:4:4 subsampling formats. It requires explicit signaling of chroma
+sample positioning, eliminating alignment artifacts around high-contrast
+edges.</li>
+<li><strong>Color Profiles:</strong> Ambiguities between generic ICC
+profiles and standard video transfer functions are resolved by strictly
+defining priority. If an image uses standard color spaces (such as sRGB,
+Display P3, or BT.2100 HDR), it must favor standard NCLX (Colour
+Information) property boxes. When an ICC profile is used, it must be
+restricted to standard color spaces to avoid computationally expensive
+transforms.</li>
+<li><strong>HDR Metadata:</strong> Mastering Display Color Volume (MDCV)
+and Content Light Level Information (CLLI) boxes are strictly
+standardized, ensuring consistent tonemapping across different
+displays.</li>
+</ul>
+<h3 id="transformation-and-derivation-limits">Transformation and
+Derivation Limits</h3>
+<p>HEIF theoretically permits arbitrary mathematical transformations and
+deeply nested item combinations. MIAF significantly streamlines these
+capabilities to keep decoders lightweight:</p>
+<ul>
+<li><strong>Restricted Transforms:</strong> Only three basic
+transformations are permitted: rotation (<code>irot</code>) in 90-degree
+increments, horizontal mirroring (<code>imir</code>), and pixel cropping
+using clean aperture (<code>clap</code>). Arbitrary matrix transforms
+are forbidden.</li>
+<li><strong>Grid Assemblies:</strong> For large images split into
+smaller tiles (using the <code>grid</code> derived image item), MIAF
+requires identical tile dimensions (except possibly the rightmost and
+bottommost edges) and restricts the grid to rectangular arrangements.
+This prevents complex or asynchronous tile assembly.</li>
+<li><strong>Alpha Channels:</strong> Transparency must be handled
+through auxiliary image items (<code>auxl</code>) linked via specific
+reference types (<code>auxv</code>). MIAF dictates that auxiliary alpha
+planes must share identical dimensions with the primary color image,
+preventing the need for complex scaling pipelines during
+composition.</li>
+</ul>
+<h3 id="standardized-container-structure">Standardized Container
+Structure</h3>
+<p>To optimize parsing speed and reduce memory consumption on
+resource-constrained devices, MIAF imposes rules on the underlying
+ISOBMFF container:</p>
+<ul>
+<li><strong>Box Placement:</strong> Essential metadata boxes (such as
+the <code>meta</code> box and the item location <code>iloc</code> box)
+must appear near the start of the file, allowing decoders to understand
+the image structure before the entire payload is downloaded.</li>
+<li><strong>Brand Signaling:</strong> Files must declare the
+<code>miaf</code> structural brand alongside the AVIF-specific brand
+(<code>avif</code> or <code>avis</code>) in the file type
+(<code>ftyp</code>) box. This allows decoders to verify compatibility
+before allocating decoding memory.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

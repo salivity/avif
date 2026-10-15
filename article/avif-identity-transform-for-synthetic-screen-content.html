@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Identity Transform for Synthetic Screen Content - avif</title>
+    <meta name="description" content="The Identity Transform in AVIF prevents color distortion and edge degradation by preserving native RGB color data instead of converting it into the traditional YUV color space. This article explains the technical function of the Identity Transform, why co">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-identity-transform-for-synthetic-screen-content">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Identity Transform for Synthetic Screen Content - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-identity-transform-for-synthetic-screen-content" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The Identity Transform in AVIF prevents color distortion and edge degradation by preserving native RGB color data instead of converting it into the traditional YUV color space. This article explains the technical function of the Identity Transform, why co" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-identity-transform-for-synthetic-screen-content">AVIF
+Identity Transform for Synthetic Screen Content</h1>
+<p>The Identity Transform in AVIF prevents color distortion and edge
+degradation by preserving native RGB color data instead of converting it
+into the traditional YUV color space. This article explains the
+technical function of the Identity Transform, why conventional color
+conversion harms synthetic screen content like user interfaces and text,
+and how bypassing this conversion yields sharper visuals and superior
+compression efficiency.</p>
+<h3 id="what-is-the-identity-transform">What is the Identity
+Transform?</h3>
+<p>In traditional video and image compression, RGB data is
+mathematically converted into a luma-chroma color space (such as YCbCr).
+This process isolates brightness (Y) from color information (Cb/Cr) to
+allow chroma subsampling or heavier compression on color channels
+without noticeable degradation to human vision.</p>
+<p>In the AV1 and AVIF specifications, the Identity Transform
+corresponds to setting the matrix coefficients to zero
+(<code>matrix_coefficients = 0</code>). This flag instructs the encoder
+to bypass the standard RGB-to-YCbCr mathematical transformation
+entirely. Instead of converting colors, the encoder maps the green,
+blue, and red channels directly into the codec's internal channels
+(typically mapped as Green to Y, Blue to U, and Red to V).</p>
+<h3
+id="the-problem-with-traditional-yuv-conversion-on-screen-content">The
+Problem with Traditional YUV Conversion on Screen Content</h3>
+<p>Synthetic screen content—such as application interfaces, vector art,
+computer graphics, and digital text—differs significantly from natural
+photographic imagery:</p>
+<ul>
+<li><strong>Sharp Transitions:</strong> Screen content consists of
+high-contrast, single-pixel borders and sharp transitions between
+adjacent colors.</li>
+<li><strong>Pure Saturated Hues:</strong> Digital graphics often use
+mathematically pure primary and secondary RGB colors.</li>
+<li><strong>Rounding Errors:</strong> The matrix multiplication used to
+convert RGB to YCbCr (and back to RGB upon decoding) is rarely perfectly
+reversible in standard bit depths. This introduces rounding artifacts,
+slight color shifts, and color bleeding along high-contrast
+borders.</li>
+<li><strong>Chroma Bleeding:</strong> Even in 4:4:4 sampling modes (no
+subsampling), the decorrelation process can cause ringing and fringing
+artifacts around thin lines and small typography.</li>
+</ul>
+<h3 id="key-functions-of-the-identity-transform">Key Functions of the
+Identity Transform</h3>
+<h4 id="1-elimination-of-color-bleeding-and-fringing">1. Elimination of
+Color Bleeding and Fringing</h4>
+<p>By retaining the original RGB color representation, the Identity
+Transform eliminates the mathematical rounding errors caused by matrix
+conversions. High-contrast elements, such as black text on a white
+background or bright red buttons on dark UI elements, stay perfectly
+crisp without colored halos or fuzzy edges.</p>
+<h4 id="2-true-lossless-rgb-encoding">2. True Lossless RGB Encoding</h4>
+<p>For workflows that require mathematically lossless compression of
+screen captures, the Identity Transform is essential. Without it, even
+an encoder configured for "lossless" mode will incur subtle losses
+during the RGB-to-YUV-to-RGB round trip unless complex, computationally
+expensive reversible matrices are utilized.</p>
+<h4 id="3-optimized-spatial-prediction-for-synthetic-graphics">3.
+Optimized Spatial Prediction for Synthetic Graphics</h4>
+<p>Synthetic graphics frequently feature flat patches of identical RGB
+values. When the color space is preserved via the Identity Transform,
+the AV1 intra-prediction tools can model directional edges and flat
+color areas directly in RGB space. This avoids creating high-frequency
+residual noise that typically occurs when sharp RGB boundaries are
+mapped onto Y, U, and V planes.</p>
+<h4 id="4-improved-compression-efficiency-for-high-detail-ui">4.
+Improved Compression Efficiency for High-Detail UI</h4>
+<p>Because the encoder does not have to spend bits correcting the false
+artifacts generated by color space conversion, it can allocate its bit
+budget more effectively. For screen content containing text and flat
+elements, encoding with the Identity Transform often yields a smaller
+file size at a given quality level compared to standard YCbCr
+encoding.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

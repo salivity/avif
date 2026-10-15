@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF File Extensions and Official MIME Types - avif</title>
+    <meta name="description" content="This article provides an overview of the officially assigned file extensions and MIME types for the AV1 Image File Format (AVIF). You will learn the exact specifications registered with the Internet Assigned Numbers Authority (IANA), the extensions used f">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-file-extensions-and-official-mime-types">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF File Extensions and Official MIME Types - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-file-extensions-and-official-mime-types" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article provides an overview of the officially assigned file extensions and MIME types for the AV1 Image File Format (AVIF). You will learn the exact specifications registered with the Internet Assigned Numbers Authority (IANA), the extensions used f" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-file-extensions-and-official-mime-types">AVIF File
+Extensions and Official MIME Types</h1>
+<p>This article provides an overview of the officially assigned file
+extensions and MIME types for the AV1 Image File Format (AVIF). You will
+learn the exact specifications registered with the Internet Assigned
+Numbers Authority (IANA), the extensions used for both still and
+animated images, and how to identify them correctly in web
+environments.</p>
+<h3 id="official-mime-types-for-avif">Official MIME Types for AVIF</h3>
+<p>The official media type (MIME type) registered with IANA for AVIF
+is:</p>
+<ul>
+<li><strong><code>image/avif</code></strong></li>
+</ul>
+<p>This is the primary MIME type used for standard, single-frame AVIF
+images.</p>
+<p>For image sequences and animations (such as animated AVIF files), the
+following type is also recognized:</p>
+<ul>
+<li><strong><code>image/avif-sequence</code></strong></li>
+</ul>
+<p>While <code>image/avif-sequence</code> exists for AV1 image
+sequences, the general standard and most web implementations accept
+<code>image/avif</code> for both still images and animated sequences to
+ensure broader compatibility across browsers.</p>
+<h3 id="official-file-extensions">Official File Extensions</h3>
+<p>AVIF files use two official extensions depending on the content:</p>
+<ul>
+<li><strong><code>.avif</code></strong>: The standard extension for
+still AVIF images and the most common extension used across the
+web.</li>
+<li><strong><code>.avifs</code></strong>: The official extension
+designated for AV1 Image Sequences (animated AVIF files).</li>
+</ul>
+<h3 id="web-server-configuration">Web Server Configuration</h3>
+<p>To ensure web browsers correctly serve and render AVIF files, servers
+must be configured to return the proper <code>Content-Type</code>
+header.</p>
+<ul>
+<li><p><strong>Nginx</strong> (within the <code>mime.types</code>
+file):</p>
+<pre class="text"><code>image/avif  avif;
+image/avif  avifs;</code></pre></li>
+<li><p><strong>Apache</strong> (within <code>.htaccess</code> or
+<code>httpd.conf</code>):</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode apache"><code class="sourceCode apache"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>AddType<span class="st"> image/avif .avif</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>AddType<span class="st"> image/avif .avifs</span></span></code></pre></div></li>
+</ul>
+<p>Using <code>.avif</code> alongside <code>image/avif</code> provides
+complete compatibility with modern web browsers, content delivery
+networks (CDNs), and image processing pipelines.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

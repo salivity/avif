@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maximum Reference Frames for Animated AVIF - avif</title>
+    <meta name="description" content="This article examines the structural limits of reference frames in animated AVIF images. Because animated AVIF files are built on top of the AV1 video coding format wrapped within the ISO Base Media File Format (ISOBMFF), their temporal prediction capabil">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/maximum-reference-frames-for-animated-avif">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Maximum Reference Frames for Animated AVIF - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/maximum-reference-frames-for-animated-avif" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article examines the structural limits of reference frames in animated AVIF images. Because animated AVIF files are built on top of the AV1 video coding format wrapped within the ISO Base Media File Format (ISOBMFF), their temporal prediction capabil" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="maximum-reference-frames-for-animated-avif">Maximum Reference
+Frames for Animated AVIF</h1>
+<p>This article examines the structural limits of reference frames in
+animated AVIF images. Because animated AVIF files are built on top of
+the AV1 video coding format wrapped within the ISO Base Media File
+Format (ISOBMFF), their temporal prediction capabilities strictly mirror
+the AV1 specification. Readers will learn the precise maximum number of
+reference frames maintained in memory, the active reference limits per
+frame, and how these parameters govern frame prediction across animation
+sequences.</p>
+<h3 id="av1-architecture-and-the-reference-buffer-limit">AV1
+Architecture and the Reference Buffer Limit</h3>
+<p>Animated AVIF files do not define their own independent video
+compression scheme; instead, they encapsulate an AV1 bitstream as an
+image sequence track. Consequently, the maximum number of reference
+frames an animated AVIF can utilize across sequence items is governed
+entirely by the AV1 Decoded Picture Buffer (DPB).</p>
+<p>Under the AV1 specification, the Decoded Picture Buffer maintains a
+fixed pool size defined by the constant <code>NUM_REF_FRAMES</code>,
+which is set to <strong>8</strong>. This means an animated AVIF decoder
+can store a maximum of 8 distinct reference frames in memory at any
+point in the playback sequence.</p>
+<h3 id="maximum-references-per-single-frame">Maximum References Per
+Single Frame</h3>
+<p>While 8 frame slots exist in the decoded buffer pool, AV1 allows an
+inter-coded frame to reference up to <strong>7</strong> of those frames
+for prediction:</p>
+<ul>
+<li><strong>LAST_FRAME</strong>: The most recent reference frame.</li>
+<li><strong>LAST2_FRAME</strong>: The second most recent reference
+frame.</li>
+<li><strong>LAST3_FRAME</strong>: The third most recent reference
+frame.</li>
+<li><strong>GOLDEN_FRAME</strong>: A historically preserved frame often
+used for scene background recovery.</li>
+<li><strong>BWDREF_FRAME</strong>: A backward (future in display order)
+reference frame.</li>
+<li><strong>ALTREF2_FRAME</strong>: An alternative backward reference
+frame.</li>
+<li><strong>ALTREF_FRAME</strong>: An alternative forward/backward
+reference often used for temporal filtering.</li>
+</ul>
+<p>Although a sequence can update, shift, and refresh which images
+occupy the 8 buffer slots using reference frame update flags, no
+individual inter-frame can draw from more than 7 directional references
+simultaneously.</p>
+<h3 id="sequence-mechanics-in-animated-avif">Sequence Mechanics in
+Animated AVIF</h3>
+<p>Across the lifetime of an animated AVIF sequence, reference frame
+management functions as follows:</p>
+<ol type="1">
+<li><strong>Intra Frames (Keyframes):</strong> Sequence items flagged as
+keyframes decode independently of prior frames and reset or selectively
+update the 8 buffer slots.</li>
+<li><strong>Inter Frames:</strong> Subsequent animation frames reference
+up to 7 previously decoded frames currently resident within the 8 DPB
+slots.</li>
+<li><strong>Buffer Slot Updates:</strong> The encoder chooses which of
+the 8 slots to overwrite with newly decoded frames using a bitmask. This
+allows non-consecutive frames (such as static background elements in a
+looping animation) to persist across hundreds of frames without being
+discarded.</li>
+</ol>
+<p>In summary, an animated AVIF can retain at most <strong>8 reference
+frames</strong> simultaneously within its sequence buffer, drawing from
+a maximum of <strong>7 active reference frames</strong> to predict any
+given frame.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

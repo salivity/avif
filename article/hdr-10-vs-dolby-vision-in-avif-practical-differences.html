@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HDR10 vs Dolby Vision in AVIF: Practical Differences - avif</title>
+    <meta name="description" content="This article examines the practical differences between storing high dynamic range (HDR) image data as HDR10 versus Dolby Vision within the AVIF (AV1 Image File Format) container. While both formats utilize the perceptual quantizer (PQ) curve and wide col">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/hdr-10-vs-dolby-vision-in-avif-practical-differences">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="HDR10 vs Dolby Vision in AVIF: Practical Differences - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/hdr-10-vs-dolby-vision-in-avif-practical-differences" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article examines the practical differences between storing high dynamic range (HDR) image data as HDR10 versus Dolby Vision within the AVIF (AV1 Image File Format) container. While both formats utilize the perceptual quantizer (PQ) curve and wide col" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="hdr10-vs-dolby-vision-in-avif-practical-differences">HDR10 vs
+Dolby Vision in AVIF: Practical Differences</h1>
+<p>This article examines the practical differences between storing high
+dynamic range (HDR) image data as HDR10 versus Dolby Vision within the
+AVIF (AV1 Image File Format) container. While both formats utilize the
+perceptual quantizer (PQ) curve and wide color gamuts to deliver
+expanded dynamic range, they diverge fundamentally in metadata
+implementation, display adaptability, licensing, and real-world software
+compatibility.</p>
+<h3 id="metadata-static-vs-dynamic">Metadata: Static vs. Dynamic</h3>
+<p>The primary technical difference lies in how metadata informs the
+display on tone mapping the image.</p>
+<ul>
+<li><strong>HDR10 in AVIF:</strong> Uses static metadata (SMPTE ST 2086
+and CTA 861.3). It defines global parameters for the entire image file,
+such as the mastering display's peak brightness and color primaries,
+along with static values like Maximum Content Light Level (MaxCLL) and
+Maximum Frame-Average Light Level (MaxFALL). Because this data is fixed,
+lower-end displays must compromise between clipping highlights or
+dimming overall mid-tones.</li>
+<li><strong>Dolby Vision in AVIF:</strong> Employs dynamic metadata
+embedded via Dolby-specific syntax (often carrying an RPU, or Reference
+Processing Unit payload). This data can instruct the display on how to
+precisely remap highlight, mid-tone, and shadow details based on the
+exact target screen capabilities. On displays with limited peak nit
+outputs, Dolby Vision provides superior tone mapping without blowing out
+highlights or crushing dark areas.</li>
+</ul>
+<h3 id="bit-depth-and-color-precision">Bit Depth and Color
+Precision</h3>
+<p>Both formats rely on the ITU-R BT.2020 wide color gamut, but
+potential bit depth can vary.</p>
+<ul>
+<li><strong>HDR10:</strong> Strictly limited to a 10-bit color depth
+(giving 1,024 steps per color channel). This is generally sufficient to
+prevent visible banding when paired with the PQ transfer function.</li>
+<li><strong>Dolby Vision:</strong> Supports both 10-bit and 12-bit
+encoding (Profile 5, Profile 8, etc.). When encoded at 12-bit inside
+AVIF, it offers 4,096 steps per color channel, virtually eliminating
+banding artifacts in complex gradients. However, most consumer displays
+remain native 10-bit, minimizing this practical benefit on current
+consumer hardware.</li>
+</ul>
+<h3 id="decoding-and-ecosystem-compatibility">Decoding and Ecosystem
+Compatibility</h3>
+<p>For still images on the web and in software applications, ecosystem
+support is the most significant practical divider.</p>
+<ul>
+<li><strong>HDR10 AVIF:</strong> Enjoys widespread baseline support.
+Modern browsers (including Google Chrome, Microsoft Edge, and Apple
+Safari) and modern operating systems (Windows 11, macOS, Android, iOS)
+can decode 10-bit AVIF with PQ curves natively through standard OS-level
+HDR compositing pipelines.</li>
+<li><strong>Dolby Vision AVIF:</strong> Faces heavy fragmentation.
+Displaying Dolby Vision requires specialized decoding hardware,
+proprietary license validation, and specific parsing support within the
+rendering engine. Most standard web browsers and image viewers will
+either fail to parse the Dolby Vision metadata layer (falling back to a
+generic base layer if dual-layer/cross-compatible) or reject the file
+entirely.</li>
+</ul>
+<h3 id="authoring-and-licensing">Authoring and Licensing</h3>
+<p>Creating HDR10 AVIF files requires standard, open-source tooling such
+as <code>libavif</code>, FFmpeg, and standard image-processing
+libraries. There are no royalties or proprietary certifications required
+to generate or distribute the images.</p>
+<p>Conversely, generating valid Dolby Vision AVIF files requires
+proprietary authoring pipelines, official Dolby encoding tools (or
+licensed software suites), and compliance testing, introducing cost and
+friction for general image delivery workflows.</p>
+<h3 id="summary-of-practical-utility">Summary of Practical Utility</h3>
+<p>For general web delivery, photography, and UI design, <strong>HDR10
+in AVIF</strong> is the practical standard due to universal open-source
+support and native operating system integration. <strong>Dolby Vision in
+AVIF</strong> is typically reserved for controlled, end-to-end
+proprietary ecosystems (such as video stills extracted within
+professional mastering platforms) where guaranteed hardware support
+justifies the complex licensing and limited software footprint.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

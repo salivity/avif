@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why JPEG XL Decodes Faster Than AVIF in Software - avif</title>
+    <meta name="description" content="JPEG XL delivers significantly faster pure software decoding speeds than AVIF because it was engineered specifically for still images and modern CPU architectures, avoiding the computational overhead inherent to video-derived codecs. While AVIF adapts the">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/why-jpeg-xl-decodes-faster-than-avif-in-software">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Why JPEG XL Decodes Faster Than AVIF in Software - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/why-jpeg-xl-decodes-faster-than-avif-in-software" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="JPEG XL delivers significantly faster pure software decoding speeds than AVIF because it was engineered specifically for still images and modern CPU architectures, avoiding the computational overhead inherent to video-derived codecs. While AVIF adapts the" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="why-jpeg-xl-decodes-faster-than-avif-in-software">Why JPEG XL
+Decodes Faster Than AVIF in Software</h1>
+<p>JPEG XL delivers significantly faster pure software decoding speeds
+than AVIF because it was engineered specifically for still images and
+modern CPU architectures, avoiding the computational overhead inherent
+to video-derived codecs. While AVIF adapts the complex, sequentially
+constrained compression pipeline of the AV1 video format, JPEG XL
+utilizes lightweight entropy coding, native SIMD vectorization, and
+independent block processing that allow modern processors to decode
+image data with minimal latency.</p>
+<h3
+id="purpose-built-image-architecture-vs-video-heritage">Purpose-Built
+Image Architecture vs. Video Heritage</h3>
+<p>AVIF is an image format derived from the AV1 video standard. Video
+codecs achieve high compression ratios by relying on intricate
+prediction mechanisms, variable block partitioning, and inter-frame
+logic. Even in still-frame mode (AVIF), the decoder must execute complex
+syntax parsing and setup routines designed for video frames.</p>
+<p>In contrast, JPEG XL was developed from the ground up as an image
+format. It eliminates video container overhead and bypasses unnecessary
+video pipeline states, directing all computational resources entirely
+toward spatial image reconstruction.</p>
+<h3 id="highly-parallelizable-tile-design">Highly Parallelizable Tile
+Design</h3>
+<p>JPEG XL splits images into small, independent processing units,
+typically groups of 256×256 pixels. Each group contains its own local
+context and can be parsed and decoded completely in parallel without
+cross-boundary dependencies. This structure allows software decoders to
+scale nearly linearly across multiple CPU cores with minimal thread
+synchronization.</p>
+<p>AVIF uses AV1's tiling mechanism, which is less granular and often
+restricted by the encoder to a small number of tiles (or a single tile)
+to maintain compression efficiency. Consequently, software decoding of
+AVIF images often bottlenecks on single-thread performance.</p>
+<h3 id="asymmetric-numeral-systems-vs-arithmetic-coding">Asymmetric
+Numeral Systems vs. Arithmetic Coding</h3>
+<p>The entropy decoding stage is often the primary bottleneck in pure
+software decoding:</p>
+<ul>
+<li><strong>AVIF</strong> uses a multi-symbol arithmetic coder inherited
+from AV1. Arithmetic coding is inherently serial, meaning each bit or
+symbol relies on the state of the preceding one, severely restricting
+instruction-level parallelism.</li>
+<li><strong>JPEG XL</strong> utilizes Asymmetric Numeral Systems (ANS)
+and prefix codes (Brotli-style Huffman). The ANS implementation in JPEG
+XL is specifically optimized for superscalar execution, enabling
+processors to decode multiple symbols per clock cycle and process
+several gigabits of compressed data per second per core.</li>
+</ul>
+<h3 id="native-simd-optimization">Native SIMD Optimization</h3>
+<p>JPEG XL's mathematical operations, including its primary
+transformation modes (V-VarDCT and Modular), were designed specifically
+to leverage modern SIMD (Single Instruction, Multiple Data) instruction
+sets such as SSE4, AVX2, AVX-512, and ARM NEON. The mathematical
+transforms, color space conversions (such as XYB), and quantization
+steps map directly to vector registers without requiring costly memory
+shuffling or branch-heavy operations.</p>
+<p>While AV1 software decoders (like <code>libdav1d</code>) are heavily
+hand-optimized with assembly, they must continuously handle branching
+logic for dozens of potential transform sizes and intra-prediction
+modes, leading to higher instruction cache pressure and branch
+mispredictions.</p>
+<h3 id="lightweight-in-loop-filtering">Lightweight In-Loop
+Filtering</h3>
+<p>To reduce block artifacts at low bitrates, AVIF must run AV1’s
+multi-stage in-loop restoration pipeline: deblocking filters,
+Constrained Directional Enhancement Filters (CDEF), and loop
+restoration. These filters must run sequentially across tile and block
+edges, introducing pipeline stalls and substantial memory bandwidth
+consumption.</p>
+<p>JPEG XL approaches edge-smoothing and reconstruction using
+lightweight, SIMD-friendly adaptive smoothing filters that require fewer
+memory passes and execute significantly faster in pure CPU
+environments.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

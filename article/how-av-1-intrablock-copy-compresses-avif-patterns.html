@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How AV1 Intrablock Copy Compresses AVIF Patterns - avif</title>
+    <meta name="description" content="This article explains the Intrablock Copy (IBC) mode used in the AV1 video codec and its still-image derivative, AVIF. It covers the technical mechanics of how IBC repurposes motion compensation within a single frame, why this approach is critical for com">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-av-1-intrablock-copy-compresses-avif-patterns">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How AV1 Intrablock Copy Compresses AVIF Patterns - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-av-1-intrablock-copy-compresses-avif-patterns" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explains the Intrablock Copy (IBC) mode used in the AV1 video codec and its still-image derivative, AVIF. It covers the technical mechanics of how IBC repurposes motion compensation within a single frame, why this approach is critical for com" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-av1-intrablock-copy-compresses-avif-patterns">How AV1
+Intrablock Copy Compresses AVIF Patterns</h1>
+<p>This article explains the Intrablock Copy (IBC) mode used in the AV1
+video codec and its still-image derivative, AVIF. It covers the
+technical mechanics of how IBC repurposes motion compensation within a
+single frame, why this approach is critical for compressing repeating
+patterns and screen content, and the resulting efficiency gains for web
+graphics and typography.</p>
+<h2 id="what-is-intrablock-copy-ibc">What is Intrablock Copy (IBC)?</h2>
+<p>Traditional intra-frame prediction relies on directional
+extrapolation, where an encoder predicts the contents of a block using
+the reconstructed boundary pixels of immediately adjacent neighbor
+blocks. While this works well for continuous photographic gradients, it
+struggles with sharp, distinct, and spatially separated duplicates
+across an image.</p>
+<p>Intrablock Copy (IBC)—often referred to as Intra Block Copy or
+Current Picture Referencing—bridges the gap between intra-frame coding
+and inter-frame motion estimation. Originally standardized for screen
+content coding, IBC allows a block within a single frame to be predicted
+directly from previously decoded pixels located elsewhere in that exact
+same frame.</p>
+<p>Instead of generating a prediction from adjacent borders, the encoder
+uses a two-dimensional displacement vector, known as a Block Vector
+(BV). This vector points to an already reconstructed reference block
+within the image buffer, functioning identically to motion compensation
+in video, but restricted to the boundaries of the current image.</p>
+<h2 id="how-ibc-handles-repeating-patterns-in-avif">How IBC Handles
+Repeating Patterns in AVIF</h2>
+<p>The AVIF image format stores still images as AV1 intra-frames
+(keyframes). When an AVIF image contains repetitive elements—such as UI
+components, digital illustrations, fonts, icons, or repeating geometric
+patterns—IBC provides high-density data reduction through the following
+process:</p>
+<h3 id="1-pattern-matching-via-block-vectors">1. Pattern Matching via
+Block Vectors</h3>
+<p>When the encoder evaluates a block, it scans previously reconstructed
+areas of the image to locate an identical or closely matching pixel
+structure. If a match is found, the encoder does not re-encode the pixel
+data. Instead, it records a Block Vector that specifies the horizontal
+and vertical offset to the matching source block.</p>
+<h3 id="2-residual-data-minimization">2. Residual Data Minimization</h3>
+<p>If the target pattern perfectly matches the referenced block (common
+in synthetic graphics, text, and flat design), the prediction
+error—known as the residual—is zero. The encoder only needs to write the
+Block Vector into the bitstream, skipping transform and quantization
+stages entirely for that block. If the pattern differs slightly (such as
+a repeating element under a slight lighting variance), only the minimal
+residual difference between the two blocks is transformed and
+stored.</p>
+<h3 id="3-vector-prediction-and-entropy-coding">3. Vector Prediction and
+Entropy Coding</h3>
+<p>Block Vectors themselves are compressed. AV1 maintains a history of
+recently used Block Vectors, allowing subsequent vectors pointing to the
+same relative distance to be coded using small difference values (delta
+vectors). This makes repeating sequences of icons or text characters
+exceptionally lightweight in the final file.</p>
+<h2 id="why-ibc-outperforms-standard-intra-prediction">Why IBC
+Outperforms Standard Intra Prediction</h2>
+<p>Standard intra prediction cannot model non-local redundancy. If an
+icon appears in the top-left corner and again in the bottom-right
+corner, standard intra coding must encode both instances independently
+from scratch.</p>
+<p>With IBC enabled, AVIF achieves:</p>
+<ul>
+<li><strong>Massive Bitrate Reductions in Screen Content:</strong>
+Repeated glyphs, UI elements, and tiled textures require only a few
+bytes of vector data rather than full spatial representations.</li>
+<li><strong>Sharp Edge Preservation:</strong> Traditional spatial
+transforms often blur high-contrast edges or introduce ringing artifacts
+around text at lower bitrates. IBC copies reconstructed pixels directly,
+maintaining pixel-perfect edges without ringing.</li>
+<li><strong>Optimized Storage for Mixed Media:</strong> In graphics that
+combine photographic backgrounds with repeated vector-like overlays, AV1
+dynamically switches between standard directional intra modes for the
+photos and IBC for the repeating graphic elements.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

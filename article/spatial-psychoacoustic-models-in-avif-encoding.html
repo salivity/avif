@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spatial Psychoacoustic Models in AVIF Encoding - avif</title>
+    <meta name="description" content="This article examines the conceptual and technical relationship between sensory perceptual models and AVIF image compression. While psychoacoustic models fundamentally govern auditory perception rather than visual data, the mathematical principles of sens">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/spatial-psychoacoustic-models-in-avif-encoding">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Spatial Psychoacoustic Models in AVIF Encoding - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/spatial-psychoacoustic-models-in-avif-encoding" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article examines the conceptual and technical relationship between sensory perceptual models and AVIF image compression. While psychoacoustic models fundamentally govern auditory perception rather than visual data, the mathematical principles of sens" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="spatial-psychoacoustic-models-in-avif-encoding">Spatial
+Psychoacoustic Models in AVIF Encoding</h1>
+<p>This article examines the conceptual and technical relationship
+between sensory perceptual models and AVIF image compression. While
+psychoacoustic models fundamentally govern auditory perception rather
+than visual data, the mathematical principles of sensory masking
+frequently inform the psychovisual models used to adapt video encoders
+like AV1 for still images. Below, we break down the distinction between
+acoustic and visual models, how perceptual masking applies to static
+graphics, and how AV1 video encoders are reconfigured to produce
+high-fidelity AVIF stills.</p>
+<h3 id="psychoacoustics-vs-psychovisual-modeling">Psychoacoustics vs.
+Psychovisual Modeling</h3>
+<p>In media compression, psychoacoustic models measure how the human
+auditory system perceives sound, relying on frequency masking, temporal
+masking, and spatial localization to discard inaudible audio data.
+Because the AV1 Image File Format (AVIF) is a container strictly
+designated for static or animated visual content derived from AV1
+intra-frames, spatial psychoacoustic models play no operational role in
+the generation of AVIF files.</p>
+<p>Instead, image compression relies on <strong>spatial psychovisual
+models</strong>. The overlap between the two domains lies in their
+shared signal-processing foundations. Both disciplines quantify the
+human brain’s perceptual thresholds using transform-domain masking, Just
+Noticeable Difference (JND) measurements, and bandwidth-reduction
+strategies tailored to human sensory limits.</p>
+<h3 id="how-perceptual-masking-translates-to-static-images">How
+Perceptual Masking Translates to Static Images</h3>
+<p>In audio processing, a loud tone masks quieter adjacent frequencies
+in both pitch and time. Similarly, in spatial psychovisuals,
+high-frequency spatial detail or high-contrast texture masks compression
+noise and quantization artifacts in nearby pixels. This is known as
+visual spatial masking.</p>
+<p>When configuring encoders for still images, perceptual algorithms
+analyze:</p>
+<ul>
+<li><strong>Luminance Masking:</strong> The human visual system has
+lower sensitivity to noise in extremely bright or extremely dark regions
+compared to mid-tones.</li>
+<li><strong>Texture and Edge Masking:</strong> High-texture regions
+(such as foliage or stone surfaces) can tolerate higher quantization
+error than smooth gradients or sharp edges, where banding and ringing
+artifacts are immediately noticeable.</li>
+<li><strong>Contrast Sensitivity Function (CSF):</strong> Similar to
+equal-loudness contours in acoustics, the CSF measures how spatial
+frequency impacts visual perception, guiding the quantizer to allocate
+fewer bits to frequencies the eye cannot resolve.</li>
+</ul>
+<h3 id="adapting-av1-video-encoders-for-avif-stills">Adapting AV1 Video
+Encoders for AVIF Stills</h3>
+<p>Video encoders such as libaom and SVT-AV1 are engineered primarily
+for moving pictures, where temporal masking operates heavily. In motion
+video, the human eye tolerates lower spatial fidelity per frame because
+motion blurs fine details and successive frames refresh rapidly.</p>
+<p>When adapting these encoders for AVIF still images, the following
+structural adjustments must be made:</p>
+<ol type="1">
+<li><strong>Elimination of Temporal Masking:</strong> Because a still
+viewer can scrutinize an image indefinitely, temporal masking
+assumptions are invalid. Encoders must operate exclusively in
+intra-frame (all-intra) mode, where every pixel must hold up to static
+inspection.</li>
+<li><strong>Recalibration of Adaptive Quantization (Delta-Q):</strong>
+Video rate control often averages distortion over time. For AVIF,
+spatial psychovisual tuning (such as variance-based or edge-directed
+adaptive quantization) must evaluate local spatial activity
+frame-by-frame, shifting bits from complex, heavily masked textures to
+vulnerable smooth areas to prevent contouring.</li>
+<li><strong>In-Loop Filtering Adjustments:</strong> AV1 includes in-loop
+restoration, the Constrained Directional Enhancement Filter (CDEF), and
+the Deblocking Filter. While aggressive filtering prevents distracting
+temporal flicker in video, it can over-smooth fine details in stills.
+Encoders adapted for AVIF must tune these filters conservatively to
+preserve authentic micro-textures.</li>
+<li><strong>Static Film Grain Synthesis:</strong> Instead of burning
+bits to encode high-frequency sensor noise or film grain, AV1 uses
+parametric grain synthesis. For stills, psychovisual algorithms estimate
+spatial noise characteristics to synthesize realistic grain at the
+decoder level, preventing plastic-looking flat regions without inflating
+file size.</li>
+</ol></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

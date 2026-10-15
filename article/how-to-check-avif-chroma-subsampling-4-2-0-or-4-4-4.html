@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Check AVIF Chroma Subsampling (4:2:0 or 4:4:4) - avif</title>
+    <meta name="description" content="This guide explains how developers can inspect an AVIF image to determine its chroma subsampling scheme, specifically distinguishing between 4:2:0 and 4:4:4 formats. Because AVIF relies on the AV1 video codec packaged inside an ISOBMFF container, standard">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-to-check-avif-chroma-subsampling-4-2-0-or-4-4-4">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How to Check AVIF Chroma Subsampling (4:2:0 or 4:4:4) - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-to-check-avif-chroma-subsampling-4-2-0-or-4-4-4" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This guide explains how developers can inspect an AVIF image to determine its chroma subsampling scheme, specifically distinguishing between 4:2:0 and 4:4:4 formats. Because AVIF relies on the AV1 video codec packaged inside an ISOBMFF container, standard" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-to-check-avif-chroma-subsampling-420-or-444">How to Check
+AVIF Chroma Subsampling (4:2:0 or 4:4:4)</h1>
+<p>This guide explains how developers can inspect an AVIF image to
+determine its chroma subsampling scheme, specifically distinguishing
+between 4:2:0 and 4:4:4 formats. Because AVIF relies on the AV1 video
+codec packaged inside an ISOBMFF container, standard image viewers often
+hide color layout details. You will learn how to verify subsampling data
+using command-line utilities such as FFprobe, <code>avifdec</code>, and
+ExifTool.</p>
+<h3 id="1-using-ffprobe-ffmpeg">1. Using FFprobe (FFmpeg)</h3>
+<p>FFprobe provides a reliable way to inspect the internal pixel format
+of an AVIF file. It reports the AV1 video stream's pixel format
+directly.</p>
+<p>Run the following command:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ffprobe</span> <span class="at">-v</span> error <span class="at">-select_streams</span> v:0 <span class="at">-show_entries</span> stream=pix_fmt <span class="at">-of</span> default=noprint_wrappers=1:nokey=1 image.avif</span></code></pre></div>
+<p><strong>Interpretation:</strong></p>
+<ul>
+<li><strong><code>yuv420p</code></strong> or
+<strong><code>yuv420p10le</code></strong>: The image uses
+<strong>4:2:0</strong> subsampling (8-bit or 10-bit).</li>
+<li><strong><code>yuv444p</code></strong> or
+<strong><code>yuv444p10le</code></strong>: The image uses
+<strong>4:4:4</strong> subsampling (full color resolution).</li>
+<li><strong><code>yuv422p</code></strong>: The image uses
+<strong>4:2:2</strong> subsampling.</li>
+</ul>
+<h3 id="2-using-avifdec-libavif">2. Using <code>avifdec</code>
+(libavif)</h3>
+<p>The official reference library for AVIF, <code>libavif</code>,
+includes a command-line tool named <code>avifdec</code>. It offers an
+<code>--info</code> flag that reads container metadata without fully
+decoding the image pixels.</p>
+<p>Run the following command:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">avifdec</span> <span class="at">--info</span> image.avif</span></code></pre></div>
+<p>Look for the <code>Format</code> line in the output:</p>
+<ul>
+<li><code>Format : YUV420</code> indicates <strong>4:2:0</strong>.</li>
+<li><code>Format : YUV444</code> indicates <strong>4:4:4</strong>.</li>
+</ul>
+<h3 id="3-using-exiftool">3. Using ExifTool</h3>
+<p>Phil Harvey's ExifTool parses ISOBMFF box structures directly and
+extracts color configuration records, such as the <code>av1C</code> (AV1
+Configuration Box) or <code>colr</code> boxes.</p>
+<p>Run the following command:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">exiftool</span> <span class="at">-ChromaSubsampling</span> image.avif</span></code></pre></div>
+<p>Alternatively, to view all color-related tags:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">exiftool</span> <span class="at">-s</span> <span class="at">-G</span> image.avif <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-i</span> subsampling</span></code></pre></div>
+<p><strong>Interpretation:</strong></p>
+<ul>
+<li><code>YCbCr4:2:0</code> or values indicating vertical and horizontal
+subsampling factors of <code>2 2</code> indicate
+<strong>4:2:0</strong>.</li>
+<li><code>YCbCr4:4:4</code> or factors of <code>1 1</code> indicate
+<strong>4:4:4</strong>.</li>
+</ul>
+<h3 id="4-inspecting-via-nodejs-image-size-or-sharp">4. Inspecting via
+Node.js (<code>image-size</code> or <code>sharp</code>)</h3>
+<p>If you need to inspect files programmatically in JavaScript or
+TypeScript, you can use the <code>sharp</code> library:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> sharp <span class="op">=</span> <span class="pp">require</span>(<span class="st">&#39;sharp&#39;</span>)<span class="op">;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="kw">async</span> <span class="kw">function</span> <span class="fu">checkSubsampling</span>(filePath) {</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> metadata <span class="op">=</span> <span class="cf">await</span> <span class="fu">sharp</span>(filePath)<span class="op">.</span><span class="fu">metadata</span>()<span class="op">;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`Chroma Subsampling: </span><span class="sc">${</span>metadata<span class="op">.</span><span class="at">chromaSubsampling</span><span class="sc">}</span><span class="vs">`</span>)<span class="op">;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="fu">checkSubsampling</span>(<span class="st">&#39;image.avif&#39;</span>)<span class="op">;</span></span></code></pre></div>
+<p>Sharp will return strings such as <code>'4:2:0'</code> or
+<code>'4:4:4'</code> within the metadata object.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

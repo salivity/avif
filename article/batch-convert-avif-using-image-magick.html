@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Batch Convert AVIF Using ImageMagick - avif</title>
+    <meta name="description" content="This article explains how ImageMagick utilizes the libavif library as an underlying delegate to handle AV1 Image File Format encoding and decoding, enabling high-efficiency batch conversions. You will learn the technical mechanics behind this integration,">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/batch-convert-avif-using-image-magick">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Batch Convert AVIF Using ImageMagick - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/batch-convert-avif-using-image-magick" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explains how ImageMagick utilizes the libavif library as an underlying delegate to handle AV1 Image File Format encoding and decoding, enabling high-efficiency batch conversions. You will learn the technical mechanics behind this integration," />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="batch-convert-avif-using-imagemagick">Batch Convert AVIF Using
+ImageMagick</h1>
+<p>This article explains how ImageMagick utilizes the
+<code>libavif</code> library as an underlying delegate to handle AV1
+Image File Format encoding and decoding, enabling high-efficiency batch
+conversions. You will learn the technical mechanics behind this
+integration, how ImageMagick interfaces with <code>libavif</code> via
+its modular architecture, and how to execute scalable batch conversion
+workflows directly from the command line.</p>
+<h3 id="the-delegate-architecture">The Delegate Architecture</h3>
+<p>ImageMagick does not implement native AV1 codec algorithms directly
+within its core codebase. Instead, it relies on an extensible delegate
+system defined in configuration files such as
+<code>delegates.xml</code>. When ImageMagick encounters an AVIF file or
+is instructed to output to the <code>.avif</code> format, it calls
+<code>libavif</code>—the open-source reference library developed by the
+Alliance for Open Media (AOM).</p>
+<p>During compilation or dynamic runtime loading, ImageMagick identifies
+the presence of <code>libavif</code>. It registers the library to handle
+MIME types and file signatures associated with AVIF
+(<code>image/avif</code>). When an operation is executed, ImageMagick
+translates its internal canvas and pixel representations into the
+<code>avifImage</code> and <code>avifEncoder</code> structures defined
+by the <code>libavif</code> API, handing off the heavy compression and
+decompression tasks to the underlying codec (such as <code>aom</code>,
+<code>dav1d</code>, or <code>rav1e</code>).</p>
+<h3 id="verification-of-avif-support">Verification of AVIF Support</h3>
+<p>Before executing batch processes, verify that your local ImageMagick
+build has successfully linked <code>libavif</code>. Run the following
+command:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">magick</span> identify <span class="at">-list</span> format <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-i</span> avif</span></code></pre></div>
+<p>If integrated correctly, the output will display <code>AVIF</code>
+with read (<code>r</code>) and write (<code>w</code>) capabilities.</p>
+<h3 id="how-batch-processing-works">How Batch Processing Works</h3>
+<p>ImageMagick facilitates batch processing primarily through two
+approaches: the <code>mogrify</code> command for in-place or
+directory-wide transformation, and the <code>magick</code> command
+paired with shell scripting for fine-grained parallel processing.</p>
+<h4 id="1-native-in-place-batch-conversion-with-mogrify">1. Native
+In-Place Batch Conversion with <code>mogrify</code></h4>
+<p>The <code>mogrify</code> utility simplifies batch jobs by iterating
+through file lists natively without external loops:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">magick</span> mogrify <span class="at">-format</span> avif <span class="at">-quality</span> 60 <span class="at">-define</span> heic:speed=6 <span class="pp">*</span>.jpg</span></code></pre></div>
+<p>In this pipeline:</p>
+<ul>
+<li>ImageMagick loads each <code>.jpg</code> sequentially using its
+standard JPEG delegate.</li>
+<li>The image is converted into an internal RGBA pixel cache.</li>
+<li>ImageMagick routes the pixel data through <code>libavif</code>.</li>
+<li>The <code>-define heic:speed</code> argument passes directly to
+<code>libavif</code>'s encoder configuration to adjust the CPU effort
+(ranging from 0 for slowest/best to 10 for fastest).</li>
+</ul>
+<h4 id="2-multi-core-batch-processing-with-parallel-loops">2. Multi-Core
+Batch Processing with Parallel Loops</h4>
+<p>Because AVIF encoding is computationally intensive, processing large
+directories using standard shell loops alongside utilities like GNU
+<code>parallel</code> maximizes CPU core utilization:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">find</span> . <span class="at">-name</span> <span class="st">&quot;*.png&quot;</span> <span class="kw">|</span> <span class="ex">parallel</span> <span class="at">-j</span> <span class="va">$(</span><span class="fu">nproc</span><span class="va">)</span> magick {} <span class="at">-quality</span> 65 <span class="at">-define</span> heic:speed=4 {.}.avif</span></code></pre></div>
+<p>Each thread spawns an independent ImageMagick instance that
+interfaces with its own <code>libavif</code> encoder context, ensuring
+total isolation, lower risk of memory fragmentation, and full saturation
+of modern multi-threaded processors.</p>
+<h3 id="handling-advanced-avif-features">Handling Advanced AVIF
+Features</h3>
+<p>Through <code>libavif</code>, ImageMagick exposes several
+format-specific controls that can be applied across batch sets:</p>
+<ul>
+<li><strong>Lossless Compression:</strong> Adding
+<code>-define heic:lossless=true</code> directs <code>libavif</code> to
+use mathematically lossless AV1 encoding.</li>
+<li><strong>Chroma Subsampling:</strong> Setting
+<code>-sampling-factor 4:2:0</code> or <code>4:4:4</code> controls color
+compression, allowing users to preserve sharp color edges in graphics or
+reduce file sizes for photographic imagery.</li>
+<li><strong>Color Depth Management:</strong> ImageMagick handles
+bit-depth translation (e.g., converting 8-bit source files to 10-bit or
+12-bit AVIF containers) using the <code>-depth</code> flag, provided
+<code>libavif</code> was compiled with high-bit-depth codec
+support.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

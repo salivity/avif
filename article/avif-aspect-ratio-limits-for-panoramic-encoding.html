@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Aspect Ratio Limits for Panoramic Encoding - avif</title>
+    <meta name="description" content="Encoding extreme panoramic images in the AV1 Image File Format (AVIF) involves balancing bitstream-level structural ceilings, container-level composition capabilities, and hardware decoder constraints. While the AV1 bitstream itself imposes a strict 16-bi">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-aspect-ratio-limits-for-panoramic-encoding">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Aspect Ratio Limits for Panoramic Encoding - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-aspect-ratio-limits-for-panoramic-encoding" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Encoding extreme panoramic images in the AV1 Image File Format (AVIF) involves balancing bitstream-level structural ceilings, container-level composition capabilities, and hardware decoder constraints. While the AV1 bitstream itself imposes a strict 16-bi" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-aspect-ratio-limits-for-panoramic-encoding">AVIF Aspect
+Ratio Limits for Panoramic Encoding</h1>
+<p>Encoding extreme panoramic images in the AV1 Image File Format (AVIF)
+involves balancing bitstream-level structural ceilings, container-level
+composition capabilities, and hardware decoder constraints. While the
+AV1 bitstream itself imposes a strict 16-bit coordinate system that caps
+single-frame dimensions at 65,536 pixels in either direction, AVIF can
+bypass this limit using ISOBMFF grid items. This article breaks down the
+mathematical and architectural limits on aspect ratios when encoding
+ultra-wide or ultra-tall panoramic AVIF images.</p>
+<h2 id="single-frame-av1-bitstream-limits">Single-Frame AV1 Bitstream
+Limits</h2>
+<p>At the core codec level, an AVIF image containing a single AV1 frame
+is governed by the AV1 bitstream specification:</p>
+<ul>
+<li><strong>Maximum Coordinate Size:</strong> The AV1 syntax fields
+<code>frame_width_minus_1</code> and <code>frame_height_minus_1</code>
+are allocated up to 16 bits. This establishes an absolute structural
+ceiling of 65,536 pixels for both maximum width and maximum height.</li>
+<li><strong>Minimum Dimensions:</strong> AV1 partitions image data into
+superblocks (either 64×64 or 128×128 pixels). Although an image can be
+cropped to smaller boundaries via conformance rules, processing blocks
+require minimum alignment units (typically down to 8×8 or 16×16
+depending on the subsampling format such as 4:2:0).</li>
+<li><strong>Single-Frame Aspect Ratio Ceiling:</strong> With an absolute
+maximum axis of 65,536 pixels and a functional minimum dimension of 8
+pixels, the highest achievable aspect ratio for a single non-tiled AV1
+frame is <strong>8,192:1</strong> (or 1:8,192 for vertical panoramas).
+If an image decoder permits a 1-pixel-wide presentation crop, the
+mathematical ceiling reaches <strong>65,536:1</strong>.</li>
+</ul>
+<h2 id="profile-and-level-buffer-constraints">Profile and Level Buffer
+Constraints</h2>
+<p>Even if syntax allows a 65,536-pixel axis, standard AV1 decoder
+levels enforce strict caps on total luma sample counts per frame
+(<code>MaxPicSize</code>):</p>
+<ul>
+<li><strong>Level 5.1:</strong> Caps the luma sample count at 8,912,896
+pixels. An extreme horizontal panorama operating at the maximum
+65,536-pixel width could have a maximum vertical height of only 136
+pixels (<span class="math inline">\(65,536 \times 136 =
+8,912,896\)</span>).</li>
+<li><strong>Level 6.3:</strong> Caps the luma sample count at 35,651,584
+pixels. A 65,536-pixel wide panorama at this level can support a height
+up to 544 pixels before violating Level 6.3 compliance.</li>
+</ul>
+<p>Exceeding these profile and level limits marks the file as
+non-standard, risking playback failure in hardware-accelerated
+decoders.</p>
+<h2 id="bypassing-constraints-via-avif-image-grids">Bypassing
+Constraints via AVIF Image Grids</h2>
+<p>AVIF is based on the ISO Base Media File Format (ISOBMFF) and
+supports derived image items, notably the <code>grid</code> item
+type.</p>
+<p>Instead of encoding a panorama as a single monolithic AV1
+sequence:</p>
+<ol type="1">
+<li>The source image is split into a matrix of smaller, compliant AV1
+tiles (e.g., several 4096×4096 items).</li>
+<li>An ISOBMFF <code>grid</code> item stitches these individual items
+into an assembled canvas.</li>
+<li>The ISOBMFF container stores output image dimensions using 32-bit
+unsigned integers in the <code>ispe</code> (Image Spatial Extents) box,
+providing a theoretical dimension ceiling of <span
+class="math inline">\(4,294,967,295 \times 4,294,967,295\)</span>
+pixels.</li>
+</ol>
+<p>Through container-level tiling, there is effectively <strong>no
+structural bitstream limit</strong> on the aspect ratio. An encoder can
+assemble thousands of individual tiles horizontally to construct an
+aspect ratio reaching hundreds of thousands to one.</p>
+<h2 id="practical-rendering-bottlenecks">Practical Rendering
+Bottlenecks</h2>
+<p>While the structural format allows virtually infinite aspect ratios
+via grids, real-world deployment faces external limits:</p>
+<ul>
+<li><strong>GPU Texture Caps:</strong> Web browsers and operating
+systems typically render images by passing decoded frames to the GPU.
+Modern desktop GPUs rarely support individual 2D texture dimensions
+exceeding 16,384 pixels, while mobile devices frequently max out at
+4,096 or 8,192 pixels.</li>
+<li><strong>Canvas and Memory Limits:</strong> Chromium-based browsers
+enforce global image allocation safeguards (typically preventing decodes
+where total surface area exceeds 268 megapixels, or where single
+dimensions exceed GPU buffer boundaries without progressive
+downsampling).</li>
+</ul>
+<p>To achieve maximum compatibility for extreme panoramic AVIFs,
+encoders must split dimensions exceeding 16,384 pixels across an ISOBMFF
+grid, while ensuring target decoders support virtualized or tiled
+viewport rendering.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

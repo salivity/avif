@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why Default Color Space Matters for Unprofiled AVIF - avif</title>
+    <meta name="description" content="Unprofiled AVIF images lack embedded ICC profiles or explicit color metadata, forcing decoders to infer how pixel values translate into visible light. Because the AVIF format derives from the AV1 video codec, it operates natively in YUV color spaces rathe">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/why-default-color-space-matters-for-unprofiled-avif">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Why Default Color Space Matters for Unprofiled AVIF - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/why-default-color-space-matters-for-unprofiled-avif" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Unprofiled AVIF images lack embedded ICC profiles or explicit color metadata, forcing decoders to infer how pixel values translate into visible light. Because the AVIF format derives from the AV1 video codec, it operates natively in YUV color spaces rathe" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="why-default-color-space-matters-for-unprofiled-avif">Why Default
+Color Space Matters for Unprofiled AVIF</h1>
+<p>Unprofiled AVIF images lack embedded ICC profiles or explicit color
+metadata, forcing decoders to infer how pixel values translate into
+visible light. Because the AVIF format derives from the AV1 video codec,
+it operates natively in YUV color spaces rather than traditional RGB.
+Consequently, a strict, standardized default color space assumption is
+essential; without it, decoders risk misinterpreting color primaries,
+transfer characteristics, and matrix coefficients, resulting in severe
+visual discrepancies such as washed-out tones, crushed shadows, or
+unnatural saturation across different browsers and display devices.</p>
+<p>Unlike legacy image formats such as JPEG, which typically store data
+directly as sRGB pixels, AVIF relies on High Dynamic Range (HDR) and
+Wide Color Gamut (WCG) capabilities inherit from video standards. In the
+AV1 bitstream, color configuration is defined via Colour Information
+(NCLX) boxes or embedded ICC profiles. When an image is stripped of this
+metadata to save bandwidth, decoders cannot read the intended color
+properties directly from the file.</p>
+<p>Under the official AVIF specification, an unprofiled image must
+default to standard SDR parameters: the BT.709/sRGB color primaries, the
+IEC 61966-2-1 transfer function (standard sRGB gamma), and the BT.709
+color matrix with full-range color. This assumption guarantees that
+images encoded without explicit tags render predictably.</p>
+<p>If a viewing environment fails to apply these exact defaults,
+rendering errors occur:</p>
+<ul>
+<li><strong>Gamma Mismatch:</strong> If a decoder assumes a simple 2.2
+gamma or a BT.1886 curve instead of the piecewise sRGB transfer
+function, dark tones will either lose detail or appear unnaturally
+lifted.</li>
+<li><strong>Chroma and Matrix Shift:</strong> Converting the underlying
+YUV data back into displayable RGB requires a specific transformation
+matrix. Misinterpreting the BT.709 default as BT.601 or BT.2020 causes
+severe color shifts, turning vibrant hues muddy or altering skin tones
+entirely.</li>
+<li><strong>Range Inconsistencies:</strong> Video workflows often use
+limited-range data (16–235), whereas web imagery uses full-range data
+(0–255). A faulty default assumption can clip highlights and crush
+blacks if full-range data is parsed as limited-range.</li>
+</ul>
+<p>Consistent defaults are particularly crucial for web optimization.
+Web developers frequently strip metadata—including heavy ICC profiles—to
+minimize file size and improve page load times. This optimization
+strategy entirely depends on every rendering engine applying the
+identical baseline color assumption. Without strict adherence to this
+fallback across all major browsers and operating systems, stripped AVIF
+assets cannot maintain visual fidelity.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

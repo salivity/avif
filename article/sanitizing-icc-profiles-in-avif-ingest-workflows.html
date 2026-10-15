@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sanitizing ICC Profiles in AVIF Ingest Workflows - avif</title>
+    <meta name="description" content="Secure AVIF (AV1 Image File Format) ingest pipelines must treat user-supplied color metadata as untrusted input. While International Color Consortium (ICC) profiles ensure precise color reproduction across different displays, malformed or malicious profil">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/sanitizing-icc-profiles-in-avif-ingest-workflows">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Sanitizing ICC Profiles in AVIF Ingest Workflows - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/sanitizing-icc-profiles-in-avif-ingest-workflows" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Secure AVIF (AV1 Image File Format) ingest pipelines must treat user-supplied color metadata as untrusted input. While International Color Consortium (ICC) profiles ensure precise color reproduction across different displays, malformed or malicious profil" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="sanitizing-icc-profiles-in-avif-ingest-workflows">Sanitizing ICC
+Profiles in AVIF Ingest Workflows</h1>
+<p>Secure AVIF (AV1 Image File Format) ingest pipelines must treat
+user-supplied color metadata as untrusted input. While International
+Color Consortium (ICC) profiles ensure precise color reproduction across
+different displays, malformed or malicious profiles can trigger
+vulnerabilities such as buffer overflows, out-of-bounds reads, or memory
+corruption in downstream color management engines. This article explains
+how secure ingest workflows intercept, inspect, normalize, or strip
+embedded ICC profiles from AVIF containers before images are processed,
+stored, or distributed to end users.</p>
+<h3 id="the-attack-surface-of-icc-profiles-in-avif">The Attack Surface
+of ICC Profiles in AVIF</h3>
+<p>AVIF files are structured using the ISO Base Media File Format
+(ISOBMFF). Color information is typically stored inside a Colour
+Information Box (<code>colr</code>). When an embedded ICC profile is
+used, this box contains a <code>colour_type</code> marked as
+<code>prof</code> (for unrestricted profiles) or <code>rICC</code> (for
+restricted profiles), followed by the raw ICC payload.</p>
+<p>The security risk stems from the complexity of ICC profile
+specifications. Profiles contain a 128-byte header followed by a tag
+table and variable-length tag data elements. Exploits target the parsing
+logic of color management systems (such as LittleCMS, Windows ICM, or
+Apple ColorSync), where invalid offsets, circular references, or
+corrupted curve parameters can lead to denial-of-service (DoS) or
+arbitrary code execution.</p>
+<h3 id="extraction-and-structural-validation">Extraction and Structural
+Validation</h3>
+<p>Sanitization begins at the container parsing stage. A hardened
+ISOBMFF demuxer isolates the <code>colr</code> box and verifies its
+boundaries before any color-decoding library touches the raw
+payload.</p>
+<p>Key checks during structural validation include:</p>
+<ul>
+<li><strong>Size Verification:</strong> Ensuring the declared size of
+the <code>colr</code> box strictly matches the payload length and does
+not exceed hard limits (typically a few megabytes at most).</li>
+<li><strong>Header Integrity:</strong> Confirming that the embedded
+profile size matches the first 4 bytes of the ICC header and that the
+profile signature reads <code>acsp</code>.</li>
+<li><strong>Tag Boundary Analysis:</strong> Checking the tag count
+against the total payload length. Every tag's offset and size must
+reside completely within the bounds of the profile to prevent
+out-of-bounds reads.</li>
+</ul>
+<h3 id="sanitization-strategies">Sanitization Strategies</h3>
+<p>Once extracted and structurally verified, modern ingest pipelines
+apply one of three sanitization strategies based on their balance of
+performance, security, and color fidelity:</p>
+<h4 id="1-stripping-and-default-fallback">1. Stripping and Default
+Fallback</h4>
+<p>The most secure approach eliminates the vector entirely. The ingest
+engine removes the <code>colr</code> box containing the ICC profile and
+replaces it with a clean standard color space designation, typically an
+NCLX (Non-Cross-Linked Color) box indicating standard sRGB or Rec. 709.
+This method is common in high-volume, security-critical platforms where
+minimal color drift is acceptable.</p>
+<h4 id="2-normalization-via-nclx">2. Normalization via NCLX</h4>
+<p>AVIF natively supports NCLX parameters, which describe color
+primaries, transfer characteristics, and matrix coefficients using
+standardized enum values rather than complex, binary curve tables. If an
+embedded ICC profile matches a known standard profile (such as Display
+P3, Adobe RGB, or BT.2020), the ingest workflow strips the binary ICC
+data and replaces it with the equivalent lightweight, fixed-size NCLX
+box.</p>
+<h4 id="3-color-transformation-and-re-encoding">3. Color Transformation
+and Re-encoding</h4>
+<p>For workflows that require exact fidelity for custom color spaces,
+the image must be converted. This process involves:</p>
+<ul>
+<li>Running the parser and color management engine in an isolated,
+sandboxed worker process.</li>
+<li>Decoding the pixel data from the source color space defined by the
+untrusted ICC profile.</li>
+<li>Transforming the pixel values into a known, standard target space
+(such as sRGB or Display P3).</li>
+<li>Discarding the original ICC profile entirely and re-authoring the
+AVIF file with verified NCLX parameters or a known-good, internally
+generated ICC profile.</li>
+</ul>
+<h3 id="pipeline-hardening-and-isolation">Pipeline Hardening and
+Isolation</h3>
+<p>Because sanitization code itself can be targeted, the environment
+executing the sanitization must be strictly isolated. Modern ingest
+workflows run the demuxing and color-conversion steps inside
+zero-privilege containers, isolated WebAssembly (WASM) modules, or
+processes constrained by security policies such as Linux
+<code>seccomp-bpf</code>. Memory limits and strict process execution
+timeouts are enforced to mitigate resource-exhaustion attacks. Any
+payload that fails parsing or validation is rejected immediately before
+reaching long-term storage or consumer-facing services.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

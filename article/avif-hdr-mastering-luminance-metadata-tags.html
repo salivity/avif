@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF HDR Mastering Luminance Metadata Tags - avif</title>
+    <meta name="description" content="This article provides an overview of the key metadata tags and container boxes within the AV1 Image File Format (AVIF) used by software decoders and display pipelines to identify High Dynamic Range (HDR) mastering luminance levels. AVIF relies on the ISO">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-hdr-mastering-luminance-metadata-tags">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF HDR Mastering Luminance Metadata Tags - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-hdr-mastering-luminance-metadata-tags" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article provides an overview of the key metadata tags and container boxes within the AV1 Image File Format (AVIF) used by software decoders and display pipelines to identify High Dynamic Range (HDR) mastering luminance levels. AVIF relies on the ISO" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-hdr-mastering-luminance-metadata-tags">AVIF HDR Mastering
+Luminance Metadata Tags</h1>
+<p>This article provides an overview of the key metadata tags and
+container boxes within the AV1 Image File Format (AVIF) used by software
+decoders and display pipelines to identify High Dynamic Range (HDR)
+mastering luminance levels. AVIF relies on the ISO Base Media File
+Format (ISOBMFF) architecture alongside underlying AV1 bitstream
+metadata to signal display peak brightness, black levels, and scene
+light statistics, ensuring images are accurately tone-mapped to target
+screens.</p>
+<h3 id="the-mdcv-item-property-mastering-display-colour-volume">The
+<code>mdcv</code> Item Property (Mastering Display Colour Volume)</h3>
+<p>The primary tag responsible for specifying mastering luminance limits
+in an AVIF file is the Mastering Display Colour Volume
+(<code>mdcv</code>) box. Defined by SMPTE ST 2086 and standardized for
+ISOBMFF containers, the <code>mdcv</code> box details the physical
+capabilities of the display monitor used during mastering.</p>
+<p>It explicitly reports two core luminance properties:</p>
+<ul>
+<li><strong><code>max_display_mastering_luminance</code>:</strong> The
+nominal maximum luminance of the mastering display, configured in units
+of 0.0001 candelas per square meter (<span
+class="math inline">\(\text{cd/m}^2\)</span> or nits). For example, a
+1,000-nit display is represented by a value of 10,000,000.</li>
+<li><strong><code>min_display_mastering_luminance</code>:</strong> The
+nominal minimum luminance (black point) of the mastering display, also
+indicated in units of 0.0001 nits (e.g., 0.005 nits is stored as
+50).</li>
+</ul>
+<p>In addition to luminance limits, <code>mdcv</code> defines the CIE
+1931 <span class="math inline">\((x, y)\)</span> chromaticity
+coordinates for the mastering display's red, green, and blue primaries,
+as well as the white point.</p>
+<h3 id="the-clli-item-property-content-light-level-information">The
+<code>clli</code> Item Property (Content Light Level Information)</h3>
+<p>While <code>mdcv</code> describes the monitor used during production,
+the Content Light Level Information (<code>clli</code>) box informs the
+reader about the actual light levels found within the encoded picture
+data. Standardized under CTA-861-G and SMPTE ST 2086, it provides two
+complementary luminance metrics:</p>
+<ul>
+<li><strong><code>max_content_light_level</code> (MaxCLL):</strong> The
+maximum light level of any single pixel across the entire image,
+measured in whole candelas per square meter (<span
+class="math inline">\(\text{cd/m}^2\)</span>).</li>
+<li><strong><code>max_pic_average_light_level</code> (MaxFALL):</strong>
+The maximum average light level across all active pixels in the picture,
+also represented in nits.</li>
+</ul>
+<p>Display renderers use MaxCLL and MaxFALL to avoid clipping highlights
+and to balance global brightness when tone-mapping to screens that
+cannot reach the mastering peak.</p>
+<h3 id="the-colr-box-colour-information-property">The <code>colr</code>
+Box (Colour Information Property)</h3>
+<p>Luminance metadata requires an electro-optical transfer function
+(EOTF) to give the underlying encoded code values absolute or relative
+physical meaning. The <code>colr</code> box with a <code>nclx</code>
+(Colour Configuration Box) profile defines this context using three
+parameters:</p>
+<ul>
+<li><strong>Transfer Characteristics:</strong> Identifies the EOTF
+curve. For HDR mastering, this is typically set to <code>16</code>
+(SMPTE ST 2084 / Perceptual Quantizer, which maps absolute luminance up
+to 10,000 nits) or <code>18</code> (ARIB STD-B67 / Hybrid
+Log-Gamma).</li>
+<li><strong>Colour Primaries:</strong> Typically set to <code>9</code>
+(ITU-R BT.2020) for wide-gamut HDR content.</li>
+<li><strong>Matrix Coefficients:</strong> Dictates the color space
+conversion (e.g., BT.2020 non-constant luminance).</li>
+</ul>
+<p>Without an HDR transfer characteristic declared in the
+<code>colr</code> box, readers cannot interpret the absolute values
+contained within <code>mdcv</code> and <code>clli</code>.</p>
+<h3
+id="container-level-properties-vs-av1-sequence-metadata">Container-Level
+Properties vs. AV1 Sequence Metadata</h3>
+<p>In AVIF, these properties are primarily exposed at the file container
+level as ISOBMFF item properties associated with the image item.
+Exposing <code>mdcv</code> and <code>clli</code> at the container level
+allows image viewers and browsers to read mastering luminance values
+immediately during header parsing without decoding the underlying
+compressed bitstream.</p>
+<p>However, AV1 bitstream payload syntax also supports these tags
+directly through Open Bitstream Units (OBUs):</p>
+<ul>
+<li><strong><code>metadata_hdr_mdcv</code>:</strong> Encapsulates
+identical SMPTE ST 2086 parameters inside the AV1 bitstream.</li>
+<li><strong><code>metadata_hdr_clli</code>:</strong> Encapsulates
+identical CTA-861-G parameters inside the AV1 bitstream.</li>
+</ul>
+<p>According to the AVIF specification, if mastering luminance metadata
+is present in both the ISOBMFF container boxes
+(<code>mdcv</code>/<code>clli</code>) and the AV1 bitstream metadata
+OBUs, the values should match, but conformant readers will prioritize
+the container-level boxes during parsing.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

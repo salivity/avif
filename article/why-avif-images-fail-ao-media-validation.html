@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why AVIF Images Fail AOMedia Validation - avif</title>
+    <meta name="description" content="AVIF image validation failures occur when a file breaches either the underlying ISO Base Media File Format (ISOBMFF) container standard or the specific AV1 bitstream syntax defined by the Alliance for Open Media (AOMedia). This guide outlines the primary">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/why-avif-images-fail-ao-media-validation">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Why AVIF Images Fail AOMedia Validation - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/why-avif-images-fail-ao-media-validation" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="AVIF image validation failures occur when a file breaches either the underlying ISO Base Media File Format (ISOBMFF) container standard or the specific AV1 bitstream syntax defined by the Alliance for Open Media (AOMedia). This guide outlines the primary" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="why-avif-images-fail-aomedia-validation">Why AVIF Images Fail
+AOMedia Validation</h1>
+<p>AVIF image validation failures occur when a file breaches either the
+underlying ISO Base Media File Format (ISOBMFF) container standard or
+the specific AV1 bitstream syntax defined by the Alliance for Open Media
+(AOMedia). This guide outlines the primary causes of validation errors,
+covering container structure discrepancies, AV1 sequence header
+non-compliance, color metadata conflicts, and auxiliary item
+misconfigurations.</p>
+<h3 id="isobmff-box-structure-and-brand-violations">ISOBMFF Box
+Structure and Brand Violations</h3>
+<p>AVIF relies on the structural conventions of ISOBMFF (ISO/IEC
+14496-12). A file immediately fails validation if it lacks fundamental
+boxes or defines them in an illegal order:</p>
+<ul>
+<li><strong>File Type Box (<code>ftyp</code>) Misconfiguration:</strong>
+The <code>ftyp</code> box must appear first. It must specify an
+acceptable major brand or compatible brand, such as <code>avif</code>
+for structural AVIF files or <code>avis</code> for image sequences.
+Failing to list <code>avif</code> or declaring incompatible brand
+versions triggers validation aborts.</li>
+<li><strong>Malformed Meta Box (<code>meta</code>):</strong> The
+<code>meta</code> box must be properly enclosed and accompanied by a
+mandatory Handler Box (<code>hdlr</code>) with the handler type strictly
+set to <code>pict</code>.</li>
+<li><strong>Missing or Broken Box Indices:</strong> Mandatory structural
+boxes including Item Information (<code>iinf</code>), Item Location
+(<code>iloc</code>), and Item Properties (<code>iprp</code>) must
+cross-reference each other correctly. If an item index in
+<code>iloc</code> points to a non-existent item in <code>iinf</code>, or
+references invalid byte offsets, the file is structurally corrupt.</li>
+</ul>
+<h3 id="av1-bitstream-obu-inconsistencies">AV1 Bitstream (OBU)
+Inconsistencies</h3>
+<p>An AVIF image item payload consists of AV1 Open Bitstream Units
+(OBUs). Validating tools unpack this payload and verify it against the
+AV1 specifications:</p>
+<ul>
+<li><strong>Missing Sequence Header OBU:</strong> Every primary AV1
+image item must contain a Sequence Header OBU prior to the Frame OBU. If
+this header is absent or inaccessible within the allocated item data,
+decoders cannot establish picture dimensions, bit depth, or profile
+constraints.</li>
+<li><strong>Profile and Level Mismatches:</strong> AOMedia
+specifications dictate that standard AVIF images conform to AV1 Main
+Profile or High Profile. Attempting to validate a bitstream using
+unsupported features—such as unauthorized chroma subsampling modes or
+illegal tile combinations—causes rejection.</li>
+<li><strong>Resolution Discrepancies:</strong> The pixel dimensions
+defined within the AV1 Sequence Header and Frame Headers must match the
+visual presentation dimensions declared in the ISOBMFF Image Spatial
+Extents (<code>ispe</code>) property box. Any mismatch between container
+dimensions and the underlying bitstream dimensions causes an immediate
+fatal error.</li>
+</ul>
+<h3 id="color-management-and-metadata-conflicts">Color Management and
+Metadata Conflicts</h3>
+<p>AVIF demands exact precision when defining color spaces, transfer
+characteristics, and matrix coefficients:</p>
+<ul>
+<li><strong>Conflicting Color Declarations:</strong> Color information
+can be declared via the <code>colr</code> property box (using NCLX
+values or an embedded ICC profile) and within the AV1 Sequence Header
+itself. If the <code>colr</code> box specifies NCLX parameters that
+directly contradict the AV1 bitstream's internal color description
+without an explicit overriding rule, validation fails.</li>
+<li><strong>Corrupted ICC Profiles:</strong> When an ICC profile is
+supplied inside a <code>colr</code> box, validators parse the raw
+profile data. Invalid headers, incorrect profile sizes, or truncated
+color lookup tables (CLUTs) invalidate the entire container.</li>
+<li><strong>Malformed Exif or XMP Payloads:</strong> Metadata items
+marked as <code>Exif</code> must adhere to TIFF header offsets. A
+frequent issue is the omission of the 4-byte offset indicating the start
+of the TIFF header, causing parsers to fail reading the Exif block.</li>
+</ul>
+<h3 id="improper-essential-property-flags">Improper Essential Property
+Flags</h3>
+<p>The ISOBMFF specification allows properties inside the Item Property
+Associations (<code>ipma</code>) box to be marked as "essential" via a
+1-bit flag:</p>
+<ul>
+<li><strong>Unknown Essential Properties:</strong> If an image item
+marks an optional or custom property box as essential, a strict
+validator that does not recognize that property must reject the
+file.</li>
+<li><strong>Misapplied Standard Properties:</strong> Marking certain
+standard properties as non-essential when the specification mandates
+them to be essential (or vice versa, depending on profile rules)
+violates strict conformance tests.</li>
+</ul>
+<h3 id="auxiliary-and-alpha-channel-errors">Auxiliary and Alpha Channel
+Errors</h3>
+<p>Images containing transparency utilize auxiliary items to store alpha
+channels:</p>
+<ul>
+<li><strong>Dimension Inconsistencies:</strong> The alpha plane is
+stored as an independent monochrome AV1 item. Its dimensions must match
+the primary image item's dimensions, or scale proportionally if
+subsampled.</li>
+<li><strong>Missing Auxiliary Type Property
+(<code>auxC</code>):</strong> Auxiliary items must explicitly link to
+the primary image using an Item Reference box (<code>iref</code>) of
+type <code>auxl</code>, accompanied by an Auxiliary Item Type property
+(<code>auxC</code>) that defines the channel as
+<code>urn:mpeg:mpegB:cicp:systems:auxiliary:alpha</code>. Omitting the
+<code>auxC</code> declaration or providing an invalid URN will fail
+validation.</li>
+</ul>
+<h3 id="broken-grid-and-derived-image-implementations">Broken Grid and
+Derived Image Implementations</h3>
+<p>Large images often split into tiled grids using an image derivation
+item of type <code>grid</code>:</p>
+<ul>
+<li><strong>Incomplete Tile Sets:</strong> A <code>grid</code> item
+relies on the <code>dimg</code> (derived image) reference type to point
+to its constituent tiles. If the declared rows and columns require
+twelve tiles, but fewer or more items are mapped in <code>iref</code>,
+the grid is mathematically invalid.</li>
+<li><strong>Tile Dimension Non-Uniformity:</strong> Unless specifically
+allowed by custom extensions, all tiles within an image grid must share
+identical dimensions, bit depths, and color properties. Discrepancies
+among the referenced tiles render the master grid unrenderable according
+to AOMedia compliance rules.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

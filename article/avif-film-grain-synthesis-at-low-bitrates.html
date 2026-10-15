@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Film Grain Synthesis at Low Bitrates - avif</title>
+    <meta name="description" content="AVIF manages film grain synthesis by stripping natural high-frequency noise during encoding, analyzing its characteristics, and reconstructing visually identical grain during playback using lightweight metadata. Traditional compression algorithms waste si">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-film-grain-synthesis-at-low-bitrates">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Film Grain Synthesis at Low Bitrates - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-film-grain-synthesis-at-low-bitrates" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="AVIF manages film grain synthesis by stripping natural high-frequency noise during encoding, analyzing its characteristics, and reconstructing visually identical grain during playback using lightweight metadata. Traditional compression algorithms waste si" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-film-grain-synthesis-at-low-bitrates">AVIF Film Grain
+Synthesis at Low Bitrates</h1>
+<p>AVIF manages film grain synthesis by stripping natural high-frequency
+noise during encoding, analyzing its characteristics, and reconstructing
+visually identical grain during playback using lightweight metadata.
+Traditional compression algorithms waste significant data trying to
+encode random grain pixels, often resulting in heavy blurring,
+blockiness, or severe color banding at low bitrates. By decoupling
+texture from the underlying image structure, AVIF preserves the
+authentic, organic feel of film and fine textures without consuming
+precious bandwidth.</p>
+<h3 id="the-problem-with-film-grain-in-traditional-compression">The
+Problem with Film Grain in Traditional Compression</h3>
+<p>Film grain and digital sensor noise consist of pseudo-random,
+high-frequency signals. Traditional transform-based codecs like JPEG,
+and even modern codecs without synthesis, treat these chaotic variations
+as essential image details. At low bitrates, encoders cannot afford the
+data budget required to represent these rapidly shifting pixels. The
+compression algorithm typically discards these high frequencies, leading
+to two common visual flaws:</p>
+<ul>
+<li><strong>Waxiness and Smearing:</strong> Faces and smooth surfaces
+lose micro-texture and look artificially smooth or "plastic."</li>
+<li><strong>Banding and Blocking:</strong> Gradual tonal shifts (such as
+skies or dark shadows) turn into stepped, flat-colored blocks rather
+than smooth gradients.</li>
+</ul>
+<h3 id="how-avif-film-grain-synthesis-works">How AVIF Film Grain
+Synthesis Works</h3>
+<p>AVIF inherits its film grain synthesis (FGS) mechanism directly from
+the AV1 video standard. The process relies on parametric modeling and is
+divided into distinct stages:</p>
+<h4 id="1-grain-removal-denoising">1. Grain Removal (Denoising)</h4>
+<p>Before compression, the encoder applies an integrated or
+pre-processing denoising filter to the source image. This step separates
+the structural image data from the high-frequency noise. The underlying
+picture becomes significantly easier to compress, allowing the encoder
+to achieve high compression ratios without creating motion-like
+distortion or block boundaries.</p>
+<h4 id="2-parameter-estimation">2. Parameter Estimation</h4>
+<p>Rather than discarding the removed noise, the encoder analyzes its
+mathematical properties. It measures several statistical attributes:</p>
+<ul>
+<li><strong>Grain scale and size:</strong> The resolution and frequency
+of the grain particles.</li>
+<li><strong>Intensity correlation:</strong> How grain visibility changes
+across different luminance (brightness) levels.</li>
+<li><strong>Chrominance relationship:</strong> How noise in color
+channels correlates with brightness.</li>
+</ul>
+<h4 id="3-metadata-storage">3. Metadata Storage</h4>
+<p>Instead of saving the grain as raw pixel data, the encoder translates
+the grain characteristics into a compact set of numerical parameters.
+These values are stored as lightweight metadata within the AVIF
+container (typically using only a few dozen to a few hundred bytes).</p>
+<h4 id="4-decoder-side-synthesis">4. Decoder-Side Synthesis</h4>
+<p>When an AVIF-compatible viewer or browser renders the image, it
+performs the synthesis step:</p>
+<ul>
+<li>The decoder reconstructs the smooth, base image.</li>
+<li>It reads the film grain metadata parameters.</li>
+<li>Using a deterministic pseudo-random number generator (PRNG) combined
+with an autoregressive filter, the decoder generates a synthetic grain
+texture matching the original profile.</li>
+<li>The generated grain is blended directly onto the rendered image just
+before display.</li>
+</ul>
+<h3 id="why-this-technique-excels-at-low-bitrates">Why This Technique
+Excels at Low Bitrates</h3>
+<p>Film grain synthesis fundamentally changes the rate-distortion
+tradeoff for photographic and cinematic imagery:</p>
+<ul>
+<li><strong>Bandwidth Efficiency:</strong> Encoding mathematical
+formulas requires a negligible fraction of the data needed to encode
+actual pixel noise, freeing up the bitrate budget for edge sharpness and
+color accuracy.</li>
+<li><strong>Banding Concealment:</strong> The reconstructed grain breaks
+up quantization steps across gradients, naturally masking color banding
+in dark areas and skies.</li>
+<li><strong>Perceptual Realism:</strong> Human vision interprets
+micro-texture as sharpness. Even though the synthesized grain is not an
+exact pixel-for-pixel replica of the original noise, the human eye
+perceives it as equivalent, maintaining artistic intent and photographic
+quality at extremely low file sizes.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

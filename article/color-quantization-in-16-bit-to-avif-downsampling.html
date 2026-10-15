@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Quantization in 16-Bit to AVIF Downsampling - avif</title>
+    <meta name="description" content="Converting 16-bit master images to the AV1 Image File Format (AVIF) requires downsampling the bit depth, which inevitably triggers color quantization. While AVIF supports up to 10-bit and 12-bit color depths through the AV1 Profile 2, the source 16-bit da">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/color-quantization-in-16-bit-to-avif-downsampling">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Color Quantization in 16-Bit to AVIF Downsampling - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/color-quantization-in-16-bit-to-avif-downsampling" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Converting 16-bit master images to the AV1 Image File Format (AVIF) requires downsampling the bit depth, which inevitably triggers color quantization. While AVIF supports up to 10-bit and 12-bit color depths through the AV1 Profile 2, the source 16-bit da" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="color-quantization-in-16-bit-to-avif-downsampling">Color
+Quantization in 16-Bit to AVIF Downsampling</h1>
+<p>Converting 16-bit master images to the AV1 Image File Format (AVIF)
+requires downsampling the bit depth, which inevitably triggers color
+quantization. While AVIF supports up to 10-bit and 12-bit color depths
+through the AV1 Profile 2, the source 16-bit data must be mapped to a
+smaller color palette. This transition can introduce visual anomalies
+such as color banding and posterization, alter tonal gradation in shadow
+and highlight regions, and increase compression overhead if dithering is
+applied incorrectly. Understanding the mechanics of color quantization
+in this pipeline is essential for preserving color fidelity while
+maintaining efficient file sizes.</p>
+<h3 id="bit-depth-reduction-and-truncation">Bit Depth Reduction and
+Truncation</h3>
+<p>A 16-bit image contains 65,536 discrete tonal steps per channel,
+offering smooth gradients and vast headroom for subtle luminance shifts.
+AVIF supports a maximum of 12-bit color (4,096 levels per channel) and
+is most frequently deployed in 10-bit (1,024 levels) or 8-bit (256
+levels) for broader decoder compatibility.</p>
+<p>When mapping 16-bit color values to lower bit depths, quantization
+error occurs:</p>
+<ul>
+<li><strong>16-bit to 12-bit:</strong> Yields minimal perceptual loss
+for standard and wide color gamuts (P3, Rec. 2020), as the human visual
+system struggles to distinguish between adjacent values at 4,096 levels
+under standard viewing conditions.</li>
+<li><strong>16-bit to 10-bit:</strong> The industry sweet spot for High
+Dynamic Range (HDR) content. Quantization errors remain below the visual
+threshold in most conditions, preserving smooth skyboxes and
+shadows.</li>
+<li><strong>16-bit to 8-bit:</strong> Generates severe quantization
+errors. The reduction from 65,536 to 256 values per channel forces large
+clusters of similar colors into single discrete values, destroying
+micro-contrast and fine color nuances.</li>
+</ul>
+<h3 id="artifacts-banding-and-posterization">Artifacts: Banding and
+Posterization</h3>
+<p>The primary visual symptom of aggressive quantization is color
+banding (false contouring). When smooth gradients—such as sunsets,
+atmospheric haze, or shallow depth-of-field backgrounds—are reduced to
+fewer distinct steps, the continuous transition breaks into stark,
+visible bands of flat color.</p>
+<p>AVIF utilizes advanced directional intra-prediction and transform
+blocks to compress images, but it relies on the input pixels provided.
+If quantization occurs before encoding without adequate dithering, the
+AV1 encoder will interpret the banding steps as true image features,
+encoding harsh boundaries into the bitstream.</p>
+<h3 id="dithering-and-the-compression-trade-off">Dithering and the
+Compression Trade-Off</h3>
+<p>To conceal banding caused by quantization, encoders employ spatial
+dithering (such as Floyd-Steinberg or blue noise algorithms). Dithering
+scatters adjacent quantization levels across pixels to simulate
+in-between values through optical blending.</p>
+<p>While dithering eliminates visible contouring, it directly
+counteracts AVIF's compression mechanisms:</p>
+<ol type="1">
+<li><strong>High-Frequency Noise:</strong> Dither patterns introduce
+high-frequency pseudo-random noise across previously flat or smooth
+regions.</li>
+<li><strong>Bitrate Inflation:</strong> AV1's intra-frame compression
+excels at predicting uniform surfaces. Random noise breaks spatial
+correlation, forcing the encoder to allocate higher bitrates to preserve
+the artificial noise floor.</li>
+<li><strong>Encoding Loss:</strong> If the AVIF compression rate is set
+too high (aggressive lossy compression), the encoder will smooth out the
+dither pattern to save data, inadvertently bringing back the visible
+banding.</li>
+</ol>
+<h3 id="color-space-and-gamut-considerations">Color Space and Gamut
+Considerations</h3>
+<p>Quantization severity is tied to the color space used:</p>
+<ul>
+<li><strong>Linear vs. Non-Linear (Gamma/PQ):</strong> Quantizing linear
+16-bit data uniformly to an 8-bit or 10-bit linear space heavily
+degrades dark tones, as human perception is non-linear. Data must be
+mapped using appropriate Opto-Electronic Transfer Functions (OETF)—such
+as sRGB gamma, Rec. 709, or SMPTE ST 2084 (PQ)—before quantization to
+allocate steps proportionally to human visual sensitivity.</li>
+<li><strong>Wide Gamuts (Rec. 2020):</strong> In wide color gamuts,
+color coordinates cover a vastly larger volume than standard sRGB.
+Quantizing a wide-gamut 16-bit image to 8-bit spreads the limited 256
+steps over a wider chromatic range, multiplying the perceptual distance
+between adjacent steps and drastically accelerating banding.</li>
+</ul>
+<h3 id="chroma-subsampling-impacts">Chroma Subsampling Impacts</h3>
+<p>AVIF files are frequently encoded using YUV chroma subsampling
+(typically YUV420) to reduce payload size. Converting an RGB 16-bit
+source to YUV420 with lower bit depth introduces a compound quantization
+effect:</p>
+<ul>
+<li>The conversion from RGB to YUV matrix values causes rounding
+errors.</li>
+<li>The chroma components (<span class="math inline">\(U\)</span> and
+<span class="math inline">\(V\)</span>) are downsampled to half
+resolution in both axes.</li>
+<li>Quantization applied to downsampled chroma components often
+manifests as color bleeding around sharp borders and jagged, desaturated
+transitions along high-contrast color boundaries.</li>
+</ul>
+<h3 id="best-practices-for-minimizing-quantization-impact">Best
+Practices for Minimizing Quantization Impact</h3>
+<p>To ensure optimal quality when downsampling 16-bit sources to
+AVIF:</p>
+<ul>
+<li><strong>Target 10-Bit AVIF:</strong> Always prefer 10-bit
+(<code>libaom-av1</code> or <code>rav1e</code> with Profile 0/Main) over
+8-bit. Ten-bit AVIF completely avoids the need for aggressive dithering
+in typical content and prevents banding in wide-gamut spaces.</li>
+<li><strong>Apply Perceptual Noise Shaping:</strong> If downsampling to
+8-bit is unavoidable, use low-amplitude blue noise dithering rather than
+standard random or ordered dithering to minimize the compression
+penalty.</li>
+<li><strong>Retain YUV444 for Graphics:</strong> For artwork or
+graphical assets containing sharp color gradients, use 10-bit YUV444 to
+avoid chroma-subsampling quantization artifacts.</li>
+<li><strong>Leverage In-Loop Filtering:</strong> Use AV1's native
+deblocking and directional enhancement filters (CDEF) to smooth out
+subtle quantization edges without inflating the source bitrate.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

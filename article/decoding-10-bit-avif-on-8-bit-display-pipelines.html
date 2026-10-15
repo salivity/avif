@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decoding 10-Bit AVIF on 8-Bit Display Pipelines - avif</title>
+    <meta name="description" content="Decoding 10-bit AV1 Image File Format (AVIF) images on an 8-bit display pipeline introduces significant computational overhead compared to rendering native 8-bit content. While 10-bit encoding offers superior compression efficiency and reduces banding art">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/decoding-10-bit-avif-on-8-bit-display-pipelines">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Decoding 10-Bit AVIF on 8-Bit Display Pipelines - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/decoding-10-bit-avif-on-8-bit-display-pipelines" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Decoding 10-bit AV1 Image File Format (AVIF) images on an 8-bit display pipeline introduces significant computational overhead compared to rendering native 8-bit content. While 10-bit encoding offers superior compression efficiency and reduces banding art" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="decoding-10-bit-avif-on-8-bit-display-pipelines">Decoding 10-Bit
+AVIF on 8-Bit Display Pipelines</h1>
+<p>Decoding 10-bit AV1 Image File Format (AVIF) images on an 8-bit
+display pipeline introduces significant computational overhead compared
+to rendering native 8-bit content. While 10-bit encoding offers superior
+compression efficiency and reduces banding artifacts, bridging the gap
+between a 10-bit source and an 8-bit display target requires additional
+CPU or GPU cycles. This article breaks down the primary architectural
+bottlenecks responsible for this performance cost, including SIMD
+register inefficiencies, bit-depth downscaling, dynamic dithering, and
+color space transformations.</p>
+<h3 id="1-inefficient-memory-alignment-and-simd-vectorization">1.
+Inefficient Memory Alignment and SIMD Vectorization</h3>
+<p>In pure 8-bit decoding pipelines, pixels can be packed densely into
+8-bit integer types (<code>uint8_t</code>), allowing Single Instruction,
+Multiple Data (SIMD) units (such as ARM NEON or x86 AVX2) to process 16
+or 32 pixel values simultaneously within 128-bit or 256-bit
+registers.</p>
+<p>A 10-bit value cannot fit into a standard 8-bit byte. As a result,
+software decoders (like <code>libgav1</code> or <code>dav1d</code>) must
+store each pixel channel in a 16-bit container (<code>uint16_t</code>).
+This immediately doubles the memory bandwidth required for decoding
+intermediate stages. Furthermore, it halves the throughput of vector
+instructions, as a 256-bit register can only process 16 samples of
+16-bit integers instead of 32 samples of 8-bit integers, effectively
+doubling the cycles needed for inverse transforms and loop
+filtering.</p>
+<h3 id="2-bit-depth-truncation-and-quantization">2. Bit-Depth Truncation
+and Quantization</h3>
+<p>Once the raw 10-bit YUV values are decoded, they must be scaled down
+to 8-bit values to match the target frame buffer. A 10-bit sample maps
+values from 0 to 1023, whereas an 8-bit channel only supports values
+from 0 to 255.</p>
+<p>Converting between these two ranges requires a bit-shift operation
+(typically right-shifting by 2 bits) or arithmetic scaling with
+rounding. While an arithmetic right-shift is computationally lightweight
+on its own, executing this operation across millions of pixels per frame
+introduces a measurable cycle penalty that is entirely absent when
+decoding native 8-bit bitstreams.</p>
+<h3 id="3-spatial-dithering-to-prevent-banding">3. Spatial Dithering to
+Prevent Banding</h3>
+<p>Simply truncating the two least significant bits (LSBs) discards fine
+gradient information and introduces visible color banding (false
+contouring). To maintain the visual quality of the 10-bit original,
+modern rendering pipelines apply dithering algorithms during the
+reduction to 8-bit.</p>
+<p>Implementing algorithms such as ordered dithering (Bayer matrix) or
+error-diffusion dithering (Floyd-Steinberg) demands continuous
+arithmetic calculations per pixel:</p>
+<ul>
+<li><strong>Ordered dithering</strong> requires computing coordinates,
+reading a threshold matrix, adding offsets, and clamping the
+results.</li>
+<li><strong>Error-diffusion dithering</strong> requires sequential
+processing, where the quantization error of the current pixel is
+calculated and distributed to neighboring pixels, breaking
+parallelization pipelines.</li>
+</ul>
+<p>Both approaches require extra memory lookups and math instructions,
+adding substantial processing latency.</p>
+<h3 id="4-color-space-conversion-overhead">4. Color Space Conversion
+Overhead</h3>
+<p>Most 10-bit AVIF images are encoded in high-precision color spaces
+using the YUV (YCbCr) color model with narrow or full range. An 8-bit
+display pipeline typically expects an RGB format (e.g., standard sRGB or
+Display P3) with 8 bits per channel.</p>
+<p>Converting 10-bit YUV directly to 8-bit RGB requires matrix
+multiplication involving floating-point math or fixed-point arithmetic
+with intermediate 32-bit registers to prevent precision loss before
+final clamping. Processing these color conversion matrices alongside the
+bit-depth downscaling step prevents the pipeline from using fast,
+pre-computed 8-bit look-up tables (LUTs), forcing continuous per-pixel
+computation.</p>
+<h3 id="5-lack-of-direct-hardware-scan-out">5. Lack of Direct Hardware
+Scan-Out</h3>
+<p>Modern graphics processing units (GPUs) and display controllers often
+feature dedicated hardware blocks for compositing and scanning out 8-bit
+frame buffers. If an application attempts to present a 10-bit decoded
+surface on an operating system or hardware display controller configured
+for 8-bit output, the system cannot pass the buffer directly to the
+display engine.</p>
+<p>Instead, it must schedule an extra rendering pass—often via a GPU
+compute shader or a CPU blit operation—to convert the 10-bit surface
+into an 8-bit swapchain format before final composition, consuming extra
+GPU memory bandwidth and processing time.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

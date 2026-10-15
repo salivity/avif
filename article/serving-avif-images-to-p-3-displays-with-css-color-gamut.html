@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serving AVIF Images to P3 Displays with CSS color-gamut - avif</title>
+    <meta name="description" content="Modern web standards allow developers to deliver tailored visual assets based on the exact hardware capabilities of a user&#39;s device. By pairing the AVIF image format with the CSS color-gamut media feature, websites can dynamically serve wide-gamut, high-f">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/serving-avif-images-to-p-3-displays-with-css-color-gamut">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Serving AVIF Images to P3 Displays with CSS color-gamut - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/serving-avif-images-to-p-3-displays-with-css-color-gamut" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Modern web standards allow developers to deliver tailored visual assets based on the exact hardware capabilities of a user&#39;s device. By pairing the AVIF image format with the CSS color-gamut media feature, websites can dynamically serve wide-gamut, high-f" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="serving-avif-images-to-p3-displays-with-css-color-gamut">Serving
+AVIF Images to P3 Displays with CSS color-gamut</h1>
+<p>Modern web standards allow developers to deliver tailored visual
+assets based on the exact hardware capabilities of a user's device. By
+pairing the AVIF image format with the CSS <code>color-gamut</code>
+media feature, websites can dynamically serve wide-gamut, high-fidelity
+P3 imagery exclusively to screens capable of rendering those colors.
+This targeted delivery ensures users with advanced displays experience
+richer visuals without burdening standard displays with heavier,
+wide-color assets they cannot physically show.</p>
+<h3 id="understanding-display-p3-and-color-gamut">Understanding Display
+P3 and color-gamut</h3>
+<p>Most traditional computer monitors are limited to the sRGB color
+space. However, many modern smartphones, tablets, and laptops now
+feature Display P3 screens, which offer roughly 25% more color volume
+than sRGB—particularly visible in vivid greens, reds, and deep secondary
+shades.</p>
+<p>The CSS <code>color-gamut</code> media feature queries the output
+device to determine the approximate range of colors supported by the
+browser and display hardware. It accepts three primary values:
+<code>srgb</code>, <code>p3</code>, and <code>rec2020</code>. When a
+query checks for <code>(color-gamut: p3)</code>, it evaluates to true
+only if the user's hardware can render at least the Display P3 color
+gamut.</p>
+<h3 id="why-avif-fits-the-p3-profile">Why AVIF Fits the P3 Profile</h3>
+<p>While formats like JPEG and WebP can technically embed wide-gamut
+color profiles, they are often constrained to 8-bit color depth, which
+risks noticeable color banding when stretching gradients across a wider
+spectrum. AVIF natively supports 10-bit and 12-bit color depths, high
+dynamic range (HDR), and wide color gamuts (WCG) with superior
+compression efficiency. This makes AVIF the ideal format for wide-gamut
+encoding.</p>
+<h3 id="conditional-delivery-via-html-picture-element">Conditional
+Delivery via HTML Picture Element</h3>
+<p>The primary method to serve AVIF exclusively to P3 displays within
+content is by using the HTML <code>&lt;picture&gt;</code> element. The
+<code>media</code> attribute on the <code>&lt;source&gt;</code> tag
+accepts standard CSS media queries, enabling a combined check for format
+support and screen capabilities:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode html"><code class="sourceCode html"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">picture</span><span class="dt">&gt;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="co">&lt;!-- Serves wide-gamut AVIF only to displays supporting P3 --&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">source</span><span class="ot"> </span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="ot">    srcset</span><span class="op">=</span><span class="st">&quot;photo-p3.avif&quot;</span><span class="ot"> </span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="ot">    type</span><span class="op">=</span><span class="st">&quot;image/avif&quot;</span><span class="ot"> </span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="ot">    media</span><span class="op">=</span><span class="st">&quot;(color-gamut: p3)&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="co">&lt;!-- Serves standard sRGB AVIF to non-P3 displays that support AVIF --&gt;</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">source</span><span class="ot"> </span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="ot">    srcset</span><span class="op">=</span><span class="st">&quot;photo-srgb.avif&quot;</span><span class="ot"> </span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="ot">    type</span><span class="op">=</span><span class="st">&quot;image/avif&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="co">&lt;!-- Standard fallback for browsers without AVIF support --&gt;</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">img</span><span class="ot"> </span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="ot">    src</span><span class="op">=</span><span class="st">&quot;photo-srgb.jpg&quot;</span><span class="ot"> </span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="ot">    alt</span><span class="op">=</span><span class="st">&quot;Descriptive image text&quot;</span><span class="ot"> </span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="ot">    loading</span><span class="op">=</span><span class="st">&quot;lazy&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">picture</span><span class="dt">&gt;</span></span></code></pre></div>
+<p>In this setup, the browser evaluates the sources sequentially. If the
+browser supports AVIF and the monitor supports the P3 gamut, it
+downloads <code>photo-p3.avif</code>. If the screen only supports
+standard sRGB, it skips the first source and downloads the
+sRGB-optimized asset instead.</p>
+<h3 id="conditional-delivery-in-css">Conditional Delivery in CSS</h3>
+<p>For UI elements and background images defined in stylesheets, the
+<code>@media</code> rule handles this logic directly:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode css"><code class="sourceCode css"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">.hero-banner</span> {</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">background-image</span><span class="ch">:</span> <span class="fu">url(</span><span class="st">&#39;hero-srgb.webp&#39;</span><span class="fu">)</span><span class="op">;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="im">@media</span> <span class="fu">(</span><span class="kw">color-gamut</span><span class="ch">:</span> <span class="dv">p3</span><span class="fu">)</span> {</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="im">@supports</span> <span class="fu">(</span><span class="kw">background-image</span><span class="ch">:</span> <span class="fu">url(</span><span class="st">&#39;test.avif&#39;</span><span class="fu">))</span> {</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">.hero-banner</span> {</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>      <span class="kw">background-image</span><span class="ch">:</span> <span class="fu">url(</span><span class="st">&#39;hero-p3.avif&#39;</span><span class="fu">)</span><span class="op">;</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>Using this approach, standard displays receive a compressed sRGB
+asset, while P3-capable displays load the wider-gamut AVIF image,
+unlocking deeper color saturation where supported while maintaining
+strict performance parity across devices.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Performance on High-Frequency Noise and Textures - avif</title>
+    <meta name="description" content="AVIF offers superior compression efficiency compared to legacy image formats, but its handling of high-frequency noise and fine textures requires careful optimization. Derived from the AV1 video codec, AVIF relies on advanced predictive coding and aggress">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-performance-on-high-frequency-noise-and-textures">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Performance on High-Frequency Noise and Textures - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-performance-on-high-frequency-noise-and-textures" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="AVIF offers superior compression efficiency compared to legacy image formats, but its handling of high-frequency noise and fine textures requires careful optimization. Derived from the AV1 video codec, AVIF relies on advanced predictive coding and aggress" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-performance-on-high-frequency-noise-and-textures">AVIF
+Performance on High-Frequency Noise and Textures</h1>
+<p>AVIF offers superior compression efficiency compared to legacy image
+formats, but its handling of high-frequency noise and fine textures
+requires careful optimization. Derived from the AV1 video codec, AVIF
+relies on advanced predictive coding and aggressive filtering that
+inherently favor structural clarity over chaotic micro-details. At
+medium-to-low bitrates, this typically results in the smoothing or
+smearing of film grain, foliage, and subtle fabric textures rather than
+the distinct blocking artifacts common to JPEG. However, through
+encoder-level fine-tuning and specialized features like Film Grain
+Synthesis (FGS), AVIF can effectively preserve or reconstruct realistic
+texture without ballooning file sizes.</p>
+<h3 id="the-mechanism-behind-texture-smoothing">The Mechanism Behind
+Texture Smoothing</h3>
+<p>AVIF compresses images using spatial prediction, transform blocks,
+and in-loop filtering. The format utilizes multiple transform
+types—including various Discrete Cosine Transforms (DCT) and Asymmetric
+Discrete Sine Transforms (ADST)—to break an image into frequency
+components.</p>
+<p>In this process, high-frequency information (such as digital camera
+noise, gravel, skin pores, and distant leaves) is assigned small
+coefficient values. When quantization is applied, these small
+coefficients are rounded to zero to save bandwidth. Consequently, the
+high-frequency components are discarded first.</p>
+<p>Furthermore, AVIF employs three distinct in-loop filters designed to
+clean up video compression artifacts:</p>
+<ol type="1">
+<li><strong>Deblocking Filter:</strong> Smooths edges across transform
+and prediction block boundaries.</li>
+<li><strong>Constrained Directional Enhancement Filter (CDEF):</strong>
+Identifies directional edges and applies adaptive low-pass filtering
+along those edges to eliminate ringing artifacts.</li>
+<li><strong>Loop Restoration Filter:</strong> Applies Wiener filtering
+or self-guided restoration to correct blur and restore degraded
+edges.</li>
+</ol>
+<p>While these filters excel at eliminating ringing and blockiness, they
+often mistake natural high-frequency noise and subtle textures for
+unwanted noise, resulting in an overly smooth, "waxy," or "plastic"
+appearance at lower bitrates.</p>
+<h3 id="behavior-on-fine-detail-vs-other-formats">Behavior on Fine
+Detail vs. Other Formats</h3>
+<p>Compared to standard JPEG, which preserves sharp, noisy edges at the
+cost of noticeable 8x8 pixel block boundaries and mosquito noise, AVIF
+degrades gracefully. It eliminates hard grid lines, producing clean
+gradients and sharp contrast edges.</p>
+<p>However, when compared to newer formats like JPEG XL, AVIF struggles
+to natively maintain stochastic (random) high-frequency noise. JPEG XL's
+adaptive quantization and transform strategies are specifically tailored
+to still images, often preserving granular texture more naturally at
+identical file sizes. Unoptimized AVIF files will typically strip fine
+noise completely before showing any edge breakdown.</p>
+<h3 id="preserving-textures-tuning-and-film-grain-synthesis">Preserving
+Textures: Tuning and Film Grain Synthesis</h3>
+<p>To counter aggressive smoothing and retain realistic textures, AVIF
+encoders (such as <code>libaom</code> and <code>rav1e</code>) provide
+specific flags and tools:</p>
+<ul>
+<li><strong>Film Grain Synthesis (FGS):</strong> AVIF includes a native
+parametric grain engine. Instead of encoding the actual high-frequency
+noise directly into the bitstream, the encoder strips the grain,
+estimates its statistical properties (such as intensity and frequency
+distribution), and transmits these parameters in the metadata. The
+decoder then procedurally regenerates and overlays the synthetic grain
+at display time. This creates the visual impression of sharp, textured
+film without the massive bitrate penalty required to encode raw
+noise.</li>
+<li><strong>Tuning Metrics:</strong> Selecting visual-quality
+tunings—such as SSIM, butteraugli, or perceptual quality metrics rather
+than standard Peak Signal-to-Noise Ratio (PSNR)—prevents the encoder
+from overly penalizing high-frequency fluctuations.</li>
+<li><strong>Disabling or Reducing In-Loop Filters:</strong> Encoders
+allow manual adjustment or disabling of CDEF and loop restoration
+filters. Lowering filter strength prevents the aggressive blurring of
+micro-textures, allowing genuine surface details to survive
+compression.</li>
+<li><strong>Constant Quality (CRF) Thresholds:</strong> At sufficiently
+low CRF values (high bitrates), AVIF retains intact textures without
+relying on synthetic generation, though the compression size advantage
+over traditional formats narrows significantly.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

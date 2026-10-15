@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Calibrate and Export HDR AVIF in Lightroom - avif</title>
+    <meta name="description" content="Adobe Lightroom now supports an end-to-end High Dynamic Range (HDR) workflow, enabling photographers to capture, grade, and share images with expanded dynamic range and luminance. Mastering this process requires specialized monitor calibration hardware to">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-to-calibrate-and-export-hdr-avif-in-lightroom">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How to Calibrate and Export HDR AVIF in Lightroom - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-to-calibrate-and-export-hdr-avif-in-lightroom" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Adobe Lightroom now supports an end-to-end High Dynamic Range (HDR) workflow, enabling photographers to capture, grade, and share images with expanded dynamic range and luminance. Mastering this process requires specialized monitor calibration hardware to" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-to-calibrate-and-export-hdr-avif-in-lightroom">How to
+Calibrate and Export HDR AVIF in Lightroom</h1>
+<p>Adobe Lightroom now supports an end-to-end High Dynamic Range (HDR)
+workflow, enabling photographers to capture, grade, and share images
+with expanded dynamic range and luminance. Mastering this process
+requires specialized monitor calibration hardware to ensure accurate
+luminance mapping, Lightroom’s built-in HDR editing tools to balance
+highlights and shadows, and the correct export settings for the AVIF
+format. This guide outlines the essential hardware and software tools
+needed to reliably calibrate your display, utilize Lightroom’s HDR
+workspace, and export compliant 10-bit HDR AVIF files.</p>
+<h3 id="monitor-calibration-tools-for-hdr">Monitor Calibration Tools for
+HDR</h3>
+<p>Accurate HDR grading requires a display capable of sustained high
+peak brightness (at least 1,000 nits is standard for true HDR reference)
+alongside high-luminance colorimeter hardware. Standard colorimeters
+often fail when measuring light levels above 400 nits.</p>
+<ul>
+<li><strong>Calibrite Display Plus HL:</strong> Designed for mini-LED,
+OLED, and bright Apple XDR displays, this sensor measures luminance
+levels up to 10,000 nits. When paired with <strong>Calibrite
+PROFILER</strong> software, it allows you to profile your display
+targeting PQ (Perceptual Quantizer) or HLG curves required for HDR
+precision.</li>
+<li><strong>Datacolor Spyder X2 Ultra:</strong> Another capable hardware
+sensor targeting up to 2,000 nits, suitable for high-brightness HDR
+displays. The included Spyder software guides users through setting a
+dedicated HDR white point and target peak brightness.</li>
+<li><strong>DisplayCAL:</strong> An open-source advanced calibration
+suite compatible with various spectrophotometers and colorimeters,
+preferred by technical professionals seeking custom 3D LUT generation
+and detailed tone mapping checks.</li>
+</ul>
+<h3 id="lightrooms-integrated-hdr-editing-tools">Lightroom’s Integrated
+HDR Editing Tools</h3>
+<p>Lightroom does not require third-party plugins to work with HDR
+assets. The tools are built directly into the Develop module:</p>
+<ul>
+<li><strong>The HDR Toggle:</strong> Located in the Basic panel,
+clicking "HDR" activates the extended dynamic range histogram, mapping
+data from Standard Dynamic Range (SDR) into distinct surplus stops of
+dynamic range (up to +4 stops or more depending on the display).</li>
+<li><strong>Visualize HDR Overlay:</strong> A checkbox under the
+histogram that applies a false-color heatmap across the image,
+highlighting which pixels exceed SDR limits and which specific stop of
+HDR they occupy.</li>
+<li><strong>SDR Rendition Settings:</strong> Because not all displays
+support HDR, this panel enables tone mapping adjustments specifically
+for legacy SDR viewers, ensuring your final export looks balanced
+regardless of the viewing screen.</li>
+</ul>
+<h3 id="exporting-hdr-avif-files">Exporting HDR AVIF Files</h3>
+<p>AVIF (AV1 Image File Format) is an open, royalty-free container that
+supports 10-bit and 12-bit color depths, high compression efficiency,
+and wide color gamuts (WCG), making it the primary delivery format for
+HDR photography on the modern web.</p>
+<p>To export an HDR AVIF in Lightroom:</p>
+<ol type="1">
+<li>Select your edited HDR photo and open the <strong>Export</strong>
+dialog.</li>
+<li>Under <strong>File Settings</strong>, set the <strong>Image
+Format</strong> to <strong>AVIF</strong>.</li>
+<li>Check the <strong>HDR Output</strong> box. This step forces
+Lightroom to embed the necessary HDR gain maps and color metadata.</li>
+<li>Set the <strong>Color Space</strong> to <strong>HDR Rec.
+2020</strong> or <strong>HDR P3</strong> to retain wide gamut
+information.</li>
+<li>Set the <strong>Bit Depth</strong> to <strong>10-bit</strong> or
+<strong>12-bit</strong> to prevent color banding in smooth gradients,
+such as skies and specular highlights.</li>
+</ol>
+<h3 id="verification-and-delivery-tools">Verification and Delivery
+Tools</h3>
+<p>Once exported, verify your HDR AVIF files using software capable of
+decoding AV1 with HDR metadata:</p>
+<ul>
+<li><strong>Chromium-based Browsers (Google Chrome, Brave, Microsoft
+Edge):</strong> These browsers offer native HDR AVIF decoding across
+modern operating systems, referencing your display's OS-level HDR
+profile.</li>
+<li><strong>macOS Finder and Preview:</strong> Recent macOS releases
+natively render HDR AVIF files directly on Apple Silicon XDR displays
+and external HDR monitors.</li>
+<li><strong>libavif (avifenc / avifdec):</strong> For automated
+workflows and web deployment, this command-line toolkit allows you to
+inspect embedded HDR metadata, verify ICC profiles, and validate color
+primaries.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tools to Inspect AVIF ISOBMFF Box Hierarchy - avif</title>
+    <meta name="description" content="AVIF (AV1 Image File Format) relies on the ISO Base Media File Format (ISOBMFF) container to package compressed AV1 image data and associated metadata. Inspecting the nested box (atom) structure—such as ftyp, meta, iinf, iloc, and mdat—is essential for de">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/tools-to-inspect-avif-isobmff-box-hierarchy">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Tools to Inspect AVIF ISOBMFF Box Hierarchy - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/tools-to-inspect-avif-isobmff-box-hierarchy" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="AVIF (AV1 Image File Format) relies on the ISO Base Media File Format (ISOBMFF) container to package compressed AV1 image data and associated metadata. Inspecting the nested box (atom) structure—such as ftyp, meta, iinf, iloc, and mdat—is essential for de" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="tools-to-inspect-avif-isobmff-box-hierarchy">Tools to Inspect
+AVIF ISOBMFF Box Hierarchy</h1>
+<p>AVIF (AV1 Image File Format) relies on the ISO Base Media File Format
+(ISOBMFF) container to package compressed AV1 image data and associated
+metadata. Inspecting the nested box (atom) structure—such as
+<code>ftyp</code>, <code>meta</code>, <code>iinf</code>,
+<code>iloc</code>, and <code>mdat</code>—is essential for debugging
+encoding anomalies, verifying container compliance, and auditing
+embedded metadata. This guide covers the most effective command-line
+utilities, graphical interfaces, and binary analysis tools designed to
+parse and display the raw ISOBMFF box hierarchy of an AVIF file.</p>
+<h3 id="dedicated-avif-and-heif-cli-utilities">Dedicated AVIF and HEIF
+CLI Utilities</h3>
+<p>Because AVIF is a specific profile of HEIF (which is derived from
+ISOBMFF), specialized image libraries provide native tools to dump
+container boxes.</p>
+<ul>
+<li><strong>avifdump (libavif):</strong> Distributed with the official
+AOMedia <code>libavif</code> repository, <code>avifdump</code> is
+specifically built to parse AVIF files. Running
+<code>avifdump input.avif</code> parses and prints the structural layout
+of the file, providing details on item IDs, configurations, color
+profiles, and the ISOBMFF box tree directly relevant to the AVIF
+specification.</li>
+<li><strong>heif-dump (libheif):</strong> Since AVIF uses the same
+underlying container mechanisms as HEIC, the <code>heif-dump</code>
+command-line utility from <code>libheif</code> can parse AVIF files. It
+displays a clean, indented text tree of the box hierarchy along with
+offset addresses, payload sizes, and header flags.</li>
+</ul>
+<h3 id="general-isobmff-parsers">General ISOBMFF Parsers</h3>
+<p>General-purpose MP4 and ISOBMFF diagnostic utilities can inspect any
+compliant file format, including AVIF.</p>
+<ul>
+<li><strong>MP4Box (GPAC):</strong> GPAC's <code>MP4Box</code> is a
+mature and comprehensive tool for inspecting container formats. Running
+<code>MP4Box -diso input.avif</code> generates an XML-formatted
+breakdown of every ISOBMFF box in the file, detailing offsets, nested
+child boxes, and raw property values. The <code>-info</code> flag can
+also yield a concise human-readable summary.</li>
+<li><strong>isobmff-box-dump:</strong> Available across various
+open-source language ecosystems (such as Python's <code>isobmff</code>
+library or Node.js parsers), these lightweight scripts read the
+four-character codes (4CC) and sizes from the file stream and print out
+an indented ASCII representation of the tree structure.</li>
+</ul>
+<h3 id="graphical-and-web-based-viewers">Graphical and Web-Based
+Viewers</h3>
+<p>For interactive navigation without terminal commands, visual tree
+explorers simplify collapsing and expanding nested boxes.</p>
+<ul>
+<li><strong>ISOViewer:</strong> A classic Java-based application capable
+of opening any ISOBMFF-compliant file. It visualizes the nested box
+hierarchy in a collapsible tree pane on the left, while displaying
+decoded header fields, hex views, and box attributes in the details pane
+on the right.</li>
+<li><strong>Web-Based ISOBMFF Box Viewers:</strong> Several
+browser-based tools run local client-side JavaScript parsers to inspect
+files without uploading them to external servers. These tools provide
+instant visualization of the box tree, display raw byte offsets, and
+parse common item-location boxes (<code>iloc</code>) and item-reference
+boxes (<code>iref</code>).</li>
+</ul>
+<h3 id="advanced-binary-analysis-and-hex-editors">Advanced Binary
+Analysis and Hex Editors</h3>
+<p>When standard parsers fail due to malformed headers or corrupt byte
+streams, low-level binary tools with structural templates provide the
+necessary insight.</p>
+<ul>
+<li><strong>010 Editor (with ISOBMFF/QuickTime Template):</strong> 010
+Editor applies a pre-built binary template to an open AVIF file. It maps
+out the exact byte boundaries of each box, decodes standard integer
+fields, and highlights the corresponding raw hex values in real
+time.</li>
+<li><strong>ImHex:</strong> An open-source hex editor that supports
+custom pattern languages. Using an ISOBMFF or MP4 pattern, ImHex can
+parse and label variable-length boxes, flags, and item payloads directly
+over the raw binary representation of the AVIF container.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Support in Email: Newsletters and Attachments - avif</title>
+    <meta name="description" content="This article examines how modern email clients handle AVIF (AV1 Image File Format) files, covering both inline graphics within HTML newsletters and standalone file attachments. While AVIF provides superior compression and visual fidelity compared to JPEG">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-support-in-email-newsletters-and-attachments">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Support in Email: Newsletters and Attachments - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-support-in-email-newsletters-and-attachments" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article examines how modern email clients handle AVIF (AV1 Image File Format) files, covering both inline graphics within HTML newsletters and standalone file attachments. While AVIF provides superior compression and visual fidelity compared to JPEG" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-support-in-email-newsletters-and-attachments">AVIF Support
+in Email: Newsletters and Attachments</h1>
+<p>This article examines how modern email clients handle AVIF (AV1 Image
+File Format) files, covering both inline graphics within HTML
+newsletters and standalone file attachments. While AVIF provides
+superior compression and visual fidelity compared to JPEG and WebP, its
+adoption across email ecosystems remains fragmented. Below is a
+breakdown of current rendering capabilities across major providers,
+operating system preview behaviors for attachments, and essential
+fallback strategies for email marketers.</p>
+<h3 id="avif-in-html-newsletters">AVIF in HTML Newsletters</h3>
+<p>Rendering embedded images within HTML campaigns requires
+compatibility from both the email client’s rendering engine and any
+intermediary image-caching servers.</p>
+<ul>
+<li><strong>Apple Mail (iOS, iPadOS, macOS):</strong> Apple Mail offers
+the most robust support. Devices running iOS 16, iPadOS 16, and macOS
+Ventura (or later) use modern WebKit engines that natively render AVIF
+images embedded via standard <code>&lt;img&gt;</code> or
+<code>&lt;picture&gt;</code> tags.</li>
+<li><strong>Gmail:</strong> Gmail routes external images through
+Google’s Image Proxy. The proxy frequently fails to decode or cache AVIF
+files properly, often resulting in broken image icons or outright
+dropping the image. Furthermore, Gmail automatically strips the HTML5
+<code>&lt;picture&gt;</code> tag, making progressive enhancement
+difficult within this client.</li>
+<li><strong>Microsoft Outlook:</strong> Support depends heavily on the
+specific client version. Legacy Outlook for Windows (2016, 2019, 2021)
+uses the Microsoft Word rendering engine, which has no support for AVIF.
+The "New Outlook" for Windows and Outlook on the web leverage
+Chromium-based rendering, which technically supports AVIF if the
+underlying browser does, though proxy and security policies can still
+block the assets.</li>
+<li><strong>Yahoo Mail and AOL:</strong> Webmail versions support AVIF
+when accessed through modern browsers (Chrome, Firefox, Safari, Edge).
+However, mobile application support varies based on the device's default
+Webview components.</li>
+</ul>
+<h3 id="avif-as-email-attachments">AVIF as Email Attachments</h3>
+<p>When an AVIF file is sent as a MIME attachment
+(<code>image/avif</code>) rather than linked inside an HTML template,
+the handling shifts from email rendering engines to operating system
+capabilities:</p>
+<ul>
+<li><strong>File Delivery:</strong> All major email servers transmit
+AVIF attachments without corruption, treating them as valid binary
+payloads.</li>
+<li><strong>Thumbnail Previews:</strong> In-client previews depend on
+the operating system. Apple devices (iOS 16+ and macOS 13+) and modern
+Android versions display visual thumbnail previews directly in the
+client. Windows systems generally display a generic file icon unless the
+user has installed the AV1 Video Extension from the Microsoft
+Store.</li>
+<li><strong>Saving and Opening:</strong> Regardless of preview support,
+recipients on any platform can download the file to open it in a
+compatible viewer or web browser.</li>
+</ul>
+<h3 id="best-practices-for-implementation">Best Practices for
+Implementation</h3>
+<p>Because global email support for AVIF remains limited, sending AVIF
+as a primary image format without contingencies is not recommended for
+production campaigns.</p>
+<p>To safely utilize AVIF, employ progressive enhancement with standard
+fallbacks:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode html"><code class="sourceCode html"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">picture</span><span class="dt">&gt;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">source</span><span class="ot"> srcset</span><span class="op">=</span><span class="st">&quot;image.avif&quot;</span><span class="ot"> type</span><span class="op">=</span><span class="st">&quot;image/avif&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">source</span><span class="ot"> srcset</span><span class="op">=</span><span class="st">&quot;image.webp&quot;</span><span class="ot"> type</span><span class="op">=</span><span class="st">&quot;image/webp&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">img</span><span class="ot"> src</span><span class="op">=</span><span class="st">&quot;image.jpg&quot;</span><span class="ot"> alt</span><span class="op">=</span><span class="st">&quot;Description&quot;</span><span class="ot"> width</span><span class="op">=</span><span class="st">&quot;600&quot;</span><span class="ot"> style</span><span class="op">=</span><span class="st">&quot;display: block; width: 100%; max-width: 600px;&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">picture</span><span class="dt">&gt;</span></span></code></pre></div>
+<p>For environments like Gmail that ignore <code>&lt;picture&gt;</code>
+tags, the parser defaults directly to the <code>&lt;img&gt;</code> tag,
+ensuring the legacy JPEG or PNG displays properly. Until webmail proxies
+and corporate desktop clients universally adopt the AV1 codec, AVIF
+should only be deployed as an optional enhancement layer alongside
+traditional formats.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

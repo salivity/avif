@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Decoding: Handling Non-Premultiplied Alpha - avif</title>
+    <meta name="description" content="An AVIF decoder renders non-premultiplied alpha by decoding the primary color data and auxiliary transparency data as separate streams, parsing container metadata to verify the alpha association, and converting the color values to an appropriate format fo">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-decoding-handling-non-premultiplied-alpha">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Decoding: Handling Non-Premultiplied Alpha - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-decoding-handling-non-premultiplied-alpha" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="An AVIF decoder renders non-premultiplied alpha by decoding the primary color data and auxiliary transparency data as separate streams, parsing container metadata to verify the alpha association, and converting the color values to an appropriate format fo" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-decoding-handling-non-premultiplied-alpha">AVIF Decoding:
+Handling Non-Premultiplied Alpha</h1>
+<p>An AVIF decoder renders non-premultiplied alpha by decoding the
+primary color data and auxiliary transparency data as separate streams,
+parsing container metadata to verify the alpha association, and
+converting the color values to an appropriate format for display
+compositing. Because non-premultiplied—or "straight"—alpha preserves
+original RGB values under fully transparent pixels, the decoder must
+handle color conversion prior to blending to prevent edge artifacts and
+color bleeding.</p>
+<h3 id="stream-separation-and-decoding">Stream Separation and
+Decoding</h3>
+<p>In the AV1 Image File Format (AVIF), transparency is not multiplexed
+directly into a single four-channel (RGBA) pixel grid at the bitstream
+level. Instead, the container uses an auxiliary image item linked via an
+auxiliary type reference (<code>auxl</code>).</p>
+<p>When an AVIF decoder processes an image, it initiates two distinct
+decoding passes through the underlying AV1 codec:</p>
+<ol type="1">
+<li><strong>Primary Item:</strong> Decodes the primary color channels
+(typically YUV or RGB).</li>
+<li><strong>Auxiliary Item:</strong> Decodes a monochrome (grayscale)
+plane representing the alpha channel.</li>
+</ol>
+<p>Both passes execute independently, producing full-resolution grids
+for both the color planes and the alpha plane.</p>
+<h3 id="identifying-straight-alpha-via-isobmff-metadata">Identifying
+Straight Alpha via ISOBMFF Metadata</h3>
+<p>AVIF relies on the ISO Base Media File Format (ISOBMFF) to define the
+relationship between color and alpha. The decoder inspects the item
+properties to evaluate how transparency interacts with color:</p>
+<ul>
+<li>If the <code>prem</code> (premultiplied alpha) property is absent or
+set to indicate unassociated alpha, the decoder marks the decoded pixel
+buffer as straight alpha.</li>
+<li>The absence of this tag instructs the rendering pipeline that the
+color values stored in the primary image represent the true, unscaled
+chromaticity of the scene, independent of opacity.</li>
+</ul>
+<h3 id="color-space-conversion">Color Space Conversion</h3>
+<p>Most AVIF images store color in the YUV (YCbCr) color space to
+optimize compression. When handling straight alpha, the decoder must
+convert YUV to RGB before any alpha blending takes place.</p>
+<p>During this stage, color matrices are applied strictly to the decoded
+color components:</p>
+<p><span class="math display">\[R, G, B = f(Y, U, V)\]</span></p>
+<p>Because the alpha channel is non-premultiplied, transparent or
+semi-transparent pixels retain their original color values without being
+darkened toward black. The decoder processes these conversions across
+the entire image grid without factoring in the auxiliary alpha
+plane.</p>
+<h3 id="compositing-and-pipeline-integration">Compositing and Pipeline
+Integration</h3>
+<p>Once both the RGB color channels and the single-channel alpha map
+reside in memory as unassociated buffers, the decoder prepares the data
+for the system's graphics rendering engine (such as Skia, Direct2D, or a
+GPU-accelerated compositor).</p>
+<p>Most modern display compositors use standard Porter-Duff source-over
+blending, which mathematically favors premultiplied inputs to eliminate
+dark fringe artifacts and avoid division-by-zero errors:</p>
+<p><span class="math display">\[\text{Final Color} = \text{Source} +
+\text{Destination} \times (1 - \alpha)\]</span></p>
+<p>To accommodate this, the decoder or rendering pipeline executes one
+of two pathways:</p>
+<ol type="1">
+<li><strong>On-the-Fly Premultiplication:</strong> The decoder
+multiplies each decoded color channel by the normalized alpha value
+immediately prior to passing the buffer to the GPU: <span
+class="math display">\[R&#39; = R \times \alpha, \quad G&#39; = G \times
+\alpha, \quad B&#39; = B \times \alpha\]</span></li>
+<li><strong>Shader-Based Interpretation:</strong> If the rendering API
+supports straight alpha surfaces, the decoder loads the RGB and alpha
+buffers directly into separate texture units or a single RGBA texture,
+executing the multiplication step inside the fragment shader during
+screen rasterization.</li>
+</ol>
+<p>By maintaining channel separation throughout the decompression and
+color transformation stages, the AVIF decoder ensures that
+non-premultiplied alpha channels render sharp, artifact-free edges
+regardless of the underlying background.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

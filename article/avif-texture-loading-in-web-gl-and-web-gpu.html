@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Texture Loading in WebGL and WebGPU - avif</title>
+    <meta name="description" content="AVIF offers superior compression efficiency and high dynamic range support, making it an attractive asset format for real-time 3D web applications. Integrating AVIF into WebGL and WebGPU pipelines involves decoding the AV1-compressed bitstream into an unc">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-texture-loading-in-web-gl-and-web-gpu">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Texture Loading in WebGL and WebGPU - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-texture-loading-in-web-gl-and-web-gpu" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="AVIF offers superior compression efficiency and high dynamic range support, making it an attractive asset format for real-time 3D web applications. Integrating AVIF into WebGL and WebGPU pipelines involves decoding the AV1-compressed bitstream into an unc" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-texture-loading-in-webgl-and-webgpu">AVIF Texture Loading
+in WebGL and WebGPU</h1>
+<p>AVIF offers superior compression efficiency and high dynamic range
+support, making it an attractive asset format for real-time 3D web
+applications. Integrating AVIF into WebGL and WebGPU pipelines involves
+decoding the AV1-compressed bitstream into an uncompressed pixel
+representation using browser APIs like <code>createImageBitmap</code> or
+the WebCodecs API before uploading that data into GPU memory. This
+article explains the technical mechanics, modern upload pathways, color
+space management, and performance trade-offs when using AVIF for
+graphics programming on the web.</p>
+<h2 id="the-role-of-avif-in-graphics-pipelines">The Role of AVIF in
+Graphics Pipelines</h2>
+<p>AVIF is an image delivery format rather than a GPU texture format.
+Unlike block-compressed formats designed for hardware (such as ASTC,
+BCn, or Basis Universal), AVIF cannot remain compressed inside GPU
+VRAM.</p>
+<p>Instead, AVIF acts as an ultra-lightweight transmission format over
+the network. Once fetched by the client, the browser decodes the AV1
+bitstream into raw, uncompressed RGBA pixel buffers in system memory.
+These raw pixels are subsequently copied into GPU texture memory for
+rendering.</p>
+<h2 id="decoding-avif-asynchronously">Decoding AVIF Asynchronously</h2>
+<p>To prevent frame drops on the main thread, AVIF images must be
+decoded asynchronously. Modern web architectures avoid using traditional
+<code>HTMLImageElement</code> instances in favor of <code>fetch</code>
+combined with <code>createImageBitmap</code>.</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Fetch the AVIF file as a Blob</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> response <span class="op">=</span> <span class="cf">await</span> <span class="fu">fetch</span>(<span class="st">&#39;texture.avif&#39;</span>)<span class="op">;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> blob <span class="op">=</span> <span class="cf">await</span> response<span class="op">.</span><span class="fu">blob</span>()<span class="op">;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">// Decode off-thread into an ImageBitmap</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> imageBitmap <span class="op">=</span> <span class="cf">await</span> <span class="fu">createImageBitmap</span>(blob<span class="op">,</span> {</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">colorSpaceConversion</span><span class="op">:</span> <span class="st">&#39;none&#39;</span><span class="op">,</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">premultiplyAlpha</span><span class="op">:</span> <span class="st">&#39;none&#39;</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span></code></pre></div>
+<p>Using <code>createImageBitmap</code> allows the browser’s underlying
+AV1 decoder to process the image on a worker thread. Specifying decoding
+options ensures the raw data is not prematurely converted or blended
+before reaching the shader.</p>
+<h2 id="webgl-texture-upload-pipeline">WebGL Texture Upload
+Pipeline</h2>
+<p>In WebGL 1 and WebGL 2, the pipeline receives the decoded
+<code>ImageBitmap</code> and uploads it via the CPU-to-GPU bridge.</p>
+<ol type="1">
+<li><p><strong>Configure Pixel Storage:</strong> Define alignment and
+unpacking flags to match your asset’s layout:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>gl<span class="op">.</span><span class="fu">pixelStorei</span>(gl<span class="op">.</span><span class="at">UNPACK_PREMULTIPLY_ALPHA_WEBGL</span><span class="op">,</span> <span class="kw">false</span>)<span class="op">;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>gl<span class="op">.</span><span class="fu">pixelStorei</span>(gl<span class="op">.</span><span class="at">UNPACK_FLIP_Y_WEBGL</span><span class="op">,</span> <span class="kw">true</span>)<span class="op">;</span></span></code></pre></div></li>
+<li><p><strong>Allocate and Upload:</strong> Bind a texture target and
+call <code>texImage2D</code> or <code>texSubImage2D</code>:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>gl<span class="op">.</span><span class="fu">bindTexture</span>(gl<span class="op">.</span><span class="at">TEXTURE_2D</span><span class="op">,</span> texture)<span class="op">;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>gl<span class="op">.</span><span class="fu">texImage2D</span>(</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  gl<span class="op">.</span><span class="at">TEXTURE_2D</span><span class="op">,</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  gl<span class="op">.</span><span class="at">RGBA</span><span class="op">,</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  gl<span class="op">.</span><span class="at">RGBA</span><span class="op">,</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  gl<span class="op">.</span><span class="at">UNSIGNED_BYTE</span><span class="op">,</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  imageBitmap</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>gl<span class="op">.</span><span class="fu">generateMipmap</span>(gl<span class="op">.</span><span class="at">TEXTURE_2D</span>)<span class="op">;</span></span></code></pre></div></li>
+</ol>
+<p>Because AVIF does not store precomputed mipmaps, mip generation must
+occur dynamically on the GPU using <code>gl.generateMipmap()</code>,
+adding a small runtime overhead during scene initialization.</p>
+<h2 id="webgpu-texture-upload-pipeline">WebGPU Texture Upload
+Pipeline</h2>
+<p>WebGPU modernizes texture handling by introducing
+<code>copyExternalImageToTexture()</code>, which coordinates the
+transfer of image sources directly to GPU textures via the
+<code>GPUQueue</code>.</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Create target texture</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> texture <span class="op">=</span> device<span class="op">.</span><span class="fu">createTexture</span>({</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">size</span><span class="op">:</span> [imageBitmap<span class="op">.</span><span class="at">width</span><span class="op">,</span> imageBitmap<span class="op">.</span><span class="at">height</span><span class="op">,</span> <span class="dv">1</span>]<span class="op">,</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">format</span><span class="op">:</span> <span class="st">&#39;rgba8unorm&#39;</span><span class="op">,</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">usage</span><span class="op">:</span> GPUTextureUsage<span class="op">.</span><span class="at">TEXTURE_BINDING</span> <span class="op">|</span> </span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>         GPUTextureUsage<span class="op">.</span><span class="at">COPY_DST</span> <span class="op">|</span> </span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>         GPUTextureUsage<span class="op">.</span><span class="at">RENDER_ATTACHMENT</span><span class="op">,</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">// Direct transfer from decoded image source to GPU texture</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>device<span class="op">.</span><span class="at">queue</span><span class="op">.</span><span class="fu">copyExternalImageToTexture</span>(</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  { <span class="dt">source</span><span class="op">:</span> imageBitmap<span class="op">,</span> <span class="dt">flipY</span><span class="op">:</span> <span class="kw">false</span> }<span class="op">,</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  { <span class="dt">texture</span><span class="op">:</span> texture }<span class="op">,</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  [imageBitmap<span class="op">.</span><span class="at">width</span><span class="op">,</span> imageBitmap<span class="op">.</span><span class="at">height</span>]</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span></code></pre></div>
+<p>This method is optimized inside browser engines to bypass unnecessary
+intermediate memory copies, achieving near-zero-copy transfers depending
+on the underlying OS compositor and hardware decoder capabilities.</p>
+<h2 id="high-dynamic-range-hdr-and-wide-color-gamut">High Dynamic Range
+(HDR) and Wide Color Gamut</h2>
+<p>One of AVIF's greatest advantages over older formats like WebP or
+JPEG is native support for 10-bit and 12-bit color depths, as well as
+wide color gamuts (BT.2020) and transfer functions like PQ and HLG.</p>
+<ul>
+<li><strong>In WebGL 2:</strong> HDR AVIF data must be unpacked into
+float or half-float textures (<code>gl.RGBA16F</code> or
+<code>gl.RGBA32F</code>) to retain dynamic range without clamping values
+to 8-bit limits.</li>
+<li><strong>In WebGPU:</strong> Textures can be initialized with formats
+like <code>rgba16float</code>, and color spaces can be preserved
+explicitly through the <code>colorSpace</code> configuration in
+<code>copyExternalImageToTexture()</code>.</li>
+</ul>
+<h2 id="performance-trade-offs">Performance Trade-Offs</h2>
+<p>When designing a production pipeline, consider the following
+trade-offs between AVIF and GPU-native formats:</p>
+<ul>
+<li><strong>Bandwidth vs. VRAM:</strong> AVIF dramatically reduces
+initial download times and storage requirements compared to raw or
+standard compressed files. However, once decoded, an AVIF image consumes
+full uncompressed VRAM (e.g., 4 bytes per pixel for standard
+RGBA8).</li>
+<li><strong>Decoding Latency:</strong> AV1 decoding is computationally
+intensive. While hardware-accelerated AV1 decoding is increasingly
+common on modern chipsets, older mobile devices rely on software
+fallbacks that can spike CPU usage during bulk loads.</li>
+<li><strong>Best Use Cases:</strong> AVIF excels for high-fidelity
+skyboxes, environmental lighting panoramas, user interface elements, and
+photorealistic overlays. For massive 3D asset libraries requiring
+hundreds of distinct surface maps, GPU-native formats like Basis
+Universal (transcoded directly to BCn/ASTC) remain preferable to keep
+runtime VRAM low.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Support for Wide Color Gamuts Explained - avif</title>
+    <meta name="description" content="The AV1 Image File Format (AVIF) provides native, highly efficient support for Wide Color Gamuts (WCG) such as DCI-P3 and Rec. 2020, bringing cinema-grade color fidelity to digital photography and web media. This article explains the technical mechanisms">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-support-for-wide-color-gamuts-explained">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Support for Wide Color Gamuts Explained - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-support-for-wide-color-gamuts-explained" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The AV1 Image File Format (AVIF) provides native, highly efficient support for Wide Color Gamuts (WCG) such as DCI-P3 and Rec. 2020, bringing cinema-grade color fidelity to digital photography and web media. This article explains the technical mechanisms" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-support-for-wide-color-gamuts-explained">AVIF Support for
+Wide Color Gamuts Explained</h1>
+<p>The AV1 Image File Format (AVIF) provides native, highly efficient
+support for Wide Color Gamuts (WCG) such as DCI-P3 and Rec. 2020,
+bringing cinema-grade color fidelity to digital photography and web
+media. This article explains the technical mechanisms behind this
+capability, detailing how AVIF utilizes high bit-depth encoding,
+standardized NCLX color signaling, embedded ICC profiles, and integrated
+High Dynamic Range (HDR) standards to accurately render expansive color
+palettes without causing visual banding or excessive file bloat.</p>
+<h3 id="high-bit-depth-encoding-prevents-color-banding">High Bit-Depth
+Encoding Prevents Color Banding</h3>
+<p>Representing a wider color gamut like DCI-P3 (approx. 25% larger than
+sRGB) or Rec. 2020 (approx. 72% larger than sRGB) stretches color values
+across a vastly broader spectrum. In traditional 8-bit formats like
+JPEG, stretching these values causes visible banding (posterization)
+because there are not enough discrete steps between adjacent shades.</p>
+<p>AVIF natively supports 10-bit and 12-bit color depths per channel,
+inherited directly from the AV1 video codec. A 10-bit container provides
+1,024 values per channel (over 1 billion distinct colors), while a
+12-bit container provides 4,096 values per channel (over 68 billion
+distinct colors). This granular color resolution ensures smooth
+gradients and zero banding, even across the vast boundaries of the Rec.
+2020 color space.</p>
+<h3 id="lightweight-color-signaling-via-nclx-metadata">Lightweight Color
+Signaling via NCLX Metadata</h3>
+<p>Traditional image formats often rely on embedded International Color
+Consortium (ICC) profiles to define wide color spaces. ICC profiles
+frequently add anywhere from several kilobytes to megabytes of overhead
+to an image, negating compression savings.</p>
+<p>AVIF resolves this through its container architecture, the ISO Base
+Media File Format (ISOBMFF). It uses a specialized <code>colr</code>
+(color information) box configured with the "nclx" (non-constant
+luminance) type. NCLX metadata explicitly defines the color space using
+just a few bytes by specifying three key values:</p>
+<ol type="1">
+<li><strong>Color Primaries:</strong> Defines the coordinates of the
+red, green, and blue endpoints (e.g., Code Point 12 for Display P3, Code
+Point 9 for Rec. 2020).</li>
+<li><strong>Transfer Characteristics:</strong> Defines the
+electro-optical transfer function (EOTF), specifying gamma curves,
+Perceptual Quantizer (PQ / SMPTE ST 2084), or Hybrid Log-Gamma
+(HLG).</li>
+<li><strong>Matrix Coefficients:</strong> Dictates how the color
+components are converted between YUV (used for compression) and RGB
+(used for display).</li>
+</ol>
+<p>Because modern operating systems and web browsers have these standard
+definitions built in, the receiving device can accurately decode and
+display DCI-P3 or Rec. 2020 images instantly with virtually zero file
+size overhead.</p>
+<h3 id="full-support-for-embedded-icc-profiles">Full Support for
+Embedded ICC Profiles</h3>
+<p>While NCLX is the preferred method for standard wide gamuts, AVIF
+also fully supports embedded ICC profiles within the <code>colr</code>
+box (<code>prof</code> type). This ensures full compatibility with
+professional color management workflows that utilize custom-calibrated
+color spaces or non-standard device profiles. Operating systems and
+imaging software read this profile to correctly map colors to the target
+display.</p>
+<h3 id="seamless-high-dynamic-range-hdr-integration">Seamless High
+Dynamic Range (HDR) Integration</h3>
+<p>Wide color gamuts are inherently tied to High Dynamic Range imaging.
+AVIF seamlessly couples Rec. 2020 primaries with HDR transfer functions
+(such as PQ and HLG) within the same file format structure. When an AVIF
+image is rendered on an HDR-capable monitor or smartphone display, the
+decoder uses the embedded metadata to present both the expanded color
+volume of Rec. 2020 and the heightened luminance levels of HDR,
+achieving precise color mapping and realistic highlights that standard
+dynamic range (sRGB) formats cannot deliver.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

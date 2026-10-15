@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How AV1 Palette Mode Optimizes AVIF Illustrations - avif</title>
+    <meta name="description" content="The AV1 image format (AVIF) leverages the advanced coding tools of the AV1 video codec to deliver superior compression efficiency across various types of media. Among these tools, Palette Mode plays a crucial role in optimizing non-photographic content su">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-av-1-palette-mode-optimizes-avif-illustrations">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How AV1 Palette Mode Optimizes AVIF Illustrations - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-av-1-palette-mode-optimizes-avif-illustrations" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The AV1 image format (AVIF) leverages the advanced coding tools of the AV1 video codec to deliver superior compression efficiency across various types of media. Among these tools, Palette Mode plays a crucial role in optimizing non-photographic content su" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-av1-palette-mode-optimizes-avif-illustrations">How AV1
+Palette Mode Optimizes AVIF Illustrations</h1>
+<p>The AV1 image format (AVIF) leverages the advanced coding tools of
+the AV1 video codec to deliver superior compression efficiency across
+various types of media. Among these tools, Palette Mode plays a crucial
+role in optimizing non-photographic content such as digital
+illustrations, vector art, and graphics. This article explains how
+Palette Mode operates within AV1, why it dramatically reduces file
+sizes, and how it eliminates common compression artifacts to preserve
+razor-sharp line art and flat colors in AVIF images.</p>
+<h3 id="understanding-palette-mode-in-av1">Understanding Palette Mode in
+AV1</h3>
+<p>Traditional photographic compression relies on continuous-tone
+frequency transforms (such as the Discrete Cosine Transform) to discard
+imperceptible color data. While this approach works well for natural
+photos with smooth gradients, it is inefficient for graphic design
+assets.</p>
+<p>Palette Mode is an intra-prediction tool designed specifically for
+screen content and flat art. When an image block contains a limited
+number of unique colors, the encoder constructs a local color lookup
+table (a palette) containing up to eight colors. Instead of encoding
+continuous pixel values or complex residual errors, the encoder simply
+transmits this small color palette alongside an index map that points
+each pixel in the block to its corresponding color.</p>
+<h3 id="elimination-of-ringing-and-blurring-artifacts">Elimination of
+Ringing and Blurring Artifacts</h3>
+<p>Standard lossy codecs struggle with sharp boundaries between
+high-contrast areas, frequently causing the Gibbs phenomenon (ringing
+artifacts) and edge smearing. In illustrations, this manifests as dirty
+halos around outlines or text.</p>
+<p>Because Palette Mode treats pixels as discrete color indices rather
+than approximated wave frequencies, it completely avoids
+transform-related edge distortion. The boundaries between distinct color
+regions remain perfectly crisp, preserving the original intent of vector
+illustrations and line art even at aggressive compression levels.</p>
+<h3 id="significant-file-size-reduction">Significant File Size
+Reduction</h3>
+<p>Storing high-frequency details in traditional transform blocks
+requires substantial data. In contrast, assigning pixels to a small
+index map requires only a fraction of the bit budget. By replacing
+high-entropy frequency data with compact index values, Palette Mode
+achieves substantial bitrate savings for:</p>
+<ul>
+<li>Flat 2D vector art</li>
+<li>Logos, icons, and UI components</li>
+<li>Comics and cel-shaded digital drawings</li>
+<li>Technical diagrams and schematics</li>
+</ul>
+<h3 id="block-level-adaptability">Block-Level Adaptability</h3>
+<p>AV1 evaluates and applies Palette Mode dynamically on a
+block-by-block basis. If an illustration features a mix of flat-shaded
+characters and a smooth, photographic gradient background, the AV1
+encoder applies Palette Mode exclusively to the sharp, flat areas while
+using standard intra-prediction and transforms for the gradients. This
+hybrid flexibility ensures that illustrations containing mixed styles
+receive optimal compression without manual segmentation.</p>
+<h3 id="a-superior-alternative-to-png-and-webp">A Superior Alternative
+to PNG and WebP</h3>
+<p>Traditionally, web designers rely on PNG or WebP Lossless to preserve
+sharp graphics without ringing. However, AVIF utilizing Palette Mode can
+achieve comparable visual fidelity to lossless PNGs at drastically
+smaller file sizes. By combining palette-based color mapping with AV1’s
+modern entropy coding, AVIF establishes itself as a highly versatile
+format capable of handling both complex photos and crisp, minimalist
+illustrations with equal efficiency.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

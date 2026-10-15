@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content-Encoding Headers for AVIF Delivery - avif</title>
+    <meta name="description" content="This article outlines how to configure the Content-Encoding HTTP header when serving AVIF files from a web server. It explains the relationship between AVIF&#39;s native media compression and HTTP transport compression, provides the correct header values for">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/content-encoding-headers-for-avif-delivery">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Content-Encoding Headers for AVIF Delivery - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/content-encoding-headers-for-avif-delivery" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article outlines how to configure the Content-Encoding HTTP header when serving AVIF files from a web server. It explains the relationship between AVIF&#39;s native media compression and HTTP transport compression, provides the correct header values for" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="content-encoding-headers-for-avif-delivery">Content-Encoding
+Headers for AVIF Delivery</h1>
+<p>This article outlines how to configure the
+<code>Content-Encoding</code> HTTP header when serving AVIF files from a
+web server. It explains the relationship between AVIF's native media
+compression and HTTP transport compression, provides the correct header
+values for both standard delivery and pre-compressed static assets, and
+includes configuration examples for Nginx and Apache.</p>
+<h3 id="the-standard-rule-do-not-set-content-encoding">The Standard
+Rule: Do Not Set Content-Encoding</h3>
+<p>AVIF is an image format based on the AV1 video codec and is already
+heavily compressed. Applying HTTP transport compression—such as Gzip,
+Brotli (<code>br</code>), or Zstandard (<code>zstd</code>)—to an AVIF
+file generally yields negligible size reductions or can even increase
+file size due to compression overhead.</p>
+<p>Under normal circumstances:</p>
+<ul>
+<li><strong><code>Content-Type</code></strong> must be set to
+<code>image/avif</code>.</li>
+<li><strong><code>Content-Encoding</code></strong> must be omitted
+(which defaults to <code>identity</code>).</li>
+</ul>
+<p>Ensure your server's dynamic compression modules (such as
+<code>mod_deflate</code> in Apache or <code>gzip</code> in Nginx)
+exclude <code>image/avif</code> to save server CPU cycles.</p>
+<h3 id="serving-avif-pre-compressed-with-brotli-or-gzip">Serving AVIF
+Pre-Compressed with Brotli or Gzip</h3>
+<p>If you generate statically pre-compressed versions of your files
+during a build step (for example, <code>photo.avif.br</code> or
+<code>photo.avif.gz</code>) and your automated tests verify that
+transport compression achieved a measurable reduction in bytes,
+configure your server to declare the transport encoding properly.</p>
+<p>When serving these files:</p>
+<ol type="1">
+<li><strong><code>Content-Type</code></strong>: Set to
+<code>image/avif</code>. The browser's image decoder needs to know the
+payload is an AVIF image once decompressed.</li>
+<li><strong><code>Content-Encoding</code></strong>: Set to the algorithm
+used for the transport wrapper (e.g., <code>br</code>,
+<code>gzip</code>, or <code>zstd</code>).</li>
+<li><strong><code>Vary</code></strong>: Include
+<code>Accept-Encoding</code> so intermediate proxies and CDNs do not
+serve compressed files to clients that cannot decompress them.</li>
+</ol>
+<h3 id="nginx-configuration">Nginx Configuration</h3>
+<p>To serve pre-compressed files using the
+<code>ngx_http_gzip_static_module</code> or <code>ngx_brotli</code>
+static module:</p>
+<pre class="nginx"><code># Map MIME type
+types {
+    image/avif avif;
+}
+
+# Ensure dynamic compression excludes AVIF
+gzip_types -image/avif;
+brotli_types -image/avif;
+
+# Enable static pre-compressed file serving if available
+location ~* \.avif$ {
+    gzip_static on;
+    brotli_static on;
+    add_header Vary Accept-Encoding;
+}</code></pre>
+<p>When a request arrives with <code>Accept-Encoding: br</code> and
+<code>image.avif.br</code> exists, Nginx automatically serves the
+<code>.br</code> file, sets <code>Content-Encoding: br</code>, and sets
+<code>Content-Type: image/avif</code>.</p>
+<h3 id="apache-configuration">Apache Configuration</h3>
+<p>In Apache, ensure AVIF files are excluded from dynamic
+<code>DEFLATE</code> filters while allowing mapped pre-compressed
+files:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode apache"><code class="sourceCode apache"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define MIME type</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>AddType<span class="st"> image/avif .avif</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Prevent dynamic compression on AVIF</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>SetEnvIfNoCase<span class="st"> Request_URI \.avif$ no-gzip dont-vary</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Serve pre-compressed Brotli if the client supports it and file exists</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="fu">&lt;IfModule</span><span class="at"> mod_headers.c</span><span class="fu">&gt;</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    RewriteCond<span class="st"> %{HTTP:Accept-Encoding} br</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    RewriteCond<span class="st"> %{REQUEST_FILENAME}\.br -f</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    RewriteRule<span class="st"> ^(.*)\.avif$ $1\.avif\.br [L]</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">&lt;FilesMatch</span><span class="at"> &quot;\.avif\.br$&quot;</span><span class="fu">&gt;</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>        ForceType<span class="st"> image/avif</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>        Header<span class="st"> set Content-Encoding br</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>        Header<span class="st"> append Vary Accept-Encoding</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">&lt;/FilesMatch&gt;</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="fu">&lt;/IfModule&gt;</span></span></code></pre></div>
+<h3 id="summary-of-correct-header-combinations">Summary of Correct
+Header Combinations</h3>
+<ul>
+<li><strong>Standard AVIF file:</strong>
+<ul>
+<li><code>Content-Type: image/avif</code></li>
+<li><code>Content-Encoding:</code> <em>(none)</em></li>
+</ul></li>
+<li><strong>AVIF wrapped in Brotli:</strong>
+<ul>
+<li><code>Content-Type: image/avif</code></li>
+<li><code>Content-Encoding: br</code></li>
+<li><code>Vary: Accept-Encoding</code></li>
+</ul></li>
+<li><strong>AVIF wrapped in Gzip:</strong>
+<ul>
+<li><code>Content-Type: image/avif</code></li>
+<li><code>Content-Encoding: gzip</code></li>
+<li><code>Vary: Accept-Encoding</code></li>
+</ul></li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

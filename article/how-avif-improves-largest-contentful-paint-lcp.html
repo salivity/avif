@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How AVIF Improves Largest Contentful Paint (LCP) - avif</title>
+    <meta name="description" content="Adopting the AVIF (AV1 Image File Format) standard significantly improves a website&#39;s Largest Contentful Paint (LCP) score by reducing image file sizes without sacrificing visual quality. Because the largest visual element on a page is frequently a hero b">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-avif-improves-largest-contentful-paint-lcp">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How AVIF Improves Largest Contentful Paint (LCP) - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-avif-improves-largest-contentful-paint-lcp" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Adopting the AVIF (AV1 Image File Format) standard significantly improves a website&#39;s Largest Contentful Paint (LCP) score by reducing image file sizes without sacrificing visual quality. Because the largest visual element on a page is frequently a hero b" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-avif-improves-largest-contentful-paint-lcp">How AVIF
+Improves Largest Contentful Paint (LCP)</h1>
+<p>Adopting the AVIF (AV1 Image File Format) standard significantly
+improves a website's Largest Contentful Paint (LCP) score by reducing
+image file sizes without sacrificing visual quality. Because the largest
+visual element on a page is frequently a hero banner or featured image,
+switching from legacy formats like JPEG or WebP to AVIF shortens the
+resource load duration—a major sub-part of the LCP metric. This article
+outlines how AVIF affects LCP, the mechanics behind these performance
+gains, and key considerations to maximize Core Web Vitals.</p>
+<h3 id="the-role-of-images-in-largest-contentful-paint">The Role of
+Images in Largest Contentful Paint</h3>
+<p>Largest Contentful Paint measures the time it takes for the largest
+content element within the user's viewport to render. For most modern
+websites, this element is an image. The total LCP time is broken down
+into four sub-parts:</p>
+<ol type="1">
+<li><strong>Time to First Byte (TTFB):</strong> The time until the
+server begins returning HTML.</li>
+<li><strong>Resource Load Delay:</strong> The time between TTFB and when
+the browser starts fetching the LCP element.</li>
+<li><strong>Resource Load Duration:</strong> The time spent downloading
+the LCP image.</li>
+<li><strong>Resource Render Delay:</strong> The time between the
+download finishing and the image rendering on screen.</li>
+</ol>
+<p>AVIF directly accelerates the <strong>Resource Load Duration</strong>
+phase.</p>
+<h3 id="how-avif-optimizes-resource-load-duration">How AVIF Optimizes
+Resource Load Duration</h3>
+<p>AVIF is derived from the AV1 video codec and delivers superior
+compression efficiency compared to both JPEG and WebP. On average, AVIF
+files are 20% to 50% smaller than equivalent-quality WebP files and up
+to 80% smaller than standard JPEGs.</p>
+<p>This compression advantage creates immediate LCP improvements:</p>
+<ul>
+<li><strong>Lower Bandwidth Consumption:</strong> Smaller payloads
+download faster over all network types, especially high-latency or
+bandwidth-constrained mobile connections (3G/4G).</li>
+<li><strong>Reduced Network Congestion:</strong> Smaller files leave
+more available bandwidth for other critical assets, such as fonts and
+stylesheets, preventing image downloads from blocking visual
+rendering.</li>
+<li><strong>Faster Image Discovery:</strong> When paired with proper
+responsive attributes (<code>srcset</code>), AVIF ensures devices
+download the smallest sufficient resolution, minimizing total transfer
+sizes.</li>
+</ul>
+<h3 id="the-impact-on-resource-render-delay-cpu-decoding">The Impact on
+Resource Render Delay (CPU Decoding)</h3>
+<p>While AVIF drastically cuts down network transfer times, its high
+compression ratio requires more computational effort to decode than
+older formats like JPEG. On low-powered mobile devices or older desktop
+hardware, complex AVIF decoding can introduce a slight increase in
+<strong>Resource Render Delay</strong>.</p>
+<p>To avoid this bottleneck:</p>
+<ul>
+<li><strong>Avoid Over-Compression:</strong> Do not set the compression
+level (effort) to the absolute maximum during generation, as the
+diminishing returns in file size can increase CPU decode latency.</li>
+<li><strong>Resize Appropriately:</strong> Never serve desktop-sized
+AVIF files to mobile devices. Decoding a 4K image on a phone causes
+significant main-thread contention regardless of file size.</li>
+</ul>
+<h3 id="implementation-best-practices-for-lcp">Implementation Best
+Practices for LCP</h3>
+<p>To get the full LCP benefits of AVIF without running into
+compatibility or render delays, follow these implementation rules:</p>
+<ul>
+<li><strong>Use the <code>&lt;picture&gt;</code> Tag:</strong> While
+AVIF is widely supported in modern browsers, older clients require
+fallbacks. Use the <code>&lt;picture&gt;</code> element with
+<code>&lt;source type="image/avif"&gt;</code> first, followed by WebP
+and JPEG fallbacks.</li>
+<li><strong>Preload the LCP Asset:</strong> Ensure the browser discovers
+the main hero image immediately by adding a
+<code>&lt;link rel="preload"&gt;</code> tag in the
+<code>&lt;head&gt;</code> of the document with the appropriate
+<code>type="image/avif"</code> attribute.</li>
+<li><strong>Set Explicit Dimensions:</strong> Always specify
+<code>width</code> and <code>height</code> attributes on the image
+element to prevent Cumulative Layout Shift (CLS) as the AVIF loads.</li>
+<li><strong>Omit <code>loading="lazy"</code> on Hero Images:</strong>
+The LCP image must never be lazy-loaded. Native lazy loading delays
+asset retrieval until the layout engine calculates its position,
+negating the speed benefits AVIF provides.</li>
+</ul>
+<p>By reducing image payload sizes by significant margins, AVIF provides
+one of the highest-impact optimizations available for meeting Google's
+recommended 2.5-second LCP threshold.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

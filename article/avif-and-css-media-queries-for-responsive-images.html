@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF and CSS Media Queries for Responsive Images - avif</title>
+    <meta name="description" content="Combining the AVIF image format with CSS media queries enables web developers to deliver highly optimized, visually rich assets tailored to any screen size or display density. This article explores how AVIF&#39;s superior compression efficiency integrates wit">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-and-css-media-queries-for-responsive-images">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF and CSS Media Queries for Responsive Images - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-and-css-media-queries-for-responsive-images" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Combining the AVIF image format with CSS media queries enables web developers to deliver highly optimized, visually rich assets tailored to any screen size or display density. This article explores how AVIF&#39;s superior compression efficiency integrates wit" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-and-css-media-queries-for-responsive-images">AVIF and CSS
+Media Queries for Responsive Images</h1>
+<p>Combining the AVIF image format with CSS media queries enables web
+developers to deliver highly optimized, visually rich assets tailored to
+any screen size or display density. This article explores how AVIF's
+superior compression efficiency integrates with CSS responsive
+techniques—such as media queries and resolution switching—to
+significantly reduce payload sizes, accelerate Largest Contentful Paint
+(LCP), and maintain crisp visual fidelity across diverse devices.</p>
+<h3 id="superior-compression-at-any-resolution">Superior Compression at
+Any Resolution</h3>
+<p>AVIF (AV1 Image File Format) offers significantly better compression
+than older formats like JPEG, PNG, and even WebP. When delivering
+responsive imagery, developers traditionally faced a trade-off: serve a
+lower-resolution file to save bandwidth, or serve a high-density (2x/3x)
+asset that slows down page loads.</p>
+<p>Because AVIF reduces file sizes by up to 50% compared to standard
+formats at equivalent visual quality, pairing it with media queries
+allows you to serve ultra-high-resolution assets to high-DPI (Retina)
+screens without the typical bandwidth penalty. A 2x AVIF image often
+weighs less than a standard 1x JPEG.</p>
+<h3 id="implementing-avif-via-css-media-queries">Implementing AVIF via
+CSS Media Queries</h3>
+<p>In pure CSS, responsive background images are typically handled by
+swapping image assets based on viewport width or screen resolution.
+Media queries check the device state, while functions like
+<code>image-set()</code> manage format negotiation and pixel
+density.</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode css"><code class="sourceCode css"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">/* Responsive background image with format fallbacks */</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">.hero-banner</span> {</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">background-image</span><span class="ch">:</span> <span class="fu">url(</span><span class="st">&quot;banner-mobile.jpg&quot;</span><span class="fu">)</span><span class="op">;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">@media</span> <span class="fu">(</span><span class="kw">min-width</span><span class="ch">:</span> <span class="dv">768</span><span class="dt">px</span><span class="fu">)</span> {</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">.hero-banner</span> {</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">background-image</span><span class="ch">:</span> <span class="fu">image-set(</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">url(</span><span class="st">&quot;banner-desktop.avif&quot;</span><span class="fu">)</span> type<span class="fu">(</span><span class="st">&quot;image/avif&quot;</span><span class="fu">)</span><span class="op">,</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>      <span class="fu">url(</span><span class="st">&quot;banner-desktop.webp&quot;</span><span class="fu">)</span> type<span class="fu">(</span><span class="st">&quot;image/webp&quot;</span><span class="fu">)</span><span class="op">,</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>      <span class="fu">url(</span><span class="st">&quot;banner-desktop.jpg&quot;</span><span class="fu">)</span> type<span class="fu">(</span><span class="st">&quot;image/jpeg&quot;</span><span class="fu">)</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">)</span><span class="op">;</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>By combining <code>@media</code> rules with <code>image-set()</code>,
+the browser only downloads the AVIF asset if it supports the format and
+matches the designated viewport criteria, preventing wasted bandwidth on
+unsupported clients or non-matching viewports.</p>
+<h3 id="pairing-avif-with-media-queries-in-html">Pairing AVIF with Media
+Queries in HTML</h3>
+<p>Responsive imagery frequently bridges CSS and HTML. The HTML
+<code>&lt;picture&gt;</code> element utilizes CSS media queries directly
+via the <code>media</code> attribute while simultaneously handling
+format switching using the <code>type</code> attribute.</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode html"><code class="sourceCode html"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">picture</span><span class="dt">&gt;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="co">&lt;!-- Desktop viewports: AVIF first, then fallback --&gt;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">source</span><span class="ot"> media</span><span class="op">=</span><span class="st">&quot;(min-width: 1024px)&quot;</span><span class="ot"> srcset</span><span class="op">=</span><span class="st">&quot;large.avif&quot;</span><span class="ot"> type</span><span class="op">=</span><span class="st">&quot;image/avif&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">source</span><span class="ot"> media</span><span class="op">=</span><span class="st">&quot;(min-width: 1024px)&quot;</span><span class="ot"> srcset</span><span class="op">=</span><span class="st">&quot;large.jpg&quot;</span><span class="ot"> type</span><span class="op">=</span><span class="st">&quot;image/jpeg&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="co">&lt;!-- Tablet and Mobile viewports --&gt;</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">source</span><span class="ot"> media</span><span class="op">=</span><span class="st">&quot;(min-width: 600px)&quot;</span><span class="ot"> srcset</span><span class="op">=</span><span class="st">&quot;medium.avif&quot;</span><span class="ot"> type</span><span class="op">=</span><span class="st">&quot;image/avif&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">source</span><span class="ot"> media</span><span class="op">=</span><span class="st">&quot;(min-width: 600px)&quot;</span><span class="ot"> srcset</span><span class="op">=</span><span class="st">&quot;medium.jpg&quot;</span><span class="ot"> type</span><span class="op">=</span><span class="st">&quot;image/jpeg&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">&lt;!-- Default fallback --&gt;</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">img</span><span class="ot"> src</span><span class="op">=</span><span class="st">&quot;small.jpg&quot;</span><span class="ot"> alt</span><span class="op">=</span><span class="st">&quot;Responsive visual content&quot;</span><span class="ot"> loading</span><span class="op">=</span><span class="st">&quot;lazy&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">picture</span><span class="dt">&gt;</span></span></code></pre></div>
+<p>The browser evaluates these media queries sequentially. When a query
+matches, the browser evaluates the <code>type</code> attribute,
+selecting the AVIF source if supported. This ensures that smaller mobile
+screens receive appropriately scaled AVIF files, while larger desktop
+displays receive high-dimension AVIF files, all with fallback mechanisms
+in place.</p>
+<h3 id="handling-variable-pixel-densities">Handling Variable Pixel
+Densities</h3>
+<p>CSS media queries also evaluate device pixel ratios (DPR) through
+queries like <code>(-webkit-min-device-pixel-ratio: 2)</code> or
+<code>@media (resolution: 2dppx)</code>.</p>
+<p>AVIF shines in high-density responsive workflows. Artifacts that
+commonly appear in aggressively compressed JPEGs (such as color banding
+and blocking) are far less pronounced in AVIF. This enables aggressive
+compression curves on high-DPR devices where individual pixels are
+smaller and compression artifacts are harder for the human eye to
+detect.</p>
+<h3 id="core-performance-advantages">Core Performance Advantages</h3>
+<ol type="1">
+<li><strong>Lower Bandwidth Consumption:</strong> Serving appropriately
+sized AVIF assets across different breakpoints minimizes data
+consumption, particularly for mobile users on metered connections.</li>
+<li><strong>Optimized Core Web Vitals:</strong> Delivering smaller,
+properly proportioned images accelerates page render times, directly
+improving Largest Contentful Paint (LCP) scores.</li>
+<li><strong>Reduced Decoding Overhead:</strong> While AVIF decoding can
+be CPU-intensive on older hardware, serving smaller, viewport-specific
+dimensions rather than a single oversized image reduces the memory and
+compute overhead required to decode the file.</li>
+</ol></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

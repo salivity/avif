@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Windows Imaging Component Enables AVIF Viewing - avif</title>
+    <meta name="description" content="The Windows Imaging Component (WIC) provides an extensible, system-level architecture that allows Windows and its software ecosystem to process digital images consistently. By serving as an abstraction layer between individual applications and image forma">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-windows-imaging-component-enables-avif-viewing">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How Windows Imaging Component Enables AVIF Viewing - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-windows-imaging-component-enables-avif-viewing" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The Windows Imaging Component (WIC) provides an extensible, system-level architecture that allows Windows and its software ecosystem to process digital images consistently. By serving as an abstraction layer between individual applications and image forma" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-windows-imaging-component-enables-avif-viewing">How Windows
+Imaging Component Enables AVIF Viewing</h1>
+<p>The Windows Imaging Component (WIC) provides an extensible,
+system-level architecture that allows Windows and its software ecosystem
+to process digital images consistently. By serving as an abstraction
+layer between individual applications and image formats, WIC allows new
+formats like AVIF (AV1 Image File Format) to be decoded natively.
+Through the installation of compatible codec extensions, WIC enables
+system-wide support for AVIF, allowing native tools like File Explorer,
+Microsoft Photos, and Paint to display thumbnails, previews, and
+full-resolution images without modifying the underlying
+applications.</p>
+<h3 id="the-architecture-of-the-windows-imaging-component">The
+Architecture of the Windows Imaging Component</h3>
+<p>WIC operates as a component object model (COM)–based imaging
+framework built directly into the Windows operating system. Instead of
+requiring each application developer to bundle dedicated decoders for
+every existing image format, applications query WIC to handle image
+metadata extraction, container parsing, and pixel decoding.</p>
+<p>WIC establishes a standard set of interfaces, most notably
+<code>IWICBitmapDecoder</code> and <code>IWICBitmapFrameDecode</code>.
+When an application requests an image render, it passes the data stream
+to WIC. WIC identifies the format, queries its internal registry for a
+registered codec capable of processing that format, and passes the raw
+bytes to the appropriate decoder.</p>
+<h3 id="integrating-the-avif-codec">Integrating the AVIF Codec</h3>
+<p>AVIF is derived from the HEIF (High Efficiency Image File Format)
+container format and utilizes AV1 compression for pixel data. Natively,
+older versions of Windows did not contain a built-in decoder capable of
+parsing this combination.</p>
+<p>To enable AVIF support, Microsoft relies on codec packages, such as
+the AV1 Video Extension. When this extension is installed, it registers
+an AVIF-compatible WIC decoder into the Windows registry. This
+registration process exposes the necessary GUIDs (Globally Unique
+Identifiers) that tell WIC how to handle files with the
+<code>.avif</code> extension and the associated MIME types.</p>
+<h3 id="enabling-system-wide-viewing">Enabling System-Wide Viewing</h3>
+<p>Once the AVIF WIC decoder is registered, any system service or
+application utilizing the WIC pipeline immediately gains access to AVIF
+files:</p>
+<ul>
+<li><strong>File Explorer Thumbnails and Previews:</strong> Windows
+Shell uses WIC to generate shell thumbnails and populate the Preview
+Pane. With the AVIF codec registered, the shell extracts the primary
+frame or thumbnail directly from the file's container.</li>
+<li><strong>Native Windows Applications:</strong> Modern and legacy
+system tools, including Microsoft Photos and Paint, rely on WIC for
+image ingestion. These programs can open, edit, and save AVIF files
+because the decoding complexity is handled by the OS framework.</li>
+<li><strong>Third-Party Software:</strong> Desktop programs built with
+APIs like Direct2D, Windows Presentation Foundation (WPF), or WinUI
+interact directly with WIC. These programs automatically inherit AVIF
+compatibility without requiring code refactoring or external
+libraries.</li>
+</ul>
+<h3 id="the-decoding-process">The Decoding Process</h3>
+<p>When an AVIF file is opened, the WIC pipeline executes three key
+steps:</p>
+<ol type="1">
+<li><strong>Demuxing the Container:</strong> The WIC parser processes
+the ISOBMFF (ISO Base Media File Format) box structure to identify image
+metadata, color profiles (such as HDR or ICC data), and the location of
+the compressed image payload.</li>
+<li><strong>AV1 Frame Decoding:</strong> The compressed AV1 bitstream is
+sent to the underlying AV1 decoder component, which decompresses the
+image into raw, uncompressed pixel arrays.</li>
+<li><strong>Format Normalization:</strong> WIC converts the decoded
+pixel data into a standard color format (such as 8-bit or 10-bit BGRA)
+that the Windows graphics pipeline can render to the display.</li>
+</ol>
+<p>Through this centralized architecture, WIC eliminates format
+fragmentation across Windows, ensuring that AVIF files function with the
+same native integration as legacy formats like JPEG and PNG.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

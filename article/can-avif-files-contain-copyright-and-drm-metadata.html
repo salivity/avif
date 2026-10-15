@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Can AVIF Files Contain Copyright and DRM Metadata? - avif</title>
+    <meta name="description" content="The AV1 Image File Format (AVIF) natively supports copyright metadata through standard embedded data structures, but its handling of Digital Rights Management (DRM) is divided between descriptive rights metadata and active enforcement. Because AVIF is bui">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/can-avif-files-contain-copyright-and-drm-metadata">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Can AVIF Files Contain Copyright and DRM Metadata? - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/can-avif-files-contain-copyright-and-drm-metadata" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The AV1 Image File Format (AVIF) natively supports copyright metadata through standard embedded data structures, but its handling of Digital Rights Management (DRM) is divided between descriptive rights metadata and active enforcement. Because AVIF is bui" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="can-avif-files-contain-copyright-and-drm-metadata">Can AVIF
+Files Contain Copyright and DRM Metadata?</h1>
+<p>The AV1 Image File Format (AVIF) natively supports copyright metadata
+through standard embedded data structures, but its handling of Digital
+Rights Management (DRM) is divided between descriptive rights metadata
+and active enforcement. Because AVIF is built on the ISO Base Media File
+Format (ISOBMFF) and the High Efficiency Image File Format (HEIF)
+standard, it can package standard EXIF and XMP payloads directly into
+the file. However, while it natively carries rights information,
+licensing terms, and cryptographic provenance, it does not include an
+active, universal DRM enforcement mechanism to restrict unauthorized
+copying across common image viewers.</p>
+<h3 id="native-copyright-metadata-in-avif">Native Copyright Metadata in
+AVIF</h3>
+<p>AVIF natively accommodates standard industry metadata schemas used to
+declare copyright, ownership, and licensing terms:</p>
+<ul>
+<li><strong>EXIF (Exchangeable Image File Format):</strong> AVIF stores
+standard EXIF tags inside dedicated item boxes (<code>meta</code> and
+<code>iloc</code>). This includes fields for artist, copyright
+statements, and capture timestamps.</li>
+<li><strong>XMP (Extensible Metadata Platform):</strong> Standardized by
+Adobe, XMP is commonly used for detailed rights declarations, including
+IPTC Core and Extension schemas. AVIF natively supports uncompressed or
+compressed XMP data, enabling creators to embed Creative Commons
+licenses, copyright owner URLs, and explicit usage terms.</li>
+</ul>
+<p>Because these metadata blocks are standardized within the underlying
+HEIF architecture, standard web browsers, operating systems, and image
+editing software can read and preserve this copyright information
+natively.</p>
+<h3 id="rights-management-metadata-vs-active-drm-enforcement">Rights
+Management Metadata vs. Active DRM Enforcement</h3>
+<p>To evaluate AVIF's DRM capabilities, it is essential to distinguish
+between <em>descriptive rights management</em> and <em>technical DRM
+enforcement</em>.</p>
+<h4 id="1-descriptive-rights-management">1. Descriptive Rights
+Management</h4>
+<p>AVIF excels at storing descriptive digital rights metadata. Using XMP
+and IPTC attributes, authors can define:</p>
+<ul>
+<li>Copyright notices and credit lines.</li>
+<li>Usage rights, embargo dates, and licensing web pages.</li>
+<li>Machine-readable permissions and constraints.</li>
+</ul>
+<p>In addition, AVIF is the primary image format used to implement
+Coalition for Content Provenance and Authenticity (C2PA) manifests.
+Through C2PA, an AVIF file can carry a cryptographically signed manifest
+detailing its origin, edit history, and author identity. While this does
+not prevent downloading, it provides tamper-evident proof of
+ownership.</p>
+<h4 id="2-active-technical-drm-access-control">2. Active Technical DRM
+(Access Control)</h4>
+<p>AVIF does not provide a native, platform-wide DRM protection system
+that restricts access, decryption, or copying.</p>
+<p>Although the underlying ISOBMFF framework contains architectural
+provisions for encrypted media (such as protection scheme information
+boxes and Common Encryption used in video streaming), standard AVIF
+image decoders on the web and in operating systems do not support
+encrypted image payloads. If an image payload inside an AVIF container
+were encrypted with proprietary DRM, standard web browsers and viewers
+would fail to decode and display it.</p>
+<h3 id="summary">Summary</h3>
+<p>AVIF fully and natively supports copyright metadata, allowing
+creators to embed complete ownership statements, licensing links, and
+cryptographic provenance via EXIF, XMP, and C2PA. However, it does not
+support native technical DRM systems that actively block saving,
+viewing, or screenshotting, as its core specifications are designed for
+broad interoperability across open web standards.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

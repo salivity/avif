@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automated Linting Tools for AVIF Integrity - avif</title>
+    <meta name="description" content="The AV1 Image File Format (AVIF) packages AV1-encoded image data inside the ISO Base Media File Format (ISOBMFF) container structure. Ensuring that generated AVIF files conform to these dual specifications is critical for preventing cross-browser renderin">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/automated-linting-tools-for-avif-integrity">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Automated Linting Tools for AVIF Integrity - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/automated-linting-tools-for-avif-integrity" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The AV1 Image File Format (AVIF) packages AV1-encoded image data inside the ISO Base Media File Format (ISOBMFF) container structure. Ensuring that generated AVIF files conform to these dual specifications is critical for preventing cross-browser renderin" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="automated-linting-tools-for-avif-integrity">Automated Linting
+Tools for AVIF Integrity</h1>
+<p>The AV1 Image File Format (AVIF) packages AV1-encoded image data
+inside the ISO Base Media File Format (ISOBMFF) container structure.
+Ensuring that generated AVIF files conform to these dual specifications
+is critical for preventing cross-browser rendering errors, decoder
+crashes, and delivery failures. This guide details the primary automated
+linting and validation tools available for testing and verifying the
+structural integrity of AVIF files within automated workflows and
+continuous integration (CI) pipelines.</p>
+<h2 id="libavif-avifdump-and-avifdec">libavif (<code>avifdump</code> and
+<code>avifdec</code>)</h2>
+<p>The official reference library for the format,
+<strong>libavif</strong>, provides command-line utilities that serve as
+the baseline for checking file validity.</p>
+<ul>
+<li><strong>avifdump</strong>: Parses the structural tree of the AVIF
+container without decoding the compressed pixel payload. It inspects
+ISOBMFF boxes (such as <code>ftyp</code>, <code>meta</code>,
+<code>hdlr</code>, <code>pitm</code>, and <code>iloc</code>) and outputs
+the complete hierarchy. If any mandatory box is missing or malformed,
+the tool reports structural syntax errors.</li>
+<li><strong>avifdec</strong>: Attempts to decode the input file. Running
+<code>avifdec input.avif /dev/null</code> forces full container parsing
+and bitstream decoding. It returns a non-zero exit code upon
+encountering structural corruption, unsupported profiles, or broken AV1
+bitstreams, making it ideal for standard CI/CD assertions.</li>
+</ul>
+<h2 id="gpac-mp4box">GPAC (<code>MP4Box</code>)</h2>
+<p>Because AVIF relies on ISOBMFF, general-purpose MPEG-4 validation
+tools offer rigorous structural linting. <strong>MP4Box</strong>, part
+of the open-source GPAC framework, includes dedicated inspection and
+verification capabilities for modern container formats.</p>
+<p>Running <code>MP4Box -info input.avif</code> or
+<code>MP4Box -lint input.avif</code> analyzes the box layout against
+standard ISO specifications:</p>
+<ul>
+<li>Identifies unaligned or truncated atoms/boxes.</li>
+<li>Detects invalid offsets in the item location (<code>iloc</code>)
+box.</li>
+<li>Verifies <code>ftyp</code> brand declarations (ensuring
+<code>avif</code> or <code>avis</code> brands are correctly
+prioritized).</li>
+</ul>
+<p>Non-conforming files trigger warning or error flags directly
+parseable in automation scripts.</p>
+<h2 id="libheif-heif-info">libheif (<code>heif-info</code>)</h2>
+<p>AVIF uses structural conventions largely derived from the HEIF
+specification. The <strong>libheif</strong> utility suite provides
+parsing tools capable of reading both HEIC and AVIF files when compiled
+with AV1 support.</p>
+<ul>
+<li><strong>heif-info</strong>: Validates image items, EXIF/XMP metadata
+payloads, and primary item references. It flags truncated containers,
+missing image descriptors, and misconfigured alpha channel
+references.</li>
+<li><strong>heif-dec</strong>: Functions similarly to
+<code>avifdec</code>, validating that the underlying libaom or dav1d
+decoders can successfully read the payload.</li>
+</ul>
+<h2 id="exiftool">ExifTool</h2>
+<p><strong>ExifTool</strong> is widely used for metadata inspection, but
+it also contains robust heuristic parsers for QuickTime and ISOBMFF
+containers. When pointed at an AVIF file, ExifTool evaluates box headers
+and atom lengths.</p>
+<p>Using the <code>-validate</code> and <code>-warning</code> flags:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">exiftool</span> <span class="at">-validate</span> <span class="at">-warning</span> <span class="at">-error</span> input.avif</span></code></pre></div>
+<p>ExifTool will return structural anomalies such as:</p>
+<ul>
+<li>Truncated files or invalid box lengths.</li>
+<li>Overlapping or misplaced metadata segments.</li>
+<li>Extraneous bytes appended to the end of the file.</li>
+</ul>
+<h2 id="mpeg-conformance-software-isobmff-linting">MPEG Conformance
+Software (ISOBMFF Linting)</h2>
+<p>For strict standards compliance, MPEG's official conformance checking
+tools (such as <code>iso-viewer</code> and formal compliance linters
+hosted by the ISO/IEC working groups) parse each box against ISO/IEC
+14496-12 and ISO/IEC 23000-22 specifications. These utilities verify
+data types, check bit boundaries, and flag deprecated or non-standard
+box arrangements.</p>
+<h2 id="automated-pipeline-integration">Automated Pipeline
+Integration</h2>
+<p>To automate verification in a headless environment, combine a
+container inspector with a bitstream decoder:</p>
+<ol type="1">
+<li><strong>Syntax and Box Layout</strong>: Run
+<code>MP4Box -lint</code> or <code>exiftool -validate</code> to ensure
+container-level compliance.</li>
+<li><strong>Payload Decode</strong>: Run
+<code>avifdec input.avif output.png</code> (or output to
+<code>/dev/null</code>) to ensure the AV1 bitstream inside the container
+decodes without parity errors.</li>
+<li><strong>Exit Code Evaluation</strong>: Ensure automated test runners
+capture non-zero status codes from these utilities to reject
+non-compliant files before deployment to production storage or content
+delivery networks.</li>
+</ol></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

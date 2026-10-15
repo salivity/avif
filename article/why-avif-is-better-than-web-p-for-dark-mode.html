@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why AVIF Is Better Than WebP for Dark Mode - avif</title>
+    <meta name="description" content="Dark-mode web design requires precise color reproduction and smooth shadow transitions, areas where AVIF consistently outperforms WebP. While WebP remains a popular modern format, its architectural limitations often produce noticeable visual artifacts on">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/why-avif-is-better-than-web-p-for-dark-mode">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Why AVIF Is Better Than WebP for Dark Mode - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/why-avif-is-better-than-web-p-for-dark-mode" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Dark-mode web design requires precise color reproduction and smooth shadow transitions, areas where AVIF consistently outperforms WebP. While WebP remains a popular modern format, its architectural limitations often produce noticeable visual artifacts on" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="why-avif-is-better-than-webp-for-dark-mode">Why AVIF Is Better
+Than WebP for Dark Mode</h1>
+<p>Dark-mode web design requires precise color reproduction and smooth
+shadow transitions, areas where AVIF consistently outperforms WebP.
+While WebP remains a popular modern format, its architectural
+limitations often produce noticeable visual artifacts on dark
+backgrounds. AVIF leverages the advanced AV1 video codec to deliver
+higher bit depth, superior gradient handling, and better compression in
+dark areas, making it the preferred image format for dark-themed user
+interfaces.</p>
+<h3 id="elimination-of-color-banding-with-higher-bit-depth">Elimination
+of Color Banding with Higher Bit Depth</h3>
+<p>The primary flaw of WebP in dark-mode environments is its restriction
+to an 8-bit color depth. An 8-bit space offers only 256 tonal values per
+channel. In dark interfaces, where imagery often fades into pure black
+or deep charcoal, there are not enough shades to render subtle steps
+cleanly, resulting in severe color banding (posterization).</p>
+<p>AVIF natively supports 10-bit and 12-bit color depths. A 10-bit color
+profile provides 1,024 steps per channel—four times the tonal resolution
+of WebP. This extra headroom allows AVIF to render smooth, imperceptible
+transitions across dark shadows, vignettes, and low-contrast gradients
+without harsh visual rings.</p>
+<h3 id="superior-compression-in-low-contrast-dark-areas">Superior
+Compression in Low-Contrast Dark Areas</h3>
+<p>Human visual perception is particularly sensitive to changes in
+brightness in dark environments. The compression algorithm behind WebP
+(derived from the older VP8 video codec) tends to discard fine detail in
+low-contrast, shadowed regions to save file size. This creates
+noticeable block-like artifacts, smearing, and noise in dark
+patches.</p>
+<p>AVIF is derived from the modern AV1 codec, which features advanced
+directional transform tools and adaptive quantization. AV1 analyzes the
+structural features of an image and allocates compression data more
+intelligently. As a result, AVIF preserves subtle shadow details and
+clean backgrounds even at aggressive compression rates, where WebP
+breaks down.</p>
+<h3 id="better-chroma-handling-for-saturated-accents">Better Chroma
+Handling for Saturated Accents</h3>
+<p>Dark mode interfaces frequently pair deeply saturated accent
+colors—such as neon blues, greens, or purples—directly against dark gray
+or black backgrounds. WebP typically relies on 4:2:0 chroma subsampling,
+which halves the color resolution relative to luminance. On dark
+backgrounds, this manifests as chromatic bleeding, haloing, or blurred
+edges around high-contrast colored elements.</p>
+<p>AVIF provides robust, efficient support for 4:4:4 chroma subsampling.
+By maintaining full color resolution across all pixels without drastic
+file size penalties, AVIF keeps vibrant UI components, icons, and
+product photos crisp and sharp against deep dark backgrounds.</p>
+<h3 id="native-hdr-and-wide-color-gamut-support">Native HDR and Wide
+Color Gamut Support</h3>
+<p>Dark mode designs benefit substantially from High Dynamic Range (HDR)
+and Wide Color Gamuts (such as DCI-P3). HDR allows highlights to truly
+glow against deep blacks without washing out adjacent pixels.</p>
+<p>WebP is confined to Standard Dynamic Range (SDR) and the standard
+sRGB color space. AVIF was designed with native HDR metadata and wide
+color gamut support built directly into the container. This enables
+modern OLED and mini-LED displays to present content in dark mode with
+maximum contrast, deeper blacks, and brighter spectral highlights.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF vs HEIC: Browser Compatibility and Licensing - avif</title>
+    <meta name="description" content="AVIF and HEIC are both modern image formats designed to deliver superior compression and image quality compared to legacy standards like JPEG. However, their practical application diverges sharply when evaluated for the web. This comparison examines AVIF">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-vs-heic-browser-compatibility-and-licensing">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF vs HEIC: Browser Compatibility and Licensing - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-vs-heic-browser-compatibility-and-licensing" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="AVIF and HEIC are both modern image formats designed to deliver superior compression and image quality compared to legacy standards like JPEG. However, their practical application diverges sharply when evaluated for the web. This comparison examines AVIF" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-vs-heic-browser-compatibility-and-licensing">AVIF vs HEIC:
+Browser Compatibility and Licensing</h1>
+<p>AVIF and HEIC are both modern image formats designed to deliver
+superior compression and image quality compared to legacy standards like
+JPEG. However, their practical application diverges sharply when
+evaluated for the web. This comparison examines AVIF and HEIC through
+the critical lenses of browser compatibility and licensing friction,
+detailing why AVIF has emerged as the preferred open standard for web
+delivery while HEIC remains largely confined to specific operating
+system ecosystems.</p>
+<h2 id="licensing-friction">Licensing Friction</h2>
+<p>The most significant operational difference between AVIF and HEIC
+lies in their intellectual property and licensing models:</p>
+<ul>
+<li><strong>HEIC (High Efficiency Image Container):</strong> HEIC relies
+on the HEVC (H.265) compression standard. HEVC is governed by an
+intricate, fragmented web of multiple patent pools—including MPEG LA,
+Access Advance, and Velos Media—as well as independent patent holders.
+Implementing HEIC requires commercial distributors and software vendors
+to navigate complex royalty structures, negotiate multiple licenses, and
+potentially pay substantial recurring fees. This patent thicket creates
+immense legal and financial risk for open-source projects and software
+distributors.</li>
+<li><strong>AVIF (AV1 Image File Format):</strong> AVIF is built on the
+AV1 video codec developed by the Alliance for Open Media (AOMedia), a
+consortium that includes Google, Apple, Microsoft, Mozilla, Amazon, and
+Netflix. AVIF is an open, royalty-free format. Its specification
+includes an explicit patent license grant, eliminating the risk of
+unexpected royalty claims and enabling developers to integrate AVIF
+decoding and encoding into open-source software and commercial products
+without legal friction.</li>
+</ul>
+<h2 id="browser-compatibility">Browser Compatibility</h2>
+<p>Licensing terms directly dictate how web browsers have adopted each
+format:</p>
+<ul>
+<li><strong>HEIC Browser Support:</strong> HEIC has virtually
+nonexistent native support across the broader web. Because integrating
+HEIC decoders exposes browser vendors to HEVC patent royalties, Google
+Chrome, Mozilla Firefox, and Microsoft Edge do not natively decode HEIC
+images on the web. Only Apple's Safari natively renders HEIC images, and
+typically only when running on Apple hardware with built-in HEVC
+hardware support. Consequently, HEIC cannot be reliably served to
+general web traffic without converting it to another format on the
+server or using resource-heavy client-side JavaScript decoders.</li>
+<li><strong>AVIF Browser Support:</strong> Because AVIF is royalty-free,
+browser vendors have adopted it rapidly. Native AVIF support is standard
+across all major modern desktop and mobile browsers, including Google
+Chrome, Mozilla Firefox, Microsoft Edge, Opera, and Apple Safari (since
+iOS 16 and macOS Ventura). Web developers can confidently use AVIF in
+production using standard HTML elements like
+<code>&lt;picture&gt;</code> to serve lightweight images to the
+overwhelming majority of global web users.</li>
+</ul>
+<h2 id="conclusion">Conclusion</h2>
+<p>While both formats offer remarkable compression capabilities, AVIF is
+the definitive winner for web use. HEIC functions effectively as a
+capture and storage format within consumer hardware—most notably on
+Apple devices—but its restrictive licensing prevents it from becoming a
+universal web standard. In contrast, AVIF’s open-source, royalty-free
+governance has enabled near-universal browser adoption, making it the
+industry standard for next-generation web image delivery.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

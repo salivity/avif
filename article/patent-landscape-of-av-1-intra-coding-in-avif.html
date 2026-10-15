@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patent Landscape of AV1 Intra-Coding in AVIF - avif</title>
+    <meta name="description" content="This article provides an analysis of the patent landscape governing the AV1 intra-coding technologies that underpin the AV1 Image File Format (AVIF). While AVIF was designed by the Alliance for Open Media (AOMedia) as an open, royalty-free standard, third">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/patent-landscape-of-av-1-intra-coding-in-avif">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Patent Landscape of AV1 Intra-Coding in AVIF - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/patent-landscape-of-av-1-intra-coding-in-avif" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article provides an analysis of the patent landscape governing the AV1 intra-coding technologies that underpin the AV1 Image File Format (AVIF). While AVIF was designed by the Alliance for Open Media (AOMedia) as an open, royalty-free standard, third" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="patent-landscape-of-av1-intra-coding-in-avif">Patent Landscape
+of AV1 Intra-Coding in AVIF</h1>
+<p>This article provides an analysis of the patent landscape governing
+the AV1 intra-coding technologies that underpin the AV1 Image File
+Format (AVIF). While AVIF was designed by the Alliance for Open Media
+(AOMedia) as an open, royalty-free standard, third-party patent
+pools—most notably Sisvel—and external intellectual property holders
+assert claims over fundamental intra-prediction, transform, and
+filtering algorithms inherited from the AV1 video standard. Below is an
+examination of the foundational licensing mechanisms, third-party patent
+claims, contested coding tools, and the commercial risks facing AVIF
+implementers.</p>
+<h3 id="the-foundation-aomedia-patent-license-10">The Foundation:
+AOMedia Patent License 1.0</h3>
+<p>AVIF utilizes the intra-frame (still image) coding toolset of the AV1
+video compression standard. The Alliance for Open Media developed AV1 to
+be fundamentally royalty-free under the AOMedia Patent License 1.0.</p>
+<p>Under this framework:</p>
+<ul>
+<li><strong>Grant of Rights:</strong> Founding members (including
+Google, Microsoft, Apple, Amazon, Netflix, Meta, and Intel) grant
+non-exclusive, worldwide, royalty-free patent licenses for their
+essential patent claims reading directly onto the AV1
+specification.</li>
+<li><strong>Defensive Termination:</strong> If a licensee files an
+intellectual property infringement lawsuit against any entity alleging
+that an AV1 implementation infringes its own patents, the royalty-free
+license granted to the litigating party is revoked.</li>
+<li><strong>Scope for AVIF:</strong> Because AVIF uses AV1 intra-coded
+frames encapsulated inside an ISOBMFF (ISO Base Media File Format)
+container, the core image compression steps rely entirely on the AOMedia
+AV1 patent grant.</li>
+</ul>
+<h3 id="contested-intra-coding-tools">Contested Intra-Coding Tools</h3>
+<p>Intra-coding represents roughly a third of the overall AV1
+specification. The tools used by AVIF to compress still images without
+temporal referencing include:</p>
+<ul>
+<li><strong>Directional and Non-Directional Intra-Prediction:</strong>
+Extending nominal prediction angles from 8 nominal directions up to 56
+fine-grained angles, alongside Smooth, DC, and Paeth predictors.</li>
+<li><strong>Chroma from Luma (CfL):</strong> Predicting chrominance
+planes based on reconstructed luminance pixels.</li>
+<li><strong>Palette Mode and Intrablock Copy (IBC):</strong> Treating
+pixel blocks as indexed color maps or reusing previously decoded blocks
+in the same image.</li>
+<li><strong>Super-Resolution and Multi-Transform Selection:</strong>
+Using variable Discrete Cosine Transforms (DCT) and Asymmetric Discrete
+Sine Transforms (ADST) with rectangular and square partitionings.</li>
+<li><strong>In-Loop Filtering:</strong> Applying Deblocking, Constrained
+Directional Enhancement Filter (CDEF), and Loop Restoration (Wiener and
+Self-Guided Filters).</li>
+</ul>
+<p>Because many of these mechanisms are iterative evolutions of
+techniques originally developed for H.264/AVC, H.265/HEVC, and VP9,
+external patent holders claim that baseline intra-coding concepts are
+impossible to practice without infringing earlier, overlapping
+patents.</p>
+<h3 id="third-party-patent-pools-the-sisvel-threat">Third-Party Patent
+Pools: The Sisvel Threat</h3>
+<p>The primary commercial disruption to AV1 and AVIF's royalty-free
+status is the patent pool administered by Sisvel International. Launched
+in early 2019, Sisvel's AV1 licensing program pools patents from
+organizations that did not sign the AOMedia royalty-free agreement,
+including:</p>
+<ul>
+<li>Koninklijke Philips</li>
+<li>Dolby Laboratories</li>
+<li>SK Telecom</li>
+<li>ETRI (Electronics and Telecommunications Research Institute)</li>
+<li>Mitsubishi Electric</li>
+<li>NTT Docomo</li>
+</ul>
+<p>Sisvel claims to hold over 1,500 patents and applications globally
+that it alleges are essential to AV1. A significant portion of these
+patents target intra-prediction mechanics, spatial partitioning, and
+transform operations that directly affect AVIF file generation and
+rendering. Sisvel publishes explicit royalty schedules demanding
+per-unit fees for hardware and software implementations, directly
+challenging AOMedia's royalty-free mandate.</p>
+<h3 id="prior-art-and-antitrust-investigations">Prior Art and Antitrust
+Investigations</h3>
+<p>To defend the ecosystem, AOMedia relies on several structural
+protections:</p>
+<ol type="1">
+<li><strong>Unconstrained Prior Art Analysis:</strong> AV1 was developed
+using an explicit patent-clearing process, where proposed algorithms
+were scrubbed against known third-party claims to ensure novel
+non-infringing implementations or reliance on expired prior art.</li>
+<li><strong>Regulatory Scrutiny:</strong> Antitrust regulators in the
+European Union (European Commission) scrutinized AOMedia’s licensing
+terms in 2022 to verify whether the mandatory defensive termination
+clauses constituted anticompetitive behavior. The EU closed its
+preliminary investigation in 2023 without action, bolstering AOMedia’s
+legal standing in Europe.</li>
+<li><strong>Patent Defense Programs:</strong> AOMedia maintains an
+internal Patent Defense Program designed to indemnify and defend
+participating members against third-party patent assertions.</li>
+</ol>
+<h3 id="current-commercial-assessment-for-avif-implementers">Current
+Commercial Assessment for AVIF Implementers</h3>
+<p>The total patent landscape for AV1 intra-coding in AVIF remains
+dualistic. Within the AOMedia member ecosystem, AVIF operates as a fully
+licensed, royalty-free standard backed by some of the world's largest
+patent holders. Outside that perimeter, entities such as Sisvel continue
+to assert that practicing AV1 intra-prediction and filtering unavoidably
+infringes valid third-party patents. While major web browsers, operating
+systems, and platforms continue to ship AVIF support natively without
+paying pool royalties, smaller independent software developers and
+hardware manufacturers remain caught between AOMedia's royalty-free
+guarantee and ongoing exposure to third-party pool assertions.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

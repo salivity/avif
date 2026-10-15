@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How AVIF Preserves Highlights and Shadows in Raw Photos - avif</title>
+    <meta name="description" content="The AV1 Image File Format (AVIF) preserves fine highlight and shadow details in raw photography by leveraging high bit-depth encoding, advanced compression algorithms, and modern High Dynamic Range (HDR) color spaces. While legacy formats like 8-bit JPEG">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-avif-preserves-highlights-and-shadows-in-raw-photos">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How AVIF Preserves Highlights and Shadows in Raw Photos - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-avif-preserves-highlights-and-shadows-in-raw-photos" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The AV1 Image File Format (AVIF) preserves fine highlight and shadow details in raw photography by leveraging high bit-depth encoding, advanced compression algorithms, and modern High Dynamic Range (HDR) color spaces. While legacy formats like 8-bit JPEG" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-avif-preserves-highlights-and-shadows-in-raw-photos">How
+AVIF Preserves Highlights and Shadows in Raw Photos</h1>
+<p>The AV1 Image File Format (AVIF) preserves fine highlight and shadow
+details in raw photography by leveraging high bit-depth encoding,
+advanced compression algorithms, and modern High Dynamic Range (HDR)
+color spaces. While legacy formats like 8-bit JPEG discard extensive
+tonal information through aggressive compression and severe dynamic
+range limits, AVIF supports 10-bit and 12-bit color pipelines. This
+article explains the technical mechanisms—including tonal resolution,
+transfer functions, and transform block efficiency—that allow AVIF to
+maintain the fidelity of high-contrast scenes without introducing
+banding, clipping, or compression artifacts.</p>
+<h3
+id="increased-tonal-granularity-via-10-bit-and-12-bit-depth">Increased
+Tonal Granularity via 10-bit and 12-bit Depth</h3>
+<p>Standard 8-bit formats allocate 256 discrete brightness levels per
+color channel, totaling approximately 16.7 million colors. This limited
+scale frequently leads to tonal quantization errors: deep shadows are
+crushed into pure black, and bright skies clip into flat white.</p>
+<p>AVIF expands this allocation significantly:</p>
+<ul>
+<li><strong>10-bit encoding</strong> provides 1,024 values per channel
+(over 1 billion colors).</li>
+<li><strong>12-bit encoding</strong> provides 4,096 values per channel
+(over 68 billion colors).</li>
+</ul>
+<p>When exporting raw photographs to AVIF, this quadrupling (or 16-fold
+increase) of tonal steps allows gradual transitions near the exposure
+extremes to remain smooth. Subtle light roll-offs in bright clouds and
+soft variations in near-black shadows retain their distinct luminance
+levels instead of merging into posterized bands.</p>
+<h3 id="support-for-modern-hdr-transfer-functions">Support for Modern
+HDR Transfer Functions</h3>
+<p>Preserving dynamic range requires not just more bits, but an
+intelligent distribution of those bits across visible light. AVIF
+natively integrates modern transfer curves commonly used in cinematic
+and HDR standards:</p>
+<ul>
+<li><strong>Perceptual Quantizer (PQ / SMPTE ST 2084):</strong> Designed
+around the human visual system's sensitivity to contrast, PQ allocates
+bit precision non-linearly. It maps luminance up to 10,000 nits,
+dedicating more precision to midtones and highlights where visual
+perception is sharpest, thereby preventing blown-out details.</li>
+<li><strong>Hybrid Log-Gamma (HLG):</strong> Delivers a logarithmic
+curve for top-end luminance, maintaining backward compatibility while
+extending highlight headroom.</li>
+</ul>
+<p>Raw camera sensors capture light linearly. When raw data is mapped to
+AVIF using PQ or HLG alongside wide color gamuts such as DCI-P3 or Rec.
+2020, extreme specular highlights and deep shadow tones are preserved
+accurately rather than clamped to standard dynamic range boundaries.</p>
+<h3 id="advanced-av1-compression-mechanics">Advanced AV1 Compression
+Mechanics</h3>
+<p>Derived from the open-source AV1 video codec, AVIF employs
+sophisticated spatial prediction and quantization tools that
+specifically protect fine details:</p>
+<ul>
+<li><strong>Flexible Partitioning:</strong> AV1 uses recursive block
+partitioning ranging from 128×128 down to 4×4 pixels. In broad highlight
+areas with gentle gradients (like an overexposed sky), large blocks
+prevent block boundary artifacts. In textured shadow regions, small
+blocks preserve high-frequency structural details.</li>
+<li><strong>Chroma Subsampling Flexibility:</strong> AVIF supports full
+YUV 4:4:4 sampling, eliminating color subsampling entirely. This
+prevents color bleed and edge degradation in high-contrast transitions,
+such as dark tree branches silhouetted against a bright sunrise.</li>
+<li><strong>Directed Smoothing and In-Loop Filtering:</strong> Unlike
+legacy deblocking filters that smear dark textures to hide noise, AV1
+uses Constrained Directional Enhancement Filtering (CDEF). This
+preserves edge sharpness and micro-contrast in deep shadows without
+smudging fine, low-light details.</li>
+</ul>
+<p>By combining expanded bit-depth with mathematically efficient
+compression and perceptual color mapping, AVIF bridges the gap between
+massive, uncompressed raw files and lightweight, distribution-ready web
+images without sacrificing extreme dynamic range.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

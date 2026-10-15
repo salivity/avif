@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>dav1d AVIF Decoding Throughput Benchmarks - avif</title>
+    <meta name="description" content="The integration of the dav1d decoder for AV1 Image File Format (AVIF) decoding has delivered massive performance gains across web browsers and operating systems compared to legacy decoders like libaom. This article examines the benchmark scores, throughpu">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/dav-1-d-avif-decoding-throughput-benchmarks">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="dav1d AVIF Decoding Throughput Benchmarks - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/dav-1-d-avif-decoding-throughput-benchmarks" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The integration of the dav1d decoder for AV1 Image File Format (AVIF) decoding has delivered massive performance gains across web browsers and operating systems compared to legacy decoders like libaom. This article examines the benchmark scores, throughpu" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="dav1d-avif-decoding-throughput-benchmarks">dav1d AVIF Decoding
+Throughput Benchmarks</h1>
+<p>The integration of the dav1d decoder for AV1 Image File Format (AVIF)
+decoding has delivered massive performance gains across web browsers and
+operating systems compared to legacy decoders like libaom. This article
+examines the benchmark scores, throughput rates, and latency reductions
+that demonstrate dav1d's decoding speed advantages over alternative AV1
+decoders.</p>
+<h2 id="dav1d-vs-libaom-throughput-comparison">dav1d vs. libaom
+Throughput Comparison</h2>
+<p>When libavif transitioned its default software decoding backend from
+libaom to dav1d, decoding throughput increased substantially. Benchmarks
+consistently show dav1d outperforming libaom across standard image
+resolutions:</p>
+<ul>
+<li><strong>Single-Threaded Throughput:</strong> On modern x86-64 and
+ARM64 architectures, dav1d achieves a 2x to 3x increase in raw decoding
+throughput compared to libaom. While libaom typically processes 10-bit
+and 8-bit AVIF images at roughly 25 to 40 megapixels per second (MP/s)
+on a modern desktop CPU core, dav1d regularly exceeds 75 to 110 MP/s
+under identical conditions.</li>
+<li><strong>Multi-Threaded Throughput:</strong> dav1d features superior
+thread pooling and tile-based multi-threading. When decoding multi-tiled
+AVIF files across 4 to 8 CPU threads, dav1d achieves a 4x to 5.5x
+throughput gain over libaom, frequently saturating modern multi-core
+processors at speeds surpassing 350 MP/s.</li>
+</ul>
+<h2 id="real-world-decode-latency">Real-World Decode Latency</h2>
+<p>Benchmark tests measuring wall-clock decoding time for real-world
+AVIF images demonstrate major latency drops:</p>
+<ul>
+<li><strong>Full HD (1080p) Images:</strong> Standard 1920x1080 AVIF
+photographs that required between 45ms and 65ms to decode using libaom
+drop to approximately 12ms to 18ms with dav1d.</li>
+<li><strong>4K UHD (2160p) Images:</strong> For high-resolution
+3840x2160 assets, libaom decode latencies typically range from 180ms to
+240ms. Under dav1d, processing times drop to 40ms to 65ms on modern
+desktop hardware, placing AVIF decoding times within competitive range
+of optimized JPEG and WebP decoders.</li>
+</ul>
+<h2 id="browser-level-benchmarks-chromium-and-firefox">Browser-Level
+Benchmarks (Chromium and Firefox)</h2>
+<p>Telemetry and synthetic image rendering benchmarks recorded during
+the rollout of dav1d in Chromium and Mozilla Firefox highlight specific
+performance jumps:</p>
+<ul>
+<li><strong>Time to First Paint:</strong> Chromium telemetry recorded a
+50% to 60% reduction in image decode time across all platforms when
+switching the underlying AVIF decoder to dav1d.</li>
+<li><strong>CPU Utilization:</strong> During heavy page loads containing
+numerous AVIF assets, dav1d reduces CPU time spent in image decoding
+loops by roughly 40%, preventing main-thread blocking and improving
+scroll smoothness.</li>
+</ul>
+<h2 id="architecture-specific-optimizations">Architecture-Specific
+Optimizations</h2>
+<p>The throughput gains of dav1d stem primarily from hand-crafted SIMD
+assembly routines:</p>
+<ul>
+<li><strong>AVX2 / AVX-512 (x86-64):</strong> dav1d exhibits near-linear
+scaling when utilizing AVX2 and AVX-512 extensions, providing up to a 6x
+speedup over unoptimized baseline C code.</li>
+<li><strong>ARM NEON (Mobile/Apple Silicon):</strong> On mobile chipsets
+and Apple M-series processors, NEON assembly in dav1d delivers a 2.5x to
+4x throughput boost over libaom, making full-resolution AVIF rendering
+viable on power-constrained mobile devices without noticeable UI
+lag.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

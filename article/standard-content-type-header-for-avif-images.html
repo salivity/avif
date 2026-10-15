@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Standard Content-Type Header for AVIF Images - avif</title>
+    <meta name="description" content="Delivering AVIF (AV1 Image File Format) assets properly across the web requires the correct MIME type configuration so modern browsers can identify, decode, and display them. This guide explains the official standard Content-Type header for AVIF delivery,">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/standard-content-type-header-for-avif-images">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Standard Content-Type Header for AVIF Images - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/standard-content-type-header-for-avif-images" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Delivering AVIF (AV1 Image File Format) assets properly across the web requires the correct MIME type configuration so modern browsers can identify, decode, and display them. This guide explains the official standard Content-Type header for AVIF delivery," />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="standard-content-type-header-for-avif-images">Standard
+Content-Type Header for AVIF Images</h1>
+<p>Delivering AVIF (AV1 Image File Format) assets properly across the
+web requires the correct MIME type configuration so modern browsers can
+identify, decode, and display them. This guide explains the official
+standard <code>Content-Type</code> header for AVIF delivery, why proper
+header implementation is essential for web performance, and how to
+configure it across major web server platforms.</p>
+<h3 id="the-official-avif-content-type">The Official AVIF
+Content-Type</h3>
+<p>The standard, IANA-registered <code>Content-Type</code> header for
+AVIF images is:</p>
+<pre class="http"><code>Content-Type: image/avif</code></pre>
+<p>For sequence or animated AVIF files (often using the
+<code>.avifs</code> extension), the standard MIME type remains:</p>
+<pre class="http"><code>Content-Type: image/avif</code></pre>
+<h3 id="why-the-header-is-critical">Why the Header Is Critical</h3>
+<p>Web browsers strictly rely on the <code>Content-Type</code> response
+header sent by the web server rather than the file extension to
+determine how to process a file.</p>
+<p>If a server serves an AVIF image with an incorrect MIME type (such as
+<code>application/octet-stream</code> or a fallback like
+<code>image/jpeg</code>), several issues occur:</p>
+<ul>
+<li>Modern browsers may fail to decode the image and display a broken
+image icon.</li>
+<li>Browsers may attempt to download the file instead of rendering it
+inline on the webpage.</li>
+<li>HTML5 <code>&lt;picture&gt;</code> elements utilizing
+<code>&lt;source type="image/avif"&gt;</code> may skip the AVIF file
+entirely and load a larger fallback format, nullifying performance
+gains.</li>
+</ul>
+<h3 id="configuring-common-web-servers">Configuring Common Web
+Servers</h3>
+<p>If your server does not recognize the <code>.avif</code> file
+extension out of the box, you must manually associate the extension with
+the standard MIME type.</p>
+<h4 id="nginx">Nginx</h4>
+<p>Ensure the mapping is defined in your <code>mime.types</code> file,
+typically located at <code>/etc/nginx/mime.types</code>:</p>
+<pre class="nginx"><code>types {
+    image/avif avif;
+}</code></pre>
+<h4 id="apache">Apache</h4>
+<p>Add the following directive to your <code>.htaccess</code> file or
+main configuration (<code>httpd.conf</code>):</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode apache"><code class="sourceCode apache"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>AddType<span class="st"> image/avif .avif</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>AddType<span class="st"> image/avif .avifs</span></span></code></pre></div>
+<h4 id="nodejs--express">Node.js / Express</h4>
+<p>When serving static files or implementing custom endpoints, set the
+header explicitly:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>res<span class="op">.</span><span class="fu">setHeader</span>(<span class="st">&#39;Content-Type&#39;</span><span class="op">,</span> <span class="st">&#39;image/avif&#39;</span>)<span class="op">;</span></span></code></pre></div>
+<h3 id="cache-and-content-negotiation-considerations">Cache and Content
+Negotiation Considerations</h3>
+<p>When implementing dynamic format selection—serving AVIF to supported
+browsers while serving WebP or JPEG to older clients from the same
+URL—always pair the <code>Content-Type: image/avif</code> header with a
+<code>Vary</code> header:</p>
+<pre class="http"><code>Vary: Accept</code></pre>
+<p>This instructs Content Delivery Networks (CDNs) and intermediary
+proxy caches to store separate versions of the resource based on the
+requesting browser's <code>Accept</code> header, preventing unsupported
+browsers from receiving cached AVIF responses.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

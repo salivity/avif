@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Baseline vs Advanced Profile Differences - avif</title>
+    <meta name="description" content="The AV1 Image File Format (AVIF) specifies two compliance tiers—the Baseline profile and the Advanced profile—to balance widespread playback compatibility with high-end image fidelity. While the Baseline profile is designed for everyday web delivery and b">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-baseline-vs-advanced-profile-differences">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Baseline vs Advanced Profile Differences - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-baseline-vs-advanced-profile-differences" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The AV1 Image File Format (AVIF) specifies two compliance tiers—the Baseline profile and the Advanced profile—to balance widespread playback compatibility with high-end image fidelity. While the Baseline profile is designed for everyday web delivery and b" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-baseline-vs-advanced-profile-differences">AVIF Baseline vs
+Advanced Profile Differences</h1>
+<p>The AV1 Image File Format (AVIF) specifies two compliance tiers—the
+Baseline profile and the Advanced profile—to balance widespread playback
+compatibility with high-end image fidelity. While the Baseline profile
+is designed for everyday web delivery and broad hardware support using
+8-bit and 10-bit color, the Advanced profile caters to professional
+media workflows by supporting 12-bit color depth, uncompressed chroma
+sampling, and higher resolution ceilings.</p>
+<h3 id="avif-baseline-profile">AVIF Baseline Profile</h3>
+<p>The Baseline profile is the standard specification intended for
+general internet consumption, browser rendering, and consumer devices.
+It is based on the AV1 Main Profile and is capped at Level 5.1.</p>
+<p>Key technical characteristics of the Baseline profile include:</p>
+<ul>
+<li><strong>Bit Depth:</strong> Supports only 8-bit and 10-bit color
+depths.</li>
+<li><strong>Chroma Subsampling:</strong> Restricted to 4:2:0 and 4:0:0
+(monochrome). It does not allow 4:4:4 subsampling.</li>
+<li><strong>Resolution and Limits:</strong> Constrained to Level 5.1
+limits, meaning an individual image item cannot exceed approximately
+3840×2160 pixels unless image tiling is employed.</li>
+</ul>
+<p>Because it adheres to these limits, almost all modern hardware
+decoders and web browsers can decode Baseline AVIF files efficiently
+with hardware acceleration.</p>
+<h3 id="avif-advanced-profile">AVIF Advanced Profile</h3>
+<p>The Advanced profile is tailored for high-end digital photography,
+professional mastering, graphic design, and archival storage where
+maximum visual fidelity is required. It relies on the AV1 High Profile
+and permits decoder capabilities up to Level 6.0.</p>
+<p>Key technical characteristics of the Advanced profile include:</p>
+<ul>
+<li><strong>Bit Depth:</strong> Adds support for 12-bit color depth in
+addition to 8-bit and 10-bit.</li>
+<li><strong>Chroma Subsampling:</strong> Permits 4:4:4 subsampling,
+preserving full color resolution without color compression artifacts,
+alongside 4:2:0 and 4:0:0.</li>
+<li><strong>Resolution and Limits:</strong> Allows Level 6.0
+constraints, accommodating larger native resolutions and higher
+complexity without mandatory tiling.</li>
+</ul>
+<h3 id="core-differences-explained">Core Differences Explained</h3>
+<h4 id="1-color-precision-bit-depth">1. Color Precision (Bit Depth)</h4>
+<p>The Baseline profile caps color depth at 10 bits per channel. While
+10-bit is sufficient for standard High Dynamic Range (HDR) content, the
+Advanced profile enables 12-bit color. This extra headroom eliminates
+color banding in smooth gradients and is crucial for professional RAW
+image conversion and archival mastering.</p>
+<h4 id="2-color-resolution-chroma-subsampling">2. Color Resolution
+(Chroma Subsampling)</h4>
+<p>Baseline AVIF enforces 4:2:0 chroma subsampling, which halves color
+resolution horizontally and vertically to save bandwidth. While rarely
+noticeable in standard photos, it can cause blurriness around
+high-contrast edges, such as sharp colored text or user interface
+elements. The Advanced profile supports 4:4:4 chroma subsampling,
+retaining complete color clarity for graphics, typography, and pixel
+art.</p>
+<h4 id="3-hardware-decoding-and-web-compatibility">3. Hardware Decoding
+and Web Compatibility</h4>
+<p>Because the Baseline profile maps to the common AV1 Main Profile
+(Level 5.1), it is universally compatible with standard software
+decoders, mobile chipsets, and modern web browsers. The Advanced profile
+requires an AV1 High Profile decoder. Many consumer mobile processors
+and discrete GPUs lack hardware acceleration for AV1 High Profile at
+12-bit or 4:4:4, forcing devices to rely on software decoding, which
+increases CPU usage and reduces battery performance.</p>
+<h3 id="summary">Summary</h3>
+<p>Use the <strong>AVIF Baseline profile</strong> for general web
+publishing, responsive images, and mobile applications where fast
+loading times, broad hardware decoding, and low file sizes are critical.
+Reserve the <strong>AVIF Advanced profile</strong> for graphic assets
+with fine colored details, 12-bit master files, and professional
+photography workflows where quality takes precedence over universal
+decoding performance.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

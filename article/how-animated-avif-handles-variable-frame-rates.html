@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Animated AVIF Handles Variable Frame Rates - avif</title>
+    <meta name="description" content="Animated AVIF handles frame rate variability by leveraging the ISO Base Media File Format (ISOBMFF) container structure, allowing individual frames to possess distinct, precise display durations rather than adhering to a strict, global frame rate. By comb">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-animated-avif-handles-variable-frame-rates">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How Animated AVIF Handles Variable Frame Rates - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-animated-avif-handles-variable-frame-rates" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Animated AVIF handles frame rate variability by leveraging the ISO Base Media File Format (ISOBMFF) container structure, allowing individual frames to possess distinct, precise display durations rather than adhering to a strict, global frame rate. By comb" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-animated-avif-handles-variable-frame-rates">How Animated
+AVIF Handles Variable Frame Rates</h1>
+<p>Animated AVIF handles frame rate variability by leveraging the ISO
+Base Media File Format (ISOBMFF) container structure, allowing
+individual frames to possess distinct, precise display durations rather
+than adhering to a strict, global frame rate. By combining this
+container-level timing mechanism with the advanced compression features
+of the AV1 video codec, animated AVIF efficiently manages complex
+animations with fluctuating cadences, reducing file sizes without
+sacrificing smooth motion or visual fidelity.</p>
+<h3 id="the-isobmff-container-and-time-to-sample-mapping">The ISOBMFF
+Container and Time-to-Sample Mapping</h3>
+<p>AVIF does not store animations as flat image sequences with arbitrary
+delays like legacy GIF formats. Instead, it utilizes ISOBMFF, the same
+underlying container specification used by MP4 video files.</p>
+<p>Within this architecture, timing is defined using a global timescale
+(media header) alongside a Time-to-Sample table (<code>stts</code> box)
+or fragmented movie fragments (<code>trun</code> box). The timescale
+determines the resolution of time units per second (for instance, 1000
+units per second for millisecond accuracy), and the sample table assigns
+an exact integer number of time units to each individual frame. This
+allows an animation to seamlessly shift between high-frequency bursts
+(such as 60 frames per second for rapid motion) and lower-frequency
+intervals (such as 12 or 24 frames per second for stylized or slower
+motion) without modifying the container structure.</p>
+<h3
+id="eliminating-duplicate-frames-with-variable-durations">Eliminating
+Duplicate Frames with Variable Durations</h3>
+<p>In fixed-frame-rate formats, maintaining a temporary pause or a drop
+in motion requires encoding duplicate frames, which bloats the payload
+and wastes decoding cycles. Animated AVIF eliminates this inefficiency
+through true Variable Frame Rate (VFR) capability.</p>
+<p>When an animation contains static intervals—such as a user interface
+interaction pausing on a button state or a character lingering between
+movements—AVIF simply extends the duration value of the current frame in
+the container metadata. The decoder maintains the rendered frame in the
+frame buffer until the designated timestamp expires, requiring zero
+redundant pixel processing or data transmission.</p>
+<h3 id="interaction-with-av1-inter-frame-compression">Interaction with
+AV1 Inter-Frame Compression</h3>
+<p>The container-level timing works in tandem with AV1's temporal
+prediction toolset:</p>
+<ul>
+<li><strong>Inter-Frame Prediction:</strong> Complex animations
+frequently vary frame rates during localized motion. AV1 can reference
+previously decoded frames using motion vectors to encode only the
+changing regions, regardless of how much temporal distance exists
+between frames.</li>
+<li><strong>Non-Displayable and Overlay Frames:</strong> AV1 allows
+frames to be decoded and retained in memory without being rendered
+immediately ("invisible frames"). These can be referenced or composited
+later, permitting sudden jumps in visual complexity or staggered
+animation layers without breaking the presentation timing.</li>
+<li><strong>Show-Existing-Frame:</strong> If an animation alternates
+between repetitive states at varying intervals, AV1 can issue a
+lightweight command to re-display a cached frame at an exact timestamp
+without re-transmitting image data.</li>
+</ul>
+<h3 id="decoding-efficiency-and-browser-rendering">Decoding Efficiency
+and Browser Rendering</h3>
+<p>Modern decoders and web browsers parse AVIF animations via standard
+media pipelines rather than traditional image loops. Because the
+presentation timestamps (PTS) are explicit:</p>
+<ol type="1">
+<li><strong>Jitter-Free Playback:</strong> Decoders schedule frames
+against the system compositor clock, preventing the timing drift common
+in GIF or APNG caused by CPU throttling.</li>
+<li><strong>Dynamic Resource Allocation:</strong> During periods of low
+frame rates or pauses, the decoding thread remains idle, conserving
+battery life on mobile devices and lowering overall CPU/GPU usage during
+complex multi-element web animations.</li>
+</ol></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

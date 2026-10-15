@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Geospatial Mapping Platforms Benefit from AVIF - avif</title>
+    <meta name="description" content="Geospatial mapping platforms rely on massive datasets of satellite imagery, aerial photography, and raster map tiles that must be served instantly to users worldwide. Adopting the AVIF (AV1 Image File Format) compression standard allows these platforms to">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-geospatial-mapping-platforms-benefit-from-avif">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How Geospatial Mapping Platforms Benefit from AVIF - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-geospatial-mapping-platforms-benefit-from-avif" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Geospatial mapping platforms rely on massive datasets of satellite imagery, aerial photography, and raster map tiles that must be served instantly to users worldwide. Adopting the AVIF (AV1 Image File Format) compression standard allows these platforms to" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-geospatial-mapping-platforms-benefit-from-avif">How
+Geospatial Mapping Platforms Benefit from AVIF</h1>
+<p>Geospatial mapping platforms rely on massive datasets of satellite
+imagery, aerial photography, and raster map tiles that must be served
+instantly to users worldwide. Adopting the AVIF (AV1 Image File Format)
+compression standard allows these platforms to achieve significantly
+higher compression ratios than legacy formats without degrading visual
+clarity. This results in faster tile rendering, drastically reduced
+bandwidth and hosting costs, enhanced mobile performance in
+low-connectivity environments, and better preservation of critical
+topographic details.</p>
+<h3 id="reduced-bandwidth-and-infrastructure-costs">Reduced Bandwidth
+and Infrastructure Costs</h3>
+<p>Interactive web maps rely on pyramid tile systems (such as Slippy
+maps) that divide Earth imagery into millions of small, square image
+tiles across varying zoom levels. Every user pan or zoom triggers dozens
+of new tile requests. AVIF provides up to 50% better compression than
+JPEG and around 20% to 30% better compression than WebP at comparable
+visual quality. For mapping providers serving petabytes of data each
+month, this reduction directly translates to lower content delivery
+network (CDN) egress costs and smaller cloud storage footprints.</p>
+<h3 id="faster-tile-loading-and-reduced-latency">Faster Tile Loading and
+Reduced Latency</h3>
+<p>User experience in geospatial applications depends on latency. When a
+user zooms or pans, blank or delayed tiles ruin the experience. Because
+AVIF drastically reduces the byte size of each tile, network transfer
+times drop significantly. Browsers and native applications can download,
+decode, and render map tiles rapidly, effectively eliminating the
+"checkerboard" effect of unloaded tiles and creating a seamless, fluid
+navigation experience.</p>
+<h3
+id="superior-visual-quality-for-satellite-and-aerial-imagery">Superior
+Visual Quality for Satellite and Aerial Imagery</h3>
+<p>Geospatial data contains high-frequency visual information, including
+dense urban structures, agricultural patterns, and varied natural
+terrain. Traditional compression algorithms like JPEG often introduce
+ringing artifacts, blockiness, or color banding along sharp boundaries
+(such as coastlines or highways) when compressed to low bitrates. AVIF
+utilizes the advanced coding tools of the AV1 video codec, preserving
+fine details, edge sharpness, and smooth gradients even at aggressive
+compression levels.</p>
+<h3
+id="enhanced-performance-on-low-bandwidth-and-mobile-networks">Enhanced
+Performance on Low-Bandwidth and Mobile Networks</h3>
+<p>Many geospatial applications are deployed in the field for
+agriculture, disaster response, defense, and field research, where
+cellular or satellite network connections are often slow and unstable.
+Because AVIF files are compact, field personnel can load critical,
+high-resolution geospatial overlays over 3G, satellite links, or
+throttled connections where uncompressed or poorly compressed imagery
+would fail to load.</p>
+<h3 id="support-for-higher-bit-depths-and-precision-data">Support for
+Higher Bit Depths and Precision Data</h3>
+<p>Standard web formats are often limited to 8-bit color, which can
+compress or clip critical tonal data in scientific and analytical
+imagery. AVIF natively supports 10-bit and 12-bit color depths, high
+dynamic range (HDR), and lossless compression modes. This allows mapping
+platforms to deliver specialized analytical products—such as
+multispectral satellite data, digital elevation models (DEMs), and
+thermal imaging—with higher radiometric accuracy and without the data
+degradation typical of older formats.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

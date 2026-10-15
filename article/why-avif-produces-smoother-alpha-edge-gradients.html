@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why AVIF Produces Smoother Alpha Edge Gradients - avif</title>
+    <meta name="description" content="AVIF achieves exceptionally smooth edge gradients along semi-transparent alpha borders by treating transparency as a dedicated high-efficiency image plane rather than a basic masking channel. Through the use of advanced AV1 video-compression mechanics—inc">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/why-avif-produces-smoother-alpha-edge-gradients">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Why AVIF Produces Smoother Alpha Edge Gradients - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/why-avif-produces-smoother-alpha-edge-gradients" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="AVIF achieves exceptionally smooth edge gradients along semi-transparent alpha borders by treating transparency as a dedicated high-efficiency image plane rather than a basic masking channel. Through the use of advanced AV1 video-compression mechanics—inc" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="why-avif-produces-smoother-alpha-edge-gradients">Why AVIF
+Produces Smoother Alpha Edge Gradients</h1>
+<p>AVIF achieves exceptionally smooth edge gradients along
+semi-transparent alpha borders by treating transparency as a dedicated
+high-efficiency image plane rather than a basic masking channel. Through
+the use of advanced AV1 video-compression mechanics—including higher bit
+depths, adaptive block partitioning, and sophisticated in-loop
+filtering—AVIF effectively eliminates the banding, blockiness, and dark
+halos common in legacy formats like PNG or standard WebP.</p>
+<h3 id="dedicated-auxiliary-alpha-planes">Dedicated Auxiliary Alpha
+Planes</h3>
+<p>Unlike formats that interleave alpha values directly alongside RGB
+data, AVIF encodes transparency as an auxiliary monochrome image plane.
+This means the alpha channel receives the full benefit of AV1’s modern
+spatial compression tools. Rather than being compressed with simple
+run-length encoding or coarse 8x8 discrete cosine transforms, the alpha
+plane is analyzed and optimized using complex intra-prediction modes
+that accurately trace and model smooth transitions between opaque and
+transparent regions.</p>
+<h3 id="10-bit-and-12-bit-alpha-precision">10-Bit and 12-Bit Alpha
+Precision</h3>
+<p>A primary cause of harsh, stepped borders in traditional formats is
+bit depth limitation. Standard 8-bit alpha channels only provide 256
+discrete levels of opacity, which frequently causes noticeable banding
+across broad, subtle drop shadows and soft anti-aliased contours. AVIF
+natively supports 10-bit and 12-bit depths for auxiliary channels,
+expanding transparency precision to 1,024 or 4,096 distinct levels. This
+high numerical resolution allows feathered transitions and complex
+transparencies to remain perfectly continuous without posterization.</p>
+<h3 id="av1-in-loop-and-directional-filtering">AV1 In-Loop and
+Directional Filtering</h3>
+<p>The AV1 architecture integrates three distinct filtering stages
+directly into the decoding pipeline: the deblocking filter, the
+Constrained Directional Enhancement Filter (CDEF), and the loop
+restoration filter. When applied to the alpha plane:</p>
+<ul>
+<li><strong>The Deblocking Filter</strong> removes hard horizontal and
+vertical grid lines that form along block seams at lower bitrates.</li>
+<li><strong>CDEF</strong> determines the primary direction of edges and
+applies smoothing parallel to those edges while preserving perpendicular
+sharpness, preventing ringing artifacts along soft curves.</li>
+<li><strong>Loop Restoration</strong> recovers fine transitional details
+without re-introducing high-frequency compression noise.</li>
+</ul>
+<p>These filters ensure that even heavily compressed alpha boundaries
+retain continuous, organic gradients.</p>
+<h3 id="variable-block-partitioning-and-non-square-transforms">Variable
+Block Partitioning and Non-Square Transforms</h3>
+<p>AVIF dynamically divides images into blocks ranging from as large as
+128x128 pixels down to 4x4 pixels, using recursive tree splitting that
+includes non-square rectangular shapes (such as 1:2, 2:1, 1:4, and 4:1).
+When encoding a soft border, the codec uses small, narrow blocks that
+tightly hug the curvature of the edge while applying larger, smoother
+blocks to the fading gradient tails. This flexible geometry avoids the
+stair-step distortion typical of rigid grid-based compression
+formats.</p>
+<h3 id="accurate-color-representation-and-premultiplication">Accurate
+Color Representation and Premultiplication</h3>
+<p>Fringing—a visual artifact where dark or discolored lines appear
+along transparent borders—occurs when fully transparent pixels contain
+arbitrary color values that bleed into adjacent semi-transparent pixels
+during interpolation. AVIF avoids this by natively signaling and
+handling premultiplied alpha data within its file metadata. By scaling
+color data relative to alpha values prior to decoding and rendering, the
+boundary between an element and its background blends smoothly without
+edge discoloration.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How AVIF Handles Audio in Animated Sequences - avif</title>
+    <meta name="description" content="The AV1 Image File Format (AVIF) is designed exclusively for static visual data and silent image sequences, meaning the official AVIF specification does not support or manage audio tracks. While animated AVIF files use the AV1 video codec to deliver highl">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-avif-handles-audio-in-animated-sequences">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How AVIF Handles Audio in Animated Sequences - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-avif-handles-audio-in-animated-sequences" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The AV1 Image File Format (AVIF) is designed exclusively for static visual data and silent image sequences, meaning the official AVIF specification does not support or manage audio tracks. While animated AVIF files use the AV1 video codec to deliver highl" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-avif-handles-audio-in-animated-sequences">How AVIF Handles
+Audio in Animated Sequences</h1>
+<p>The AV1 Image File Format (AVIF) is designed exclusively for static
+visual data and silent image sequences, meaning the official AVIF
+specification does not support or manage audio tracks. While animated
+AVIF files use the AV1 video codec to deliver highly compressed moving
+sequences, the format strictly strips away audio components. Any
+multimedia scenario requiring synchronized sound alongside moving images
+must rely on full video containers rather than standalone AVIF
+files.</p>
+<h3 id="the-scope-of-the-avif-specification">The Scope of the AVIF
+Specification</h3>
+<p>AVIF was developed by the Alliance for Open Media (AOMedia) as an
+open, royalty-free image format. It encapsulates AV1-compressed frames
+inside the ISO Base Media File Format (ISOBMFF) container—the same
+structural foundation used by MP4 files.</p>
+<p>Despite using an underlying container capable of holding multimedia
+streams, the AVIF specification deliberately defines profiles strictly
+for image items and image sequences. Audio elementary streams are
+explicitly excluded from the standard AVIF profiles. Because the format
+is targeted as a modern replacement for JPEG, PNG, and animated GIFs,
+audio management was omitted to keep web image decoders lightweight,
+fast, and secure.</p>
+<h3 id="container-mechanics-vs-format-profiles">Container Mechanics vs.
+Format Profiles</h3>
+<p>Technically, the ISOBMFF architecture can store audio tracks encoded
+in formats like Opus or AAC alongside AV1 visual frames. However,
+packaging an audio track into an <code>.avif</code> file breaks
+specification compliance.</p>
+<p>When software encounters an AVIF file containing an audio track,
+standard-compliant image viewers and web browsers will either ignore the
+audio track entirely or fail to decode the image altogether. The file
+ceases to be a valid AVIF image and instead functions as a non-standard
+MP4 variant.</p>
+<h3 id="moving-photos-and-live-photos">Moving Photos and Live
+Photos</h3>
+<p>In the context of "moving photos" or "live photos," devices often
+capture a still frame combined with a brief snippet of video and sound.
+When platforms implement moving photos using AVIF, they do not pack the
+audio into the AVIF sequence itself. Instead, they rely on one of two
+architectures:</p>
+<ul>
+<li><strong>Dual-Track Storage:</strong> The system saves a high-quality
+still AVIF image alongside a separate, short video file (such as an MP4
+containing AV1 or H.265 video with AAC or Opus audio).</li>
+<li><strong>Embedded Metadata:</strong> The AVIF file acts as the
+primary still image, while the motion and audio data are embedded as
+secondary binary payloads in the file's metadata (such as XMP). The
+native photo application extracts the payload to play the audio and
+movement, while standard web browsers simply render the static AVIF
+image.</li>
+</ul>
+<h3 id="alternatives-for-sound-enabled-motion">Alternatives for
+Sound-Enabled Motion</h3>
+<p>For animated sequences that require synchronized sound, AVIF is the
+incorrect format choice. Content creators and developers instead utilize
+web-optimized video containers:</p>
+<ul>
+<li><strong>MP4 (with AV1 and Opus/AAC):</strong> Offers the exact same
+visual compression benefits as AVIF through the AV1 codec, while
+providing native, standard-compliant audio track synchronization.</li>
+<li><strong>WebM (with AV1 or VP9 and Opus):</strong> A lightweight
+container optimized for web playback with complete audio-video
+support.</li>
+</ul>
+<p>Animated AVIF remains restricted to silent animations, functioning as
+a high-efficiency replacement for animated GIFs and soundless animated
+WebP files.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

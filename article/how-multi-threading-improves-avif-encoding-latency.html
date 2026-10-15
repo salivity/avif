@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Multi-Threading Improves AVIF Encoding Latency - avif</title>
+    <meta name="description" content="AVIF (AV1 Image File Format) offers superior compression efficiency compared to older formats like JPEG and WebP, but its reliance on the complex AV1 video codec makes encoding computationally intensive and slow. Multi-threading libraries significantly re">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-multi-threading-improves-avif-encoding-latency">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How Multi-Threading Improves AVIF Encoding Latency - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-multi-threading-improves-avif-encoding-latency" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="AVIF (AV1 Image File Format) offers superior compression efficiency compared to older formats like JPEG and WebP, but its reliance on the complex AV1 video codec makes encoding computationally intensive and slow. Multi-threading libraries significantly re" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-multi-threading-improves-avif-encoding-latency">How
+Multi-Threading Improves AVIF Encoding Latency</h1>
+<p>AVIF (AV1 Image File Format) offers superior compression efficiency
+compared to older formats like JPEG and WebP, but its reliance on the
+complex AV1 video codec makes encoding computationally intensive and
+slow. Multi-threading libraries significantly reduce AVIF encoding
+latency by dividing the heavy mathematical workload across multiple CPU
+cores. By executing spatial and algorithmic tasks in parallel, these
+libraries transform a single-threaded bottleneck into a high-throughput
+process, making AVIF viable for real-time applications and high-volume
+web pipelines.</p>
+<h3 id="parallel-processing-of-image-tiles">Parallel Processing of Image
+Tiles</h3>
+<p>The primary way multi-threading libraries reduce AVIF encoding time
+is through tile-based parallelism. The AV1 specification allows an image
+to be split into a uniform grid of independent rectangles called tiles.
+Multi-threading libraries allocate distinct tiles to separate worker
+threads managed by systems like POSIX threads (pthreads), Windows
+threads, or OpenMP. Because tiles do not share spatial dependencies
+across their borders during the initial transformation and quantization
+stages, multiple CPU cores can analyze and compress different regions of
+the image simultaneously without waiting for neighboring data.</p>
+<h3 id="row-level-parallelism-and-wavefront-processing">Row-Level
+Parallelism and Wavefront Processing</h3>
+<p>Beyond coarse tile division, modern encoders like SVT-AV1, libaom,
+and rav1e implement finer-grained row-level multi-threading, often
+referred to as wavefront parallel processing (WPP). Intra-frame
+prediction typically requires pixels from the top and left blocks to
+predict the current block. Multi-threading frameworks exploit the
+diagonal nature of these dependencies: as soon as a thread completes a
+few blocks in one row, another thread can immediately begin processing
+the row beneath it. This minimizes CPU idle time, particularly on images
+that cannot be divided into many tiles without sacrificing compression
+efficiency.</p>
+<h3 id="algorithmic-pipelining-and-task-distribution">Algorithmic
+Pipelining and Task Distribution</h3>
+<p>Multi-threading libraries also decouple the various algorithmic
+stages of AVIF generation. An encoder must perform block partitioning,
+transform searching, color space conversions, and in-loop filtering
+(such as the deblocking filter and Constrained Directional Enhancement
+Filter, or CDEF). Concurrency runtimes (such as Rayon in Rust-based
+encoders or custom worker pools in C-based encoders) split these stages
+across threads:</p>
+<ul>
+<li><strong>Pre-analysis and Variance Calculation:</strong> Determining
+block partition boundaries concurrently across the image.</li>
+<li><strong>Rate-Distortion Optimization (RDO):</strong> Testing
+multiple compression strategies simultaneously to find the best balance
+of quality and file size.</li>
+<li><strong>Loop Filtering:</strong> Processing reconstructed pixel
+smoothing across independent boundaries once block encoding
+concludes.</li>
+</ul>
+<h3 id="impact-on-real-world-latency">Impact on Real-World Latency</h3>
+<p>By combining tile-based, row-based, and task-based parallelism,
+multi-threading libraries drastically cut wall-clock encoding time.
+While total CPU resource consumption remains similar, encoding latency
+scales down almost linearly with the addition of physical and logical
+CPU cores up to the point of diminishing returns caused by inter-thread
+communication overhead. As a result, multi-threading makes AVIF
+generation practical for on-the-fly image optimization and large-scale
+asset transformation workflows.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

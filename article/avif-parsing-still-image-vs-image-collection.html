@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Parsing: Still Image vs Image Collection - avif</title>
+    <meta name="description" content="An AVIF parser distinguishes between a single still image and an image collection by analyzing the structural metadata defined in the ISO Base Media File Format (ISOBMFF) and the High Efficiency Image File Format (HEIF) specifications. By inspecting key b">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-parsing-still-image-vs-image-collection">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Parsing: Still Image vs Image Collection - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-parsing-still-image-vs-image-collection" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="An AVIF parser distinguishes between a single still image and an image collection by analyzing the structural metadata defined in the ISO Base Media File Format (ISOBMFF) and the High Efficiency Image File Format (HEIF) specifications. By inspecting key b" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-parsing-still-image-vs-image-collection">AVIF Parsing:
+Still Image vs Image Collection</h1>
+<p>An AVIF parser distinguishes between a single still image and an
+image collection by analyzing the structural metadata defined in the ISO
+Base Media File Format (ISOBMFF) and the High Efficiency Image File
+Format (HEIF) specifications. By inspecting key boxes within the
+file—specifically the File Type Box (<code>ftyp</code>), the Meta Box
+(<code>meta</code>), the Primary Item Box (<code>pitm</code>), and the
+Item Information Box (<code>iinf</code>)—the parser determines whether
+the file contains one primary visual item with optional auxiliary data
+or multiple independent images meant to be treated as a collection.</p>
+<h3 id="1-evaluating-brands-in-the-file-type-box-ftyp">1. Evaluating
+Brands in the File Type Box (<code>ftyp</code>)</h3>
+<p>The parser begins at the <code>ftyp</code> box to identify the file's
+major and compatible brands:</p>
+<ul>
+<li><strong><code>avif</code></strong>: Indicates support for static
+AVIF items.</li>
+<li><strong><code>avis</code></strong>: Indicates an AVIF image sequence
+(typically animated content stored across video-style tracks).</li>
+</ul>
+<p>While <code>ftyp</code> signals general format support, it does not
+fully resolve whether a file contains a single still or an image
+collection, as both can share the <code>avif</code> structural brand. To
+make this determination, the parser must inspect the structural layout
+within the <code>meta</code> box.</p>
+<h3 id="2-inspecting-the-primary-item-box-pitm">2. Inspecting the
+Primary Item Box (<code>pitm</code>)</h3>
+<p>Inside the <code>meta</code> box, the parser checks for the presence
+of a Primary Item Box (<code>pitm</code>).</p>
+<ul>
+<li><strong>Single Still Image</strong>: The <code>pitm</code> box
+specifies a valid <code>item_ID</code> representing the primary display
+item (an AV1 image item of type <code>av01</code> or a derived image
+such as a grid).</li>
+<li><strong>Image Collection</strong>: A collection may either omit the
+<code>pitm</code> box entirely (signaling no default master image) or
+include a <code>pitm</code> box merely to designate a
+cover/representative image for the broader set. The presence of
+<code>pitm</code> alone is not sufficient to confirm a single image; the
+parser must evaluate how other items relate to it.</li>
+</ul>
+<h3 id="3-analyzing-the-item-information-box-iinf-and-item-types">3.
+Analyzing the Item Information Box (<code>iinf</code>) and Item
+Types</h3>
+<p>The parser inspects the <code>iinf</code> box, which catalogues all
+items in the file via Item Info Entry (<code>infe</code>) boxes. The
+parser filters items by their <code>item_type</code>:</p>
+<ul>
+<li><strong>Master Image Items</strong>: Items with the type
+<code>av01</code> (AV1 encoded frames) or derived types like
+<code>grid</code> or <code>iden</code>.</li>
+<li><strong>Auxiliary Items</strong>: Non-displayable items such as
+alpha transparency channels, depth maps, or gain maps (often denoted by
+<code>auxl</code> or associated metadata).</li>
+<li><strong>Hidden Items</strong>: Items marked with the
+<code>item_protection_index</code> or hidden flags.</li>
+</ul>
+<p>If the parser finds only one top-level, non-auxiliary image item, the
+file is classified as a single still image. If multiple independent
+master image items exist, the parser looks further to identify their
+relationships.</p>
+<h3 id="4-resolving-item-references-iref">4. Resolving Item References
+(<code>iref</code>)</h3>
+<p>To confirm whether multiple items represent a single image or an
+image collection, the parser checks the Item Reference Box
+(<code>iref</code>):</p>
+<ul>
+<li><strong>Single Still Image Dependencies</strong>: Multiple items
+often compose a single image. For instance, an alpha channel references
+the master image with an <code>auxl</code> reference type, or a
+thumbnail references it with a <code>thmb</code> reference type. Derived
+images (such as a tiled <code>grid</code>) will reference multiple
+sub-image tiles through a <code>dimg</code> (derived image) reference.
+Because these items depend on or support a single output canvas, the
+parser treats the entire structure as a single still image.</li>
+<li><strong>Image Collection</strong>: If multiple independent master
+image items exist that are not consumed by a derived image (like a grid)
+and are not auxiliary references (like alpha or thumbnails), the parser
+identifies the file as an image collection. In this scenario, each
+master item represents an autonomous image.</li>
+</ul>
+<h3 id="5-meta-items-vs-movie-tracks-moov">5. Meta Items vs. Movie
+Tracks (<code>moov</code>)</h3>
+<p>The parser checks if the file uses track-based storage via a Movie
+Box (<code>moov</code>):</p>
+<ul>
+<li><strong>Item-based (Meta Box)</strong>: AVIF still images and static
+image collections reside exclusively in the <code>meta</code> box as
+individual items.</li>
+<li><strong>Track-based (Movie Box)</strong>: If visual data is packaged
+in tracks (<code>trak</code>), the file is categorized as an image
+sequence (animation) rather than a static collection.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

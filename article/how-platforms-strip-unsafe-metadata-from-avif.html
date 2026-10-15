@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Platforms Strip Unsafe Metadata from AVIF - avif</title>
+    <meta name="description" content="When users upload AVIF images to social platforms, those files often contain hidden metadata that poses privacy and security risks, including precise GPS coordinates, device serial numbers, and potentially malicious payload injection. To protect user priv">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-platforms-strip-unsafe-metadata-from-avif">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How Platforms Strip Unsafe Metadata from AVIF - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-platforms-strip-unsafe-metadata-from-avif" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="When users upload AVIF images to social platforms, those files often contain hidden metadata that poses privacy and security risks, including precise GPS coordinates, device serial numbers, and potentially malicious payload injection. To protect user priv" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-platforms-strip-unsafe-metadata-from-avif">How Platforms
+Strip Unsafe Metadata from AVIF</h1>
+<p>When users upload AVIF images to social platforms, those files often
+contain hidden metadata that poses privacy and security risks, including
+precise GPS coordinates, device serial numbers, and potentially
+malicious payload injection. To protect user privacy and safeguard
+backend infrastructure, social media networks route incoming AVIF
+uploads through automated media processing pipelines. These pipelines
+deconstruct the file format, discard non-essential metadata blocks,
+sanitize color and rendering properties, and transcode the raw visual
+payload into a secure, normalized output file.</p>
+<h3 id="the-security-and-privacy-risks-in-avif-files">The Security and
+Privacy Risks in AVIF Files</h3>
+<p>AVIF (AV1 Image File Format) utilizes the ISO Base Media File Format
+(ISOBMFF) container. Within this structure, metadata is encapsulated in
+distinct boxes or items. The primary areas of concern include:</p>
+<ul>
+<li><strong>EXIF and XMP Data:</strong> Often stored in dedicated
+<code>exif</code> or <code>xml</code> boxes, these records frequently
+contain sensitive user information such as geolocation coordinates,
+timestamps, camera hardware identifiers, and facial recognition
+tags.</li>
+<li><strong>Arbitrary Data (<code>uuid</code> Boxes):</strong> The
+ISOBMFF standard supports user-defined <code>uuid</code> boxes, which
+can contain proprietary tracking tokens or arbitrary binary data.</li>
+<li><strong>Parser Exploits:</strong> Specially crafted, malformed
+metadata headers can trigger buffer overflows, memory corruption, or
+infinite parsing loops within underlying decoding libraries.</li>
+</ul>
+<h3 id="the-ingest-and-sandboxed-parsing-stage">The Ingest and Sandboxed
+Parsing Stage</h3>
+<p>Before an AVIF file touches a social platform's primary storage or
+Content Delivery Network (CDN), it enters an isolated ingest
+environment.</p>
+<p>To mitigate container-level exploits, platforms deploy sandboxed
+worker instances using isolation tools like gVisor, WebAssembly (Wasm),
+or hardened containers with restricted system calls via
+<code>seccomp</code>. Parsers evaluate the high-level ISOBMFF box
+hierarchy. If the parser detects malformed box headers, nested loops, or
+excessive allocation sizes, the file is rejected immediately before
+further processing occurs.</p>
+<h3 id="deconstruction-and-metadata-stripping">Deconstruction and
+Metadata Stripping</h3>
+<p>Platforms typically do not sanitize files by simply searching for and
+deleting specific metadata bytes. Instead, they employ an
+"allowlist-only" deconstruction model:</p>
+<ol type="1">
+<li><strong>Box Extraction:</strong> The demuxer identifies the image
+item (the primary AV1 compressed bitstream) and separates it from
+auxiliary metadata items.</li>
+<li><strong>Dropping Non-Essential Boxes:</strong> The platform
+explicitly ignores and drops any non-essential boxes, including
+<code>exif</code>, <code>xml</code> (XMP), <code>iptc</code>, and all
+<code>uuid</code> records.</li>
+<li><strong>Color and Orientation Sanitization:</strong> Images often
+require orientation tags and color profiles to display correctly. Rather
+than passing through raw user-supplied color metadata, the platform
+reads the essential properties—such as the NCLX (colour information) box
+or the ICC profile—validates their bounds, and discards any embedded
+application-specific chunks.</li>
+</ol>
+<h3 id="transcoding-and-pixel-normalization">Transcoding and Pixel
+Normalization</h3>
+<p>The most effective method social platforms use to neutralize
+metadata-borne threats is full decoding and re-encoding:</p>
+<ul>
+<li><strong>Pixel Decoding:</strong> Safe AV1 decoders (such as
+<code>dav1d</code> or memory-safe Rust-based implementations) decode the
+compressed AV1 bitstream into raw, uncompressed pixel arrays (such as
+YUV or RGB formats).</li>
+<li><strong>Payload Neutralization:</strong> This step guarantees that
+any malicious code, steganographic payloads, or trailing bytes outside
+the defined image boxes are destroyed, as only the calculated pixel
+values survive the decoding process.</li>
+<li><strong>Re-encoding:</strong> The platform re-encodes the raw pixels
+into the target delivery formats—frequently standardizing into modern
+WebP, optimized AVIF, or fallback JPEG formats at various
+resolutions.</li>
+</ul>
+<p>During the re-encoding step, the system generates a brand-new
+container from scratch. The newly generated ISOBMFF container contains
+only the essential image items, standardized rendering parameters, and
+platform-generated metadata, completely free from the original
+user-submitted metadata.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

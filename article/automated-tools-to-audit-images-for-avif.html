@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automated Tools to Audit Images for AVIF - avif</title>
+    <meta name="description" content="This article examines the primary automated auditing tools used to identify opportunities for converting unoptimized images to the modern AVIF format. Modern websites frequently suffer from degraded performance due to legacy JPEG, PNG, or even older WebP">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/automated-tools-to-audit-images-for-avif">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Automated Tools to Audit Images for AVIF - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/automated-tools-to-audit-images-for-avif" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article examines the primary automated auditing tools used to identify opportunities for converting unoptimized images to the modern AVIF format. Modern websites frequently suffer from degraded performance due to legacy JPEG, PNG, or even older WebP" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="automated-tools-to-audit-images-for-avif">Automated Tools to
+Audit Images for AVIF</h1>
+<p>This article examines the primary automated auditing tools used to
+identify opportunities for converting unoptimized images to the modern
+AVIF format. Modern websites frequently suffer from degraded performance
+due to legacy JPEG, PNG, or even older WebP files that consume excessive
+bandwidth. By integrating automated performance and site-crawling
+utilities into your workflow, you can programmatically detect
+inefficient media assets, calculate potential byte savings, and
+streamline your asset delivery to boost Core Web Vitals.</p>
+<h3 id="google-lighthouse-and-chrome-devtools">Google Lighthouse and
+Chrome DevTools</h3>
+<p>Google Lighthouse is the standard automated auditing tool for web
+performance, available directly inside Chrome DevTools, as a CLI tool,
+or via Node modules.</p>
+<p>Under the "Opportunities" section of its performance report,
+Lighthouse runs the audit titled <strong>"Serve images in next-gen
+formats."</strong> This audit flags all JPEG, PNG, and GIF images on a
+page that could be significantly reduced in size by converting them to
+AVIF or WebP. Lighthouse estimates the exact kilobyte savings per image
+by testing alternative compression levels, allowing developers to see
+the immediate impact AVIF adoption would have on load metrics such as
+Largest Contentful Paint (LCP).</p>
+<h3 id="google-pagespeed-insights">Google PageSpeed Insights</h3>
+<p>PageSpeed Insights (PSI) provides a hosted, automated interface that
+executes Lighthouse audits across both mobile and desktop profiles.</p>
+<p>PSI requires zero installation: entering a URL generates an automated
+report listing specific image URLs that should be transitioned to AVIF.
+Because PSI tests under defined mobile throttling conditions, it
+highlights the real-world latency penalties caused by uncompressed
+legacy formats.</p>
+<h3 id="lighthouse-ci-lhci">Lighthouse CI (LHCI)</h3>
+<p>For automated prevention rather than periodic checks, Lighthouse CI
+integrates directly into continuous integration and deployment (CI/CD)
+pipelines, such as GitHub Actions or GitLab CI.</p>
+<p>LHCI automates the "Serve images in next-gen formats" check against
+every pull request or build. Teams can configure assertion rules that
+automatically fail a build if an unoptimized image exceeds a specified
+byte threshold, preventing unoptimized media from ever reaching
+production.</p>
+<h3 id="webpagetest">WebPageTest</h3>
+<p>WebPageTest offers advanced automated performance diagnostics with
+deeper network packet analysis than standard browser reports.</p>
+<p>Its automated test runs include a dedicated <strong>Image
+Analysis</strong> section. WebPageTest checks each image against modern
+compression standards and models how much bandwidth would be saved by
+transcoding each asset to AVIF. The platform provides detailed visual
+comparisons and waterfalls demonstrating how converting the images would
+accelerate render milestones.</p>
+<h3 id="cloudinary-website-image-analysis-tool">Cloudinary Website Image
+Analysis Tool</h3>
+<p>Cloudinary provides an automated, free image-auditing utility
+specifically tailored to media assets.</p>
+<p>When you submit a URL, the tool crawls all visual assets on the page
+and tests each one against optimal modern formats, including AVIF. The
+generated report categorizes issues by format, compression efficiency,
+and color profile usage, showing the current file size alongside the
+projected AVIF file size and the percentage of data saved.</p>
+<h3 id="debugbear">DebugBear</h3>
+<p>DebugBear is an automated site-monitoring platform that runs
+scheduled Lighthouse-based audits across multiple global locations.</p>
+<p>It continuously monitors pages for unoptimized images and alerts
+teams when new assets bypass next-gen compression practices. DebugBear
+tracks image weight over time, alerting engineers if recent site updates
+introduced non-AVIF images that degraded site speed.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

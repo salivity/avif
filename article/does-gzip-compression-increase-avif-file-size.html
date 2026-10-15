@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Does Gzip Compression Increase AVIF File Size? - avif</title>
+    <meta name="description" content="Applying Gzip compression to an already compressed AVIF file will almost always increase the total transmitted file size rather than reduce it. Because AVIF files are pre-compressed using sophisticated, high-efficiency codecs, their data contains virtuall">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/does-gzip-compression-increase-avif-file-size">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Does Gzip Compression Increase AVIF File Size? - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/does-gzip-compression-increase-avif-file-size" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Applying Gzip compression to an already compressed AVIF file will almost always increase the total transmitted file size rather than reduce it. Because AVIF files are pre-compressed using sophisticated, high-efficiency codecs, their data contains virtuall" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="does-gzip-compression-increase-avif-file-size">Does Gzip
+Compression Increase AVIF File Size?</h1>
+<p>Applying Gzip compression to an already compressed AVIF file will
+almost always increase the total transmitted file size rather than
+reduce it. Because AVIF files are pre-compressed using sophisticated,
+high-efficiency codecs, their data contains virtually no compressible
+redundancy. When a web server forces Gzip on an AVIF image, it adds
+compression headers, block markers, and checksums to high-entropy data,
+resulting in a larger payload and wasted computing resources.</p>
+<h3 id="why-double-compression-fails">Why Double Compression Fails</h3>
+<p>Compression algorithms like Gzip rely on the DEFLATE algorithm, which
+combines LZ77 (finding duplicate strings of bytes) and Huffman coding
+(assigning shorter codes to frequently occurring symbols). For DEFLATE
+to shrink a file, the target data must contain repeating patterns or an
+uneven distribution of bytes.</p>
+<p>AVIF (AV1 Image File Format) relies on the AV1 video codec's
+intra-frame compression. It already uses complex discrete cosine
+transforms (DCT), directional prediction, quantization, and asymmetrical
+numeral systems (ANS) entropy coding to strip away all structural and
+statistical redundancy.</p>
+<p>By the time an AVIF file is generated:</p>
+<ul>
+<li>The byte distribution is nearly uniform.</li>
+<li>The data exhibits maximum information entropy, closely resembling
+random noise.</li>
+<li>There are virtually no repeating byte sequences for LZ77 to
+reference.</li>
+</ul>
+<h3 id="the-source-of-the-size-increase">The Source of the Size
+Increase</h3>
+<p>When Gzip attempts to compress high-entropy data like an AVIF image,
+it cannot find matches to build its sliding dictionary. Instead of
+reducing data, Gzip must emit literal bytes wrapped in framing
+overhead.</p>
+<p>Every Gzip stream must include:</p>
+<ul>
+<li>A 10-byte header (magic numbers, compression method, flags,
+timestamp).</li>
+<li>Optional metadata (original filenames, extra headers).</li>
+<li>Deflate block framing (dynamic Huffman tree structures or
+non-compressed block headers).</li>
+<li>An 8-byte trailer containing a CRC-32 checksum and the uncompressed
+input size modulo <span class="math inline">\(2^{32}\)</span>.</li>
+</ul>
+<p>Because the underlying image data cannot shrink, these mandatory
+headers and framing bits are added directly to the original file size.
+As a result, the transmitted file size grows by anywhere from a dozen to
+several hundred bytes.</p>
+<h3 id="negative-impacts-on-web-performance">Negative Impacts on Web
+Performance</h3>
+<p>Serving Gzipped AVIF files harms performance in three distinct
+ways:</p>
+<ol type="1">
+<li><strong>Wasted Network Bandwidth:</strong> Every request delivers a
+slightly heavier payload over the network, negating the efficiency gains
+of using modern image formats.</li>
+<li><strong>Server CPU Overhead:</strong> The server wastes processing
+power attempting to compress data that cannot be compressed, reducing
+server throughput under heavy traffic.</li>
+<li><strong>Client Latency:</strong> The client's browser must allocate
+memory and CPU cycles to decompress the Gzip layer before passing the
+underlying data to the image decoder, delaying the Largest Contentful
+Paint (LCP).</li>
+</ol>
+<h3 id="best-practices-for-server-configuration">Best Practices for
+Server Configuration</h3>
+<p>Web servers should only compress text-based or uncompressed assets,
+such as HTML, CSS, JavaScript, JSON, XML, and SVG. Binary media
+formats—including AVIF, WebP, JPEG, and PNG—should always be excluded
+from HTTP compression modules like Gzip and Brotli.</p>
+<p>To prevent this issue, ensure your server configuration restricts
+compression strictly to compressible MIME types:</p>
+<ul>
+<li><strong>Nginx:</strong> Ensure <code>image/avif</code> is omitted
+from the <code>gzip_types</code> and <code>brotli_types</code>
+directives.</li>
+<li><strong>Apache:</strong> Use <code>mod_deflate</code> with filters
+that explicitly exclude image formats, or use
+<code>SetEnvIfNoCase Request_URI \.(?:avif|webp|jpe?g|png|gif)$ no-gzip dont-vary</code>.</li>
+<li><strong>Content Delivery Networks (CDNs):</strong> Most modern CDNs
+bypass Gzip and Brotli compression for image MIME types by default, but
+custom compression rules should be audited to verify that binary image
+extensions remain uncompressed.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

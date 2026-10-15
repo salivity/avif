@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inter-Frame Prediction in Animated AVIF Files - avif</title>
+    <meta name="description" content="Animated AVIF files achieve high compression efficiency by relying on the underlying AV1 video coding standard to eliminate temporal redundancy between frames. Because AVIF is an image-specific profile of the ISO Base Media File Format (ISOBMFF) that enca">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/inter-frame-prediction-in-animated-avif-files">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Inter-Frame Prediction in Animated AVIF Files - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/inter-frame-prediction-in-animated-avif-files" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Animated AVIF files achieve high compression efficiency by relying on the underlying AV1 video coding standard to eliminate temporal redundancy between frames. Because AVIF is an image-specific profile of the ISO Base Media File Format (ISOBMFF) that enca" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="inter-frame-prediction-in-animated-avif-files">Inter-Frame
+Prediction in Animated AVIF Files</h1>
+<p>Animated AVIF files achieve high compression efficiency by relying on
+the underlying AV1 video coding standard to eliminate temporal
+redundancy between frames. Because AVIF is an image-specific profile of
+the ISO Base Media File Format (ISOBMFF) that encapsulates raw AV1
+bitstreams, its inter-frame prediction mechanism does not exist as a
+separate image-level protocol. Instead, it utilizes the full suite of
+AV1 motion estimation, multi-frame referencing, and advanced motion
+compensation tools to predict succeeding frames from previous or future
+reference pictures.</p>
+<h3 id="the-codec-level-architecture">The Codec-Level Architecture</h3>
+<p>An animated AVIF file stores an image sequence as a video track
+within an ISOBMFF container. The temporal processing relies on two
+fundamental AV1 frame categories:</p>
+<ul>
+<li><strong>Intra-frames (Key Frames):</strong> Self-contained images
+coded using only spatial prediction within the current frame.</li>
+<li><strong>Inter-frames (Delta Frames):</strong> Frames that depend on
+one or more previously decoded reference frames, storing only the
+residual differences and motion vectors rather than complete pixel
+data.</li>
+</ul>
+<h3 id="multi-reference-frame-buffers">Multi-Reference Frame
+Buffers</h3>
+<p>Unlike older animation formats such as GIF (which uses simple frame
+disposal and differential bounding boxes) or basic video codecs that
+reference only the immediate previous frame, AV1 maintains a pool of up
+to eight distinct reference frames in its frame buffer.</p>
+<p>During inter-prediction, an encoder can select from seven temporal
+reference directions for any given block:</p>
+<ul>
+<li><strong>LAST, LAST2, LAST3:</strong> Frames immediately preceding
+the current frame.</li>
+<li><strong>GOLDEN:</strong> A designated high-quality past frame
+retained across longer intervals.</li>
+<li><strong>BWDREF and ALTREF2:</strong> Backward reference frames used
+in bidirectional prediction.</li>
+<li><strong>ALTREF (Alternative Reference):</strong> An invisible,
+temporally filtered synthetic frame used exclusively as a prediction
+source.</li>
+</ul>
+<p>This structure allows animated AVIF files to retain recurring
+elements—such as a looping background or an oscillating graphic—in
+memory, referencing them later without re-encoding the visual data.</p>
+<h3
+id="block-based-motion-compensation-and-sub-pixel-accuracy">Block-Based
+Motion Compensation and Sub-Pixel Accuracy</h3>
+<p>AV1 partitions frames using a recursive block structure ranging from
+128×128 down to 4×4 pixels. For inter-predicted blocks, the codec
+calculates motion vectors (MVs) that track pixel displacement across
+frames. AV1 supports sub-pixel precision down to 1/8-pel accuracy, using
+high-order interpolation filters (such as 8-tap regular, smooth, or
+sharp filters) to accurately capture fine or slow movements.</p>
+<h3 id="compound-and-masked-prediction">Compound and Masked
+Prediction</h3>
+<p>When predicting a block, AV1 is not limited to a single motion
+vector. It supports compound prediction, combining two distinct
+reference signals via several methods:</p>
+<ul>
+<li><strong>Distance-Weighted Compound:</strong> Weights the two
+prediction signals based on temporal distance from the reference frames
+to the target frame.</li>
+<li><strong>Wedge-Based Prediction:</strong> Splits a block diagonally
+or along predefined shapes using a codebook of wedge masks to blend two
+different motion sources seamlessly.</li>
+<li><strong>Difference-Weighted Prediction:</strong> Dynamically
+calculates a pixel-by-pixel mask based on the absolute differences
+between the two reference sources.</li>
+</ul>
+<h3 id="global-and-warped-motion-compensation">Global and Warped Motion
+Compensation</h3>
+<p>Animated graphics and screen recordings often feature camera pans,
+zooming, or rotational motion. AV1 includes affine and homography
+transformation models:</p>
+<ul>
+<li><strong>Global Motion:</strong> Allows an entire frame to share
+global transformation parameters (translation, rotation, scaling)
+derived from a reference frame, eliminating the need to store individual
+motion vectors for every block.</li>
+<li><strong>Warped Motion:</strong> Locally estimates 2D affine
+transformations using neighboring motion vectors, providing smooth
+continuous prediction for non-rigid or shearing movements.</li>
+</ul>
+<h3 id="overlapped-block-motion-compensation-obmc">Overlapped Block
+Motion Compensation (OBMC)</h3>
+<p>To eliminate boundary discontinuities between adjacent blocks with
+different motion vectors, AV1 applies Overlapped Block Motion
+Compensation. OBMC blends the prediction of the current block with
+predictions formed by extending the motion vectors of adjacent top and
+left neighboring blocks, significantly reducing blockiness and lowering
+the bit-cost of the residual transform stage.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

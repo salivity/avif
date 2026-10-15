@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rendering AVIF Gain Maps Across Mixed-Brightness UI - avif</title>
+    <meta name="description" content="Modern operating systems balance high-dynamic-range (HDR) imagery and standard-dynamic-range (SDR) user interfaces by leveraging AVIF gain maps to dynamically adapt image brightness to target displays. By decoupling a standard base image from an auxiliary">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/rendering-avif-gain-maps-across-mixed-brightness-ui">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Rendering AVIF Gain Maps Across Mixed-Brightness UI - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/rendering-avif-gain-maps-across-mixed-brightness-ui" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Modern operating systems balance high-dynamic-range (HDR) imagery and standard-dynamic-range (SDR) user interfaces by leveraging AVIF gain maps to dynamically adapt image brightness to target displays. By decoupling a standard base image from an auxiliary" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="rendering-avif-gain-maps-across-mixed-brightness-ui">Rendering
+AVIF Gain Maps Across Mixed-Brightness UI</h1>
+<p>Modern operating systems balance high-dynamic-range (HDR) imagery and
+standard-dynamic-range (SDR) user interfaces by leveraging AVIF gain
+maps to dynamically adapt image brightness to target displays. By
+decoupling a standard base image from an auxiliary gain map channel, the
+OS compositor calculates real-time brightness headroom to render vivid
+HDR highlights within an image viewport while preserving consistent,
+unclipped brightness levels across adjacent SDR text, controls, and UI
+chrome.</p>
+<h3 id="the-avif-gain-map-structure">The AVIF Gain Map Structure</h3>
+<p>An AVIF gain map (standardized under ISO 21496-1) consists of two
+main visual elements packaged within a single file: a primary base image
+(typically tone-mapped for standard SDR displays) and an auxiliary
+grayscale or color gain map metadata track. When an operating system
+encounters this format, it reads metadata tags defining minimum and
+maximum headroom values, gamma parameters, and color space boundaries.
+This dual structure guarantees backward compatibility with legacy
+pipelines while providing instructions on how much to boost each pixel's
+luminance on HDR-capable hardware.</p>
+<h3 id="establishing-the-shared-composition-space">Establishing the
+Shared Composition Space</h3>
+<p>Operating system compositors—such as Windows Desktop Window Manager
+(DWM), Apple Quartz/Core Animation, and Android SurfaceFlinger—do not
+composite mixed UI layers in standard sRGB. Instead, they transform all
+incoming UI layers into an intermediate, wide-gamut, floating-point
+color space. Common composition spaces include scRGB (a linear space
+using sRGB primaries where 1.0 represents SDR white) or Rec. 2100
+Linear.</p>
+<p>In this pipeline:</p>
+<ul>
+<li>Traditional SDR UI elements (buttons, menus, text) are normalized to
+a defined target reference luminance, commonly known as SDR white
+(typically mapped between 80 and 203 nits depending on system
+calibration).</li>
+<li>The compositor assigns these SDR elements a relative luminance value
+of 1.0, ensuring their appearance remains stable regardless of overall
+panel brightness settings.</li>
+</ul>
+<h3 id="calculating-real-time-hdr-headroom">Calculating Real-Time HDR
+Headroom</h3>
+<p>Before decoding and displaying the AVIF image, the OS queries the
+display hardware to determine current display headroom (<span
+class="math inline">\(H\)</span>). Headroom represents the ratio between
+the display's peak instantaneous luminance and its current SDR white
+luminance.</p>
+<p>Because display brightness changes based on ambient light sensors,
+user sliders, and power-saving profiles, headroom is dynamic. The OS
+uses this ratio to compute a weight factor between 0.0 (render base SDR
+image directly) and 1.0 (render full HDR reconstruction). If the display
+provides intermediate headroom, the OS interpolates between the minimum
+and maximum capacity defined in the AVIF metadata, preventing hard
+clipping of highlight detail.</p>
+<h3 id="tone-reconstruction-and-mixed-layer-compositing">Tone
+Reconstruction and Mixed-Layer Compositing</h3>
+<p>Once the OS determines the appropriate scaling factor, it
+reconstructs the image pixels in a GPU shader:</p>
+<ol type="1">
+<li><strong>Base Pixel Extraction:</strong> The shader samples the base
+SDR image and converts it from non-linear encoding (such as sRGB
+transfer function) to linear floating-point values.</li>
+<li><strong>Gain Application:</strong> The shader samples the auxiliary
+gain map, normalizes it according to the computed display headroom, and
+mathematically multiplies it with the linear base values.</li>
+<li><strong>Color Space Alignment:</strong> The resulting values are
+transformed to match the OS compositor’s linear composition space.
+Regions intended to be specular highlights or bright light sources
+expand to values well above 1.0.</li>
+</ol>
+<p>Finally, the compositor draws the scene in back-to-front order or via
+an off-screen render target. The UI framework places the reconstructed
+floating-point AVIF texture alongside the 1.0-capped SDR window borders,
+text glyphs, and controls. The combined framebuffer is sent to the
+display controller, which outputs the correct drive levels to the panel,
+achieving localized HDR pop within the image container while preventing
+surrounding UI components from appearing dim, washed out, or excessively
+bright.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

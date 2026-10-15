@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Metadata Standards for Institutional Archiving - avif</title>
+    <meta name="description" content="Archiving institutional collections in the AV1 Image File Format (AVIF) requires robust metadata strategies to ensure long-term preservation, discoverability, provenance, and interoperability. Because AVIF is derived from the High Efficiency Image File Fo">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-metadata-standards-for-institutional-archiving">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Metadata Standards for Institutional Archiving - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-metadata-standards-for-institutional-archiving" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Archiving institutional collections in the AV1 Image File Format (AVIF) requires robust metadata strategies to ensure long-term preservation, discoverability, provenance, and interoperability. Because AVIF is derived from the High Efficiency Image File Fo" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-metadata-standards-for-institutional-archiving">AVIF
+Metadata Standards for Institutional Archiving</h1>
+<p>Archiving institutional collections in the AV1 Image File Format
+(AVIF) requires robust metadata strategies to ensure long-term
+preservation, discoverability, provenance, and interoperability. Because
+AVIF is derived from the High Efficiency Image File Format (HEIF) and
+the ISO Base Media File Format (ISOBMFF), it natively supports embedded
+metadata payloads. This article outlines the recommended metadata
+standards for archiving cultural heritage and institutional assets in
+AVIF, focusing on XMP, Dublin Core, PREMIS, IPTC, and Exif.</p>
+<h2 id="the-avif-container-and-metadata-capabilities">The AVIF Container
+and Metadata Capabilities</h2>
+<p>AVIF stores image items and metadata within standard ISOBMFF boxes.
+For preservation purposes, AVIF files accommodate standard item types
+for metadata payloads, notably:</p>
+<ul>
+<li><code>Exif</code>: Dedicated box containing raw TIFF-header-based
+Exchangeable Image File Format data.</li>
+<li><code>mime</code>: A box designated for MIME-typed data, typically
+used with <code>application/rdf+xml</code> to store Extensible Metadata
+Platform (XMP) packets.</li>
+</ul>
+<p>Because institutional repositories rely on standardized extraction
+tools, adhering to well-defined container payload conventions ensures
+that embedded metadata remains parsable across format migrations and
+software transitions.</p>
+<h2 id="recommended-metadata-standards">Recommended Metadata
+Standards</h2>
+<h3 id="1-extensible-metadata-platform-xmp">1. Extensible Metadata
+Platform (XMP)</h3>
+<p>XMP is the primary recommended carrier for descriptive,
+administrative, and rights metadata within AVIF files. Standardized
+under ISO 16684-1, XMP uses RDF/XML to serialize complex, extensible
+data structures. It allows institutions to embed multiple specialized
+schemas within a single, unified stream inside the AVIF
+<code>mime</code> box without data collisions.</p>
+<h3 id="2-dublin-core-dcmi-via-xmp">2. Dublin Core (DCMI) via XMP</h3>
+<p>For descriptive cataloging, the Dublin Core Metadata Element Set (ISO
+15836) embedded within XMP is the baseline standard for institutional
+archives. It standardizes essential fields such as:</p>
+<ul>
+<li><code>dc:title</code> and <code>dc:creator</code></li>
+<li><code>dc:description</code> and <code>dc:subject</code></li>
+<li><code>dc:date</code> (using ISO 8601 formatting)</li>
+<li><code>dc:rights</code> and <code>dc:identifier</code> (such as
+persistent identifiers like DOIs or ARKs)</li>
+</ul>
+<p>Dublin Core ensures that the digital asset can be ingested into
+federated discovery systems, library catalogs, and open-access
+networks.</p>
+<h3 id="3-premis-preservation-metadata-implementation-strategies">3.
+PREMIS (Preservation Metadata: Implementation Strategies)</h3>
+<p>PREMIS is the international standard for preservation metadata,
+documenting digital provenance, authenticity, and preservation events.
+While full PREMIS records often reside in external repository management
+systems or METS (Metadata Encoding and Transmission Standard) wrappers,
+key PREMIS elements should be mirrored in the embedded XMP container,
+including:</p>
+<ul>
+<li>Fixity information (cryptographic hashes of source files)</li>
+<li>Provenance events (digitization specifications, conversion from
+master RAW or TIFF to AVIF)</li>
+<li>Rights status and archiving permissions</li>
+</ul>
+<h3 id="4-iptc-photo-metadata-standard">4. IPTC Photo Metadata
+Standard</h3>
+<p>The IPTC (International Press Telecommunications Council) standard
+maps directly to XMP and is recommended for administrative and legal
+rights tracking. For institutional repositories, IPTC provides precise
+fields for:</p>
+<ul>
+<li>Copyright notices, licensing conditions, and creator contact
+details</li>
+<li>Institutional credits and attribution requirements</li>
+<li>Controlled vocabulary keywords for subject indexing</li>
+</ul>
+<h3 id="5-exif-exchangeable-image-file-format">5. Exif (Exchangeable
+Image File Format)</h3>
+<p>Exif remains the standard for capturing technical, hardware-level
+metadata at the moment of digitization. For AVIF archives, Exif should
+be retained in the dedicated <code>Exif</code> box to record:</p>
+<ul>
+<li>Capture device specifications (camera, scanner make, and model)</li>
+<li>Lens settings, exposure parameters, and optical resolution</li>
+<li>Color space definitions and baseline technical timestamps</li>
+</ul>
+<h2 id="best-practices-for-institutional-implementation">Best Practices
+for Institutional Implementation</h2>
+<ol type="1">
+<li><strong>UTF-8 Encoding:</strong> Ensure all XMP and descriptive
+string entries use UTF-8 character encoding to prevent character
+corruption during ingest.</li>
+<li><strong>Metadata Synchronization:</strong> Prevent discrepancies
+between Exif and XMP. When both standards hold overlapping data (such as
+creation dates), the XMP Dublin Core entry should be treated as the
+authoritative institutional record.</li>
+<li><strong>Hybrid Architecture:</strong> While embedded metadata within
+AVIF ensures self-documentation if an asset is separated from its host
+system, institutions should maintain synchronized external XML manifests
+(such as METS or MODS) in their digital asset management system
+(DAMS).</li>
+</ol></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

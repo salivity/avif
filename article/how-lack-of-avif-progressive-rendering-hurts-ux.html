@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Lack of AVIF Progressive Rendering Hurts UX - avif</title>
+    <meta name="description" content="Early implementations of the AVIF image format lacked progressive rendering, meaning images could not display a low-quality preview while the rest of the file downloaded. While AVIF delivers exceptional compression efficiency compared to formats like JPEG">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-lack-of-avif-progressive-rendering-hurts-ux">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How Lack of AVIF Progressive Rendering Hurts UX - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-lack-of-avif-progressive-rendering-hurts-ux" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Early implementations of the AVIF image format lacked progressive rendering, meaning images could not display a low-quality preview while the rest of the file downloaded. While AVIF delivers exceptional compression efficiency compared to formats like JPEG" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-lack-of-avif-progressive-rendering-hurts-ux">How Lack of
+AVIF Progressive Rendering Hurts UX</h1>
+<p>Early implementations of the AVIF image format lacked progressive
+rendering, meaning images could not display a low-quality preview while
+the rest of the file downloaded. While AVIF delivers exceptional
+compression efficiency compared to formats like JPEG and WebP, the
+inability to render incrementally introduces a perceived performance
+penalty. This article explores how this technical limitation negatively
+affects visual feedback, perceived load speed, user engagement, and
+performance metrics.</p>
+<h3 id="the-all-or-nothing-loading-problem">The All-or-Nothing Loading
+Problem</h3>
+<p>In traditional progressive formats, such as Progressive JPEG,
+browsers render a low-resolution scan of an image almost immediately,
+progressively refining the details as packets arrive. Early AVIF
+decoders, however, operated on an "all-or-nothing" basis. Users had to
+wait for the entire image payload to download and decode before a single
+pixel appeared. This behavior leaves blank boxes or empty viewports
+during page load, which breaks visual continuity.</p>
+<h3 id="perceived-performance-vs-actual-file-size">Perceived Performance
+vs. Actual File Size</h3>
+<p>User experience depends heavily on perceived speed rather than raw
+download times. Even though an AVIF file might be 30% to 50% smaller
+than an equivalent JPEG, a user staring at a blank space perceives the
+page as slower. Immediate visual feedback reassures users that content
+is arriving. Without progressive scans, users often assume the
+connection has stalled or that the website is unresponsive, leading to
+higher bounce rates, particularly on mobile devices with high
+latency.</p>
+<h3 id="impact-on-core-web-vitals">Impact on Core Web Vitals</h3>
+<p>The absence of progressive rendering directly harms key performance
+metrics, specifically Largest Contentful Paint (LCP). Because LCP
+measures when the main visual content renders on screen, an AVIF hero
+image that does not display until fully transferred delays the LCP
+event. A progressive image, by contrast, can register an earlier paint
+event, improving both perceived speed and search engine ranking
+signals.</p>
+<h3 id="mitigation-strategies">Mitigation Strategies</h3>
+<p>To offset the lack of native progressive decoding, developers must
+implement alternative techniques:</p>
+<ul>
+<li><strong>Low-Quality Image Placeholders (LQIP):</strong> Inlining
+lightweight base64-encoded SVG or low-resolution blur images directly
+into the HTML to show immediate structure.</li>
+<li><strong>Dominant Color Placeholders:</strong> Using CSS background
+colors matching the image to signal that content is loading.</li>
+<li><strong>Strict Dimension Declarations:</strong> Enforcing
+<code>width</code>, <code>height</code>, and <code>aspect-ratio</code>
+in CSS to prevent Cumulative Layout Shift (CLS) while waiting for the
+full AVIF file to decode.</li>
+</ul>
+<p>While newer revisions to the AVIF specification and modern browser
+engines are actively working toward layered, progressive decoding, the
+initial absence of this feature created a distinct trade-off between
+superior data compression and immediate visual feedback.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

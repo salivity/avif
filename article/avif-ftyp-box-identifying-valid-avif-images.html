@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF ftyp Box: Identifying Valid AVIF Images - avif</title>
+    <meta name="description" content="The AV1 Image File Format (AVIF) relies on the ISO Base Media File Format (ISOBMFF) container, where the File Type box, denoted by the four-character code ftyp, serves as the foundational identifier for file validity. This article explains the technical p">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-ftyp-box-identifying-valid-avif-images">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF ftyp Box: Identifying Valid AVIF Images - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-ftyp-box-identifying-valid-avif-images" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The AV1 Image File Format (AVIF) relies on the ISO Base Media File Format (ISOBMFF) container, where the File Type box, denoted by the four-character code ftyp, serves as the foundational identifier for file validity. This article explains the technical p" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-ftyp-box-identifying-valid-avif-images">AVIF ftyp Box:
+Identifying Valid AVIF Images</h1>
+<p>The AV1 Image File Format (AVIF) relies on the ISO Base Media File
+Format (ISOBMFF) container, where the File Type box, denoted by the
+four-character code <code>ftyp</code>, serves as the foundational
+identifier for file validity. This article explains the technical
+purpose of the <code>ftyp</code> box, its internal structure, and how
+decoders read its contents to confirm that a file is indeed a valid AVIF
+document before attempting to decode any pixel data.</p>
+<h3 id="structural-placement-in-the-container">Structural Placement in
+the Container</h3>
+<p>In an ISOBMFF-compliant file, the <code>ftyp</code> box is placed at
+the very beginning of the file structure. Because binary parsers read
+data sequentially, placing the <code>ftyp</code> box first allows
+decoders, web browsers, and operating systems to immediately determine
+whether they can process the file without buffering the entire payload
+into memory. If the <code>ftyp</code> box is missing, corrupted, or
+positioned behind other media data, standard conformant parsers will
+instantly reject the file as invalid.</p>
+<h3 id="components-of-the-ftyp-box">Components of the <code>ftyp</code>
+Box</h3>
+<p>The <code>ftyp</code> box contains metadata fields that explicitly
+state the standards and profiles to which the file adheres:</p>
+<ul>
+<li><strong>Major Brand (<code>major_brand</code>):</strong> A 4-byte
+identifier designating the primary specification used to author the
+file. For standard still AVIF images, this is typically set to
+<code>avif</code>. For image sequences or animated files, it is often
+set to <code>avis</code>.</li>
+<li><strong>Minor Version (<code>minor_version</code>):</strong> A
+4-byte integer indicating the minor specification or revision level of
+the major brand.</li>
+<li><strong>Compatible Brands
+(<code>compatible_brands[]</code>):</strong> A variable-length array of
+4-byte identifiers indicating other specifications with which the file
+remains compatible.</li>
+</ul>
+<h3 id="brand-verification-and-validation">Brand Verification and
+Validation</h3>
+<p>A file is not verified as AVIF purely by its <code>.avif</code> file
+extension, as extensions can be mislabeled or spoofed. Instead, parsers
+inspect the <code>ftyp</code> payload for specific brand codes:</p>
+<ol type="1">
+<li><strong>Primary Conformance:</strong> The parser evaluates the
+<code>major_brand</code>. If it reads <code>avif</code>, the file is
+identified as a still image utilizing AV1 compression within the
+Multi-Image Application Format (MIAF) framework.</li>
+<li><strong>Fallback and Compatibility:</strong> If the
+<code>major_brand</code> contains a generic or related brand (such as
+<code>mif1</code> for generic image items), the parser iterates through
+the <code>compatible_brands</code> list. To be recognized as an AVIF
+document, the array must contain the <code>avif</code> brand (or
+<code>avis</code> for sequences), usually alongside base baseline
+profiles like <code>mif1</code> (HEIF image) and <code>miaf</code> (MIAF
+constrained media).</li>
+</ol>
+<h3 id="the-fast-fail-mechanism">The Fast-Fail Mechanism</h3>
+<p>The functional role of the <code>ftyp</code> box serves as a
+fast-fail gatekeeper. Image decoders must allocate memory and initialize
+dedicated hardware or software AV1 pipelines to process compressed
+frames. By evaluating the <code>ftyp</code> box first, the parser
+confirms:</p>
+<ul>
+<li>The file uses an ISOBMFF-compatible structure.</li>
+<li>The content conforms to constraints required by the AVIF
+specification.</li>
+<li>The software possesses the necessary codec features to decode the
+internal bitstream.</li>
+</ul>
+<p>If the necessary AVIF signatures are absent from both the
+<code>major_brand</code> and the <code>compatible_brands</code> array,
+the parser halts execution immediately, protecting system resources from
+handling incompatible or malicious files.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

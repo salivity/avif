@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exporting HLG Photos to AVIF: HDR Workflow Guide - avif</title>
+    <meta name="description" content="Exporting photographs using Hybrid Log-Gamma (HLG) into the AVIF format allows photographers to preserve true high dynamic range (HDR) luminance and wide color gamuts for compatible displays while maintaining backward compatibility. This guide outlines th">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/exporting-hlg-photos-to-avif-hdr-workflow-guide">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Exporting HLG Photos to AVIF: HDR Workflow Guide - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/exporting-hlg-photos-to-avif-hdr-workflow-guide" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Exporting photographs using Hybrid Log-Gamma (HLG) into the AVIF format allows photographers to preserve true high dynamic range (HDR) luminance and wide color gamuts for compatible displays while maintaining backward compatibility. This guide outlines th" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="exporting-hlg-photos-to-avif-hdr-workflow-guide">Exporting HLG
+Photos to AVIF: HDR Workflow Guide</h1>
+<p>Exporting photographs using Hybrid Log-Gamma (HLG) into the AVIF
+format allows photographers to preserve true high dynamic range (HDR)
+luminance and wide color gamuts for compatible displays while
+maintaining backward compatibility. This guide outlines the complete
+technical workflow for preparing, color managing, and encoding HLG still
+images into the AVIF container, detailing every step from raw
+development to metadata tagging.</p>
+<h3 id="1-source-preparation-and-raw-development">1. Source Preparation
+and Raw Development</h3>
+<p>To achieve a true HLG photograph, the image must either be captured
+natively as an HLG file (available in select mirrorless cameras) or
+developed from a standard camera RAW file.</p>
+<ul>
+<li><strong>Working Color Space:</strong> Set your digital photo
+processor (such as Adobe Lightroom, Camera Raw, or darktable) to a wide
+color gamut capable of containing HDR colors, specifically Rec.
+2020.</li>
+<li><strong>HDR Editing Mode:</strong> Enable the HDR editing pipeline
+in your software. This expands the histogram past standard dynamic range
+(100% / SDR white) to accommodate specular highlights up to 1,000 nits
+or higher.</li>
+<li><strong>Tonal Allocation:</strong> Balance your exposure so that
+diffuse white (paper or standard bright surfaces) sits around standard
+SDR limits (203 nits in HDR grading standards), reserving the higher
+stops of luminance strictly for highlights, reflections, and light
+sources.</li>
+</ul>
+<h3 id="2-setting-the-transfer-function">2. Setting the Transfer
+Function</h3>
+<p>Hybrid Log-Gamma relies on the ARIB STD-B67 standard (defined in
+ITU-R BT.2100). The image data must be mapped to this specific
+electro-optical transfer function (EOTF):</p>
+<ul>
+<li><strong>Gamma vs. Log:</strong> HLG uses a standard gamma curve for
+lower luminance values and a logarithmic curve for higher luminance
+values. Ensure that your output tone response curve is set explicitly to
+BT.2100 HLG rather than PQ (Perceptual Quantizer / SMPTE ST 2084), as PQ
+requires absolute luminance targeting, whereas HLG is scene-referred and
+scales to display capabilities.</li>
+</ul>
+<h3 id="3-bit-depth-and-chroma-subsampling">3. Bit Depth and Chroma
+Subsampling</h3>
+<p>Encoding HLG into AVIF demands precise parameters to prevent color
+banding and compression artifacts in highlight transitions:</p>
+<ul>
+<li><strong>Bit Depth:</strong> Choose 10-bit color. While 8-bit AVIF
+exists, it lacks the precision required for log-based curves and will
+cause noticeable posterization. 12-bit can be used if supported by your
+encoder, but 10-bit provides universal hardware compatibility.</li>
+<li><strong>Pixel Format:</strong> Select <code>YUV420</code> for
+standard distribution and smaller file sizes, or <code>YUV444</code> (or
+full RGB) if high-frequency color detail must be preserved without
+chroma subsampling.</li>
+</ul>
+<h3 id="4-encoding-to-avif-with-nclx-color-metadata">4. Encoding to AVIF
+with NCLX Color Metadata</h3>
+<p>The AVIF container (based on the AV1 video codec) requires proper
+Color Information Box (NCLX) tags so that operating systems and web
+browsers correctly interpret the dynamic range.</p>
+<p>If using a command-line tool like <code>ffmpeg</code> or
+<code>cavif</code>, apply the following ITU-R BT.2100 color
+parameters:</p>
+<ul>
+<li><strong>Color Primaries:</strong> <code>9</code> (BT.2020)</li>
+<li><strong>Transfer Characteristics:</strong> <code>18</code> (ARIB
+STD-B67 / HLG)</li>
+<li><strong>Matrix Coefficients:</strong> <code>9</code> (BT.2020
+non-constant luminance) or <code>0</code> (Identity / RGB, depending on
+whether conversion to YUV occurred)</li>
+<li><strong>Color Range:</strong> Full (<code>pc</code> or
+<code>full</code>)</li>
+</ul>
+<p>If exporting from a GUI application such as Adobe Lightroom or
+Photoshop:</p>
+<ol type="1">
+<li>Select <strong>AVIF</strong> as the file format in the Export
+dialog.</li>
+<li>Check the <strong>HDR Output</strong> option.</li>
+<li>Select <strong>Rec. 2020 HLG</strong> as the export color
+space.</li>
+</ol>
+<h3 id="5-verification-and-validation">5. Verification and
+Validation</h3>
+<p>Before publishing, verify that the image renders correctly across
+platforms:</p>
+<ul>
+<li><strong>Header Inspection:</strong> Use tools like
+<code>exiftool</code> or <code>mp4box</code> to confirm that the NCLX
+property contains <code>primaries: 9</code>, <code>transfer: 18</code>,
+and <code>matrix: 9</code>.</li>
+<li><strong>Display Testing:</strong> Open the exported AVIF file in
+modern web browsers (such as Chrome or Safari) on an HDR-capable
+monitor. On a correctly configured system, the base image will display
+at standard brightness while specular highlights exceed normal display
+white without clipping.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

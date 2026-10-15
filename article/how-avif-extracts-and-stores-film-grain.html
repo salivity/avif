@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How AVIF Extracts and Stores Film Grain - avif</title>
+    <meta name="description" content="The AVIF image format preserves cinematic texture efficiently by using AV1&#39;s film grain synthesis rather than encoding raw noise as standard image data. Traditional transform coding struggles with film grain, interpreting its high-frequency randomness as">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-avif-extracts-and-stores-film-grain">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How AVIF Extracts and Stores Film Grain - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-avif-extracts-and-stores-film-grain" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The AVIF image format preserves cinematic texture efficiently by using AV1&#39;s film grain synthesis rather than encoding raw noise as standard image data. Traditional transform coding struggles with film grain, interpreting its high-frequency randomness as" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-avif-extracts-and-stores-film-grain">How AVIF Extracts and
+Stores Film Grain</h1>
+<p>The AVIF image format preserves cinematic texture efficiently by
+using AV1's film grain synthesis rather than encoding raw noise as
+standard image data. Traditional transform coding struggles with film
+grain, interpreting its high-frequency randomness as complex detail that
+requires excessive bitrate or gets blurred away. AVIF solves this by
+denoising the image during encoding, modeling the isolated grain as a
+set of mathematical parameters, and embedding these instructions into
+the bitstream so the decoder can synthesize identical-looking grain on
+demand.</p>
+<h3 id="step-1-isolating-the-grain-from-the-source">Step 1: Isolating
+the Grain from the Source</h3>
+<p>To model film grain, the AV1 encoder must first separate the
+stochastic noise from the underlying visual content. This separation
+occurs through an advanced denoising pipeline:</p>
+<ol type="1">
+<li><strong>Filtering:</strong> An edge-preserving smoothing filter
+(often a temporal filter for video or a bilateral/wavelet spatial filter
+for still images) processes the source image. This removes
+high-frequency fluctuations while retaining sharp edges, line art, and
+structural textures.</li>
+<li><strong>Residual Calculation:</strong> The encoder subtracts the
+smoothed, denoised image from the original source image. The resulting
+difference represents the noise residual—the pure grain profile across
+color channels.</li>
+<li><strong>Region Partitioning:</strong> The residual is analyzed
+across flat, non-textured regions of the image to ensure that organic
+subject textures (such as skin pores or fabric weaves) are not falsely
+identified as film grain.</li>
+</ol>
+<h3 id="step-2-parameter-extraction-and-modeling">Step 2: Parameter
+Extraction and Modeling</h3>
+<p>Once the residual is isolated, the encoder transforms the pixel-based
+noise into a compact parametric model. AV1 models film grain using an
+Autoregressive (AR) process combined with piecewise linear intensity
+scaling.</p>
+<ul>
+<li><strong>Intensity-Dependent Scaling:</strong> Film grain visibility
+varies with brightness; grain in photographic negative film is typically
+more pronounced in midtones than in deep shadows or highlights. The
+encoder computes the standard deviation of the noise at various
+luminance levels and defines a piecewise linear function. This maps
+input luminance (Y) and chrominance (Cb, Cr) values to a grain scaling
+factor using a series of coordinate points (value and scaling
+weight).</li>
+<li><strong>Autoregressive (AR) Coefficients:</strong> Film grain
+particles exhibit spatial correlation, meaning individual grains clump
+together in specific patterns. The encoder determines the spatial
+correlation between adjacent grain pixels by fitting the noise to an AR
+model. It calculates coefficients that describe how a generated grain
+pixel depends on its immediate neighboring grain pixels (typically up to
+a 3x3 or 5x5 lag window).</li>
+<li><strong>Cross-Channel Correlation:</strong> The encoder measures
+whether the grain in the chroma channels correlates with the luma
+channel, deriving a cross-channel correlation factor to keep colored
+grain natural.</li>
+</ul>
+<h3 id="step-3-storing-parameters-in-the-avif-stream">Step 3: Storing
+Parameters in the AVIF Stream</h3>
+<p>AVIF files are structured using the ISO Base Media File Format
+(ISOBMFF), which wraps underlying AV1 Open Bitstream Units (OBUs). The
+extracted grain parameters are stored inside the AV1 bitstream metadata
+rather than the ISOBMFF container boxes.</p>
+<ol type="1">
+<li><strong>Frame Header OBU Insertion:</strong> When writing the AV1
+bitstream for the AVIF item, the encoder writes the syntax structure
+<code>film_grain_params()</code> directly inside the Frame Header
+OBU.</li>
+<li><strong>Payload Contents:</strong> The
+<code>film_grain_params()</code> structure requires negligible
+storage—typically less than 100 bytes—and includes:
+<ul>
+<li><strong><code>apply_grain</code> flag:</strong> Instructs the
+decoder to enable the synthesis pipeline.</li>
+<li><strong><code>grain_seed</code>:</strong> A 16-bit pseudo-random
+number generator (PRNG) seed that ensures consistent noise generation
+patterns.</li>
+<li><strong><code>scaling_points</code>:</strong> Arrays containing the
+coordinates and values for the piecewise linear intensity functions
+across Y, Cb, and Cr planes.</li>
+<li><strong><code>ar_coeffs</code>:</strong> The integer-quantized
+autoregressive coefficients controlling grain size and clumping
+behavior.</li>
+<li><strong><code>grain_scale_shift</code> and
+<code>ar_coeff_shift</code>:</strong> Bit-shift values used to normalize
+the fixed-point arithmetic across different hardware decoders.</li>
+</ul></li>
+<li><strong>Container Encapsulation:</strong> The AV1 Sequence Header
+and Frame OBUs—now containing the compressed, denoised image data
+alongside the <code>film_grain_params()</code> metadata—are stored
+within an <code>mdat</code> (Media Data) box in the AVIF file. The
+file's metadata maps this item via the <code>hdlr</code> and
+<code>iinf</code> boxes as the primary image item.</li>
+</ol>
+<p>During playback or viewing, an AVIF-compliant decoder decodes the
+clean, low-bitrate base image, parses the
+<code>film_grain_params()</code> struct, and executes a deterministic
+PRNG to synthesize the modeled grain pattern, blending it over the
+output picture before rendering to the display.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

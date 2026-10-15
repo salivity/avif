@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Color Management: ICC Profiles vs NCLX - avif</title>
+    <meta name="description" content="The AVIF image format provides advanced color management capabilities by supporting both traditional International Color Consortium (ICC) profiles and standard NCLX (Colour Information) identifiers. While ICC profiles allow for precise, custom color chara">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-color-management-icc-profiles-vs-nclx">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Color Management: ICC Profiles vs NCLX - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-color-management-icc-profiles-vs-nclx" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The AVIF image format provides advanced color management capabilities by supporting both traditional International Color Consortium (ICC) profiles and standard NCLX (Colour Information) identifiers. While ICC profiles allow for precise, custom color chara" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-color-management-icc-profiles-vs-nclx">AVIF Color
+Management: ICC Profiles vs NCLX</h1>
+<p>The AVIF image format provides advanced color management capabilities
+by supporting both traditional International Color Consortium (ICC)
+profiles and standard NCLX (Colour Information) identifiers. While ICC
+profiles allow for precise, custom color characterization at the cost of
+larger file sizes, NCLX provides an ultra-lightweight, standardized
+mechanism derived from video encoding that is optimized for web
+performance and high-dynamic-range (HDR) workflows. Understanding how
+these two mechanisms operate within the AVIF container is essential for
+balancing visual fidelity, decoding speed, and file payload size.</p>
+<h3 id="the-avif-color-architecture">The AVIF Color Architecture</h3>
+<p>AVIF is derived from the AV1 video codec and encapsulated within the
+ISO Base Media File Format (ISOBMFF). Inside the container, color
+description is handled via the Colour Information Box
+(<code>colr</code>).</p>
+<p>The <code>colr</code> box must specify the color space using one of
+two primary methods:</p>
+<ol type="1">
+<li><strong>NCLX (Colour Information box with <code>colour_type</code>
+set to <code>'nclx'</code>)</strong></li>
+<li><strong>ICC (Colour Information box with <code>colour_type</code>
+set to <code>'prof'</code> or <code>'rICC'</code>)</strong></li>
+</ol>
+<p>An AVIF file can carry either an NCLX payload, an ICC profile, or
+both, though best practice dictates using only one to avoid ambiguity
+and unnecessary overhead.</p>
+<h3 id="nclx-color-identifiers">NCLX Color Identifiers</h3>
+<p>The NCLX mechanism uses predefined numeric codes defined by ITU-T
+H.273 (ISO/IEC 23091-2) to describe the color pipeline. Instead of
+storing complex lookup tables or math curves, NCLX specifies color using
+four discrete parameters:</p>
+<ul>
+<li><strong>Colour Primaries:</strong> Identifies the chromaticity
+coordinates of the red, green, and blue primaries (e.g., BT.709/sRGB,
+Display P3, BT.2020).</li>
+<li><strong>Transfer Characteristics:</strong> Defines the
+electro-optical transfer function (EOTF), such as standard sRGB gamma,
+BT.709, linear, PQ (Perceptual Quantizer for HDR10), or HLG (Hybrid
+Log-Gamma).</li>
+<li><strong>Matrix Coefficients:</strong> Determines the matrix used to
+derive luma and chroma signals from the RGB primaries (e.g., BT.601,
+BT.709, or BT.2020 non-constant luminance).</li>
+<li><strong>Full Range Flag:</strong> A 1-bit value indicating whether
+the signal uses full range (0–255 for 8-bit) or narrow/limited studio
+range (16–235).</li>
+</ul>
+<h4 id="advantages-of-nclx">Advantages of NCLX</h4>
+<ul>
+<li><strong>Minimal Footprint:</strong> An NCLX definition adds only
+about 8 to 12 bytes to the file header, preventing header bloat on small
+web graphics.</li>
+<li><strong>Hardware Integration:</strong> Modern GPUs and mobile
+display pipelines naturally process H.273 parameters in hardware,
+leading to faster decoding and lower power consumption.</li>
+<li><strong>Native HDR Handling:</strong> Common HDR formats like HDR10
+(BT.2020 with PQ) are natively represented without custom transform
+curves.</li>
+</ul>
+<h4 id="limitations-of-nclx">Limitations of NCLX</h4>
+<ul>
+<li><strong>Standardized Spaces Only:</strong> NCLX cannot represent
+non-standard, proprietary, or custom display calibrations. If a color
+space is not defined in ITU-T H.273, NCLX cannot describe it
+accurately.</li>
+</ul>
+<h3 id="icc-profiles">ICC Profiles</h3>
+<p>ICC profiles represent the traditional color management standard used
+in graphic design, photography, and desktop publishing. AVIF supports
+full profiles (<code>prof</code>) and restricted profiles
+(<code>rICC</code>) embedded directly into the <code>colr</code>
+box.</p>
+<p>An ICC profile describes the transformation between a device’s color
+space and a Profile Connection Space (PCS), such as CIELAB or CIEXYZ,
+using one-dimensional transfer curves, 3x3 matrices, or multidimensional
+lookup tables (LUTs).</p>
+<h4 id="advantages-of-icc-profiles">Advantages of ICC Profiles</h4>
+<ul>
+<li><strong>Infinite Flexibility:</strong> ICC profiles can model custom
+printer gamuts, legacy scanner profiles, scientific imaging
+requirements, and specialized wide-gamut monitors.</li>
+<li><strong>Legacy Software Compatibility:</strong> Professional
+image-processing applications that lack native video-parameter pipelines
+rely entirely on ICC engines (like LittleCMS) to perform color
+transformations.</li>
+</ul>
+<h4 id="limitations-of-icc-profiles">Limitations of ICC Profiles</h4>
+<ul>
+<li><strong>Payload Overhead:</strong> Even a stripped-down v4 ICC
+profile often consumes 500 bytes to 3 kilobytes, while complex LUT
+profiles can exceed 100 kilobytes. For small web thumbnails, the ICC
+profile can easily exceed the size of the compressed image data
+itself.</li>
+<li><strong>Performance Overhead:</strong> Parsing and applying ICC
+profiles requires dedicated software routines that cannot always be
+offloaded to display hardware.</li>
+</ul>
+<h3 id="precedence-and-resolution-rules">Precedence and Resolution
+Rules</h3>
+<p>When an AVIF file contains both an NCLX box and an embedded ICC
+profile, conflict resolution rules come into play:</p>
+<ol type="1">
+<li><strong>Decoder Priority:</strong> According to the AVIF
+specification, if both are present, the ICC profile represents the
+definitive, higher-accuracy color description, while the NCLX box acts
+as a fallback for simple decoders or hardware-accelerated video
+pipelines.</li>
+<li><strong>Matrix Extraction:</strong> Even if an ICC profile is used
+for final display rendering, decoders still rely on the NCLX
+<code>matrix_coefficients</code> and range flag to correctly decode the
+YUV pixel data into RGB before passing it to the color management
+module.</li>
+</ol>
+<h3 id="strategic-implementation">Strategic Implementation</h3>
+<p>For web delivery, application interfaces, and standard consumer
+media, NCLX is the preferred standard. It provides native support for
+standard sRGB, Display P3, and Rec. 2020 without inflating file sizes.
+ICC profiles should be reserved for scenarios where exact reproduction
+of proprietary color spaces or professional prepress workflows is
+strictly required.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

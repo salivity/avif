@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Best CRF Values for Lossy AVIF Image Encoding - avif</title>
+    <meta name="description" content="This guide provides a comprehensive overview of choosing the optimal Constant Rate Factor (CRF) values when encoding lossy AVIF images. AVIF offers superior compression efficiency compared to older formats like JPEG and WebP, but achieving the ideal balan">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/best-crf-values-for-lossy-avif-image-encoding">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Best CRF Values for Lossy AVIF Image Encoding - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/best-crf-values-for-lossy-avif-image-encoding" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This guide provides a comprehensive overview of choosing the optimal Constant Rate Factor (CRF) values when encoding lossy AVIF images. AVIF offers superior compression efficiency compared to older formats like JPEG and WebP, but achieving the ideal balan" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="best-crf-values-for-lossy-avif-image-encoding">Best CRF Values
+for Lossy AVIF Image Encoding</h1>
+<p>This guide provides a comprehensive overview of choosing the optimal
+Constant Rate Factor (CRF) values when encoding lossy AVIF images. AVIF
+offers superior compression efficiency compared to older formats like
+JPEG and WebP, but achieving the ideal balance between visual quality
+and file size relies heavily on properly configuring the CRF parameter.
+Below, you will find direct recommendations for target use cases,
+encoder-specific considerations, and actionable best practices to
+optimize your image pipeline.</p>
+<h3 id="understanding-the-avif-crf-scale">Understanding the AVIF CRF
+Scale</h3>
+<p>In most AVIF encoders—such as <code>libavif</code> using the AOMedia
+codec (<code>libaom</code>)—the CRF scale ranges from <strong>0 to
+63</strong>:</p>
+<ul>
+<li><strong>0</strong> represents mathematically lossless compression
+(largest file size).</li>
+<li><strong>63</strong> represents the lowest visual quality and highest
+compression (smallest file size).</li>
+</ul>
+<p>Because the scale is logarithmic, small numeric adjustments produce
+noticeable changes in quality and byte size.</p>
+<h3 id="recommended-crf-ranges-for-common-scenarios">Recommended CRF
+Ranges for Common Scenarios</h3>
+<ul>
+<li><strong>Ultra-High Quality (CRF 15–22):</strong><br />
+Best for professional photography portfolios, detailed artwork, and hero
+assets where compression artifacts cannot be tolerated. At this level,
+images are visually indistinguishable from uncompressed sources on
+high-DPI displays.</li>
+<li><strong>Standard Web Delivery (CRF 25–32):</strong><br />
+The recommended sweet spot for general web usage, e-commerce product
+pages, and blog posts. A CRF of <strong>28 to 30</strong> typically
+yields the best trade-off, offering major byte savings over WebP and
+JPEG without visible degradation at normal viewing distances.</li>
+<li><strong>Aggressive Compression (CRF 35–45):</strong><br />
+Ideal for mobile-first websites, small thumbnails, background decorative
+textures, or low-bandwidth environments. While mild blurring or loss of
+fine high-frequency detail may occur, the image remains coherent without
+severe blockiness.</li>
+<li><strong>Extreme Compression (CRF 46–63):</strong><br />
+Generally not recommended for user-facing production assets, as
+noticeable structural loss and color washing occur.</li>
+</ul>
+<h3 id="factors-influencing-optimal-crf-selection">Factors Influencing
+Optimal CRF Selection</h3>
+<h4 id="1-image-resolution-and-pixel-density">1. Image Resolution and
+Pixel Density</h4>
+<p>Higher-resolution images (such as 4K or high-DPI assets) can sustain
+higher CRF values (e.g., CRF 32–36) because the human eye cannot easily
+detect small compression flaws across a dense pixel grid. Conversely,
+lower-resolution images (such as 400x400 thumbnails) require lower CRF
+values (e.g., CRF 22–26) to prevent visible edge blur and loss of
+crucial structural details.</p>
+<h4 id="2-image-content-and-high-frequency-detail">2. Image Content and
+High-Frequency Detail</h4>
+<ul>
+<li><strong>Complex textures:</strong> Images containing grass, foliage,
+sand, or complex patterns mask compression noise effectively, allowing
+for slightly higher CRF values.</li>
+<li><strong>Smooth gradients:</strong> Large areas of solid color or
+smooth sky gradients are prone to color banding. For images with
+delicate gradients, lower the CRF value or ensure you are encoding in
+10-bit color depth to maintain smooth transitions.</li>
+</ul>
+<h4 id="3-color-depth-8-bit-vs-10-bit">3. Color Depth (8-bit vs.
+10-bit)</h4>
+<p>Whenever possible, encode lossy AVIF images using <strong>10-bit
+color depth</strong> (<code>--depth 10</code> in <code>avifenc</code>),
+even for standard 8-bit source images. The 10-bit encoding space
+drastically reduces banding and visual artifacts, effectively allowing
+you to increase the CRF value by 2 to 4 points to achieve lower file
+sizes with better visual fidelity.</p>
+<h4 id="4-chroma-subsampling">4. Chroma Subsampling</h4>
+<p>While CRF controls quantization, chroma subsampling dictates color
+resolution:</p>
+<ul>
+<li>Use <strong>YUV 4:4:4</strong> (<code>--yuv 444</code>) alongside
+moderate CRF values for UI screenshots, graphics with fine text, and
+synthetic line art to prevent color fringing.</li>
+<li>Use <strong>YUV 4:2:0</strong> (<code>--yuv 420</code>) with
+standard photographic content to maximize compression efficiency.</li>
+</ul>
+<h3 id="best-practices-for-implementation">Best Practices for
+Implementation</h3>
+<ul>
+<li><strong>Standardize on a Baseline:</strong> Begin automated batch
+testing with a default CRF of <strong>28</strong> using 10-bit color
+depth and the default AOM encoder.</li>
+<li><strong>Tune with CPU Effort:</strong> Pair your chosen CRF with an
+appropriate encoder speed preset. In <code>avifenc</code>, a speed
+setting of <code>--speed 4</code> or <code>--speed 6</code> provides a
+solid balance between encoding duration and compression efficiency
+without altering your target CRF.</li>
+<li><strong>Automate Quality Audits:</strong> When building automated
+image pipelines, evaluate output quality against source images using
+perceptual metrics such as <strong>SSIMULACRA2</strong> or
+<strong>Butteraugli</strong> rather than relying solely on fixed CRF
+targets across drastically different content types.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

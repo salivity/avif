@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Native AVIF Decoding in Modern Desktop Browsers - avif</title>
+    <meta name="description" content="Modern desktop web browsers achieve native AVIF (AV1 Image File Format) decoding by coupling container parsers with highly optimized AV1 video decoders and asynchronous rendering pipelines. Rather than relying on plugins or external extensions, engines li">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/native-avif-decoding-in-modern-desktop-browsers">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Native AVIF Decoding in Modern Desktop Browsers - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/native-avif-decoding-in-modern-desktop-browsers" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Modern desktop web browsers achieve native AVIF (AV1 Image File Format) decoding by coupling container parsers with highly optimized AV1 video decoders and asynchronous rendering pipelines. Rather than relying on plugins or external extensions, engines li" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="native-avif-decoding-in-modern-desktop-browsers">Native AVIF
+Decoding in Modern Desktop Browsers</h1>
+<p>Modern desktop web browsers achieve native AVIF (AV1 Image File
+Format) decoding by coupling container parsers with highly optimized AV1
+video decoders and asynchronous rendering pipelines. Rather than relying
+on plugins or external extensions, engines like Chromium, Gecko, and
+WebKit embed dedicated open-source libraries or call system-level media
+APIs to decompress AV1 payloads. This integration extracts image data
+from the underlying container, executes multi-threaded and
+SIMD-optimized decompression, and feeds decoded pixel buffers directly
+into the browser's compositing engine.</p>
+<h3 id="container-parsing-unpacking-isobmff">Container Parsing:
+Unpacking ISOBMFF</h3>
+<p>AVIF files are structured using the ISO Base Media File Format
+(ISOBMFF), similar to HEIF. The first stage of decoding involves
+separating the image metadata from the compressed payload:</p>
+<ol type="1">
+<li><strong>Header and Box Extraction:</strong> The browser parses
+standard ISOBMFF boxes such as <code>ftyp</code> (file type),
+<code>meta</code> (metadata), and <code>iloc</code> (item
+location).</li>
+<li><strong>Metadata Processing:</strong> The browser extracts color
+profile information, including ICC profiles or CICP (Coding-Independent
+Code Points) values, alpha channel associations, and image
+dimensions.</li>
+<li><strong>Payload Isolation:</strong> The primary item data, which
+consists of an AV1 Open Bitstream Unit (OBU), is isolated and dispatched
+to the designated AV1 decoder.</li>
+</ol>
+<p>Browsers like Chrome and Edge rely on the open-source
+<code>libavif</code> C library to manage this unpack stage, while
+Firefox processes container formats through its modular Rust-based
+<code>mp4parse</code> library before dispatching payloads.</p>
+<h3 id="av1-decoding-libraries-by-browser-engine">AV1 Decoding Libraries
+by Browser Engine</h3>
+<p>Because AVIF uses the intra-frame coding tools of the AV1 video
+standard, the core decoding process is handled by the browser's
+underlying AV1 implementation:</p>
+<ul>
+<li><strong>Chromium (Google Chrome, Microsoft Edge, Brave):</strong>
+Chromium utilizes <code>libavif</code> combined with <code>dav1d</code>,
+an AV1 decoder developed by the VideoLAN and FFmpeg communities.
+Chromium originally utilized Google's <code>libgav1</code>, but
+transitioned primarily to <code>dav1d</code> due to its superior
+multi-threading efficiency and extensive assembly optimizations.</li>
+<li><strong>Gecko (Mozilla Firefox):</strong> Firefox also integrates
+<code>dav1d</code>. The browser routes the parsed AV1 bitstream through
+its internal media framework, using Rust wrappers to ensure memory
+safety when interfacing with the C-based decoder.</li>
+<li><strong>WebKit (Apple Safari):</strong> Unlike Chromium and Firefox,
+which bundle their own decoders cross-platform, Safari on macOS offloads
+AVIF decoding directly to native operating system frameworks,
+specifically <code>ImageIO</code> and <code>CoreMedia</code>. Native
+AVIF decoding became active across Apple platforms starting with macOS
+13 (Ventura) and iOS 16.</li>
+</ul>
+<h3
+id="optimization-strategies-simd-and-asynchronous-decoding">Optimization
+Strategies: SIMD and Asynchronous Decoding</h3>
+<p>Still image decoding can introduce page jank if executed
+synchronously on the main thread. Browsers implement several performance
+optimizations:</p>
+<ul>
+<li><strong>SIMD Instructions:</strong> Decoders like <code>dav1d</code>
+feature extensive hand-written assembly utilizing AVX-512, AVX2, and
+SSSE3 on x86_64 architectures, as well as NEON on ARM platforms (such as
+Apple Silicon). This enables fast software decoding, minimizing CPU
+cycle usage even in the absence of dedicated AV1 hardware decoding
+blocks.</li>
+<li><strong>Off-Thread Execution:</strong> Decoding occurs on worker
+threads managed by the browser’s graphics or image-decoding pipeline.
+The main thread remains responsive to user interactions while large
+images decompress in the background.</li>
+<li><strong>Hardware Acceleration:</strong> If the host system features
+an AV1-capable GPU or CPU (such as Intel 11th Gen+, AMD RDNA 3+, NVIDIA
+RTX 30-series+, or Apple M3+), the OS or browser media pipeline can
+offload AV1 frame decoding directly to silicon, significantly reducing
+power draw.</li>
+</ul>
+<h3 id="pixel-conversion-and-compositor-hand-off">Pixel Conversion and
+Compositor Hand-Off</h3>
+<p>Once <code>dav1d</code> or the platform framework decompresses the
+AV1 bitstream, the output typically resides in a planar YUV format (such
+as YUV 4:2:0, 4:2:2, or 4:4:4), often at 8-bit, 10-bit, or 12-bit color
+depths:</p>
+<ol type="1">
+<li><strong>Color Conversion:</strong> The browser converts the YUV data
+to an RGB surface suitable for the display. If the image includes
+high-dynamic-range (HDR) data or a wide color gamut (such as Display P3
+or BT.2020), the browser applies tone mapping and color transformations
+according to the embedded CICP metadata.</li>
+<li><strong>Alpha Compositing:</strong> If the AVIF image includes
+transparency, a secondary auxiliary AV1 stream containing the monochrome
+alpha channel is decoded in parallel and merged with the primary RGB
+frame.</li>
+<li><strong>GPU Upload:</strong> The resulting bitmap buffer is
+transferred to the browser’s rendering engine (Skia in Chromium,
+WebRender in Firefox, or Metal/Quartz in Safari) as a GPU texture,
+allowing the compositor to draw the final element onto the screen.</li>
+</ol></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

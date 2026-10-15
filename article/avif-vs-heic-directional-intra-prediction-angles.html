@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF vs HEIC Directional Intra-Prediction Angles - avif</title>
+    <meta name="description" content="Intra-prediction is essential for modern image compression, removing spatial redundancy by predicting pixel blocks from adjacent, already decoded pixels. When comparing image formats, AVIF (derived from the AV1 video codec) and HEIC (derived from HEVC/H.2">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-vs-heic-directional-intra-prediction-angles">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF vs HEIC Directional Intra-Prediction Angles - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-vs-heic-directional-intra-prediction-angles" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Intra-prediction is essential for modern image compression, removing spatial redundancy by predicting pixel blocks from adjacent, already decoded pixels. When comparing image formats, AVIF (derived from the AV1 video codec) and HEIC (derived from HEVC/H.2" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-vs-heic-directional-intra-prediction-angles">AVIF vs HEIC
+Directional Intra-Prediction Angles</h1>
+<p>Intra-prediction is essential for modern image compression, removing
+spatial redundancy by predicting pixel blocks from adjacent, already
+decoded pixels. When comparing image formats, AVIF (derived from the AV1
+video codec) and HEIC (derived from HEVC/H.265) take distinctly
+different architectural approaches to directional intra-prediction.
+While HEIC utilizes a fixed set of 33 angular modes uniformly mapped
+across standard orientations, AVIF implements a dynamic system combining
+8 nominal directional modes with fine angular deltas, allowing up to 56
+directional angles that deliver greater geometric precision and sharper
+edge reconstruction.</p>
+<h3 id="heic-angular-intra-prediction-architecture">HEIC Angular
+Intra-Prediction Architecture</h3>
+<p>HEIC relies on the intra-frame prediction framework established by
+HEVC (H.265). HEVC defines 35 total intra-prediction modes for coding
+units:</p>
+<ul>
+<li><strong>Mode 0:</strong> Planar mode (for smooth gradients)</li>
+<li><strong>Mode 1:</strong> DC mode (flat, average value)</li>
+<li><strong>Modes 2 through 34:</strong> 33 directional/angular
+modes</li>
+</ul>
+<p>The 33 directional prediction modes in HEIC span angles from roughly
+45 degrees to 225 degrees. Each mode index corresponds directly to a
+fixed slope value that dictates the sample projection direction from the
+top and left reference boundaries. These modes are spaced at fixed
+intervals, providing uniform coverage across horizontal, vertical, and
+diagonal orientations. HEIC signals these modes using a Most Probable
+Mode (MPM) list containing three candidate modes derived from
+neighboring blocks to minimize signaling overhead.</p>
+<h3 id="avif-directional-intra-prediction-architecture">AVIF Directional
+Intra-Prediction Architecture</h3>
+<p>AVIF utilizes the spatial prediction framework of the AV1 codec,
+which structures directional prediction using a base-plus-offset
+mechanism rather than a flat list of fixed angles.</p>
+<p>AV1 defines 8 base directional (nominal) modes:</p>
+<ul>
+<li><strong>V_PRED:</strong> Vertical prediction</li>
+<li><strong>H_PRED:</strong> Horizontal prediction</li>
+<li><strong>D45_PRED, D135_PRED, D203_PRED, D157_PRED, D67_PRED,
+D113_PRED:</strong> Diagonal modes representing standard angles (45°,
+67.5°, 113°, 135°, 157.5°, and 203°).</li>
+</ul>
+<p>To increase directional resolution without bloating mode signaling
+tables, AV1 introduces directional angle deltas. For any nominal
+directional mode, the encoder can signal an angular offset ranging from
+-3 to +3 in increments of approximately 3 degrees.</p>
+<p>With 8 nominal directional modes and 7 possible offset settings (0,
+±1, ±2, ±3), AVIF can express up to <strong>56 directional
+angles</strong>.</p>
+<h3 id="key-differences-and-comparison">Key Differences and
+Comparison</h3>
+<h4 id="1-angular-granularity-and-mode-count">1. Angular Granularity and
+Mode Count</h4>
+<ul>
+<li><strong>HEIC:</strong> Offers 33 fixed directional angles. The
+angular steps between modes are static.</li>
+<li><strong>AVIF:</strong> Offers up to 56 directional angles. The step
+size between offsets is approximately 3 degrees, allowing for nearly 70%
+more directional choices than HEIC.</li>
+</ul>
+<h4 id="2-signaling-and-bitstream-efficiency">2. Signaling and Bitstream
+Efficiency</h4>
+<ul>
+<li><strong>HEIC:</strong> Signals angular direction as a single mode
+index chosen from the 33 options, relying on neighbor correlation (via 3
+MPMs) to reduce bit consumption.</li>
+<li><strong>AVIF:</strong> Employs a two-stage signaling model. The
+encoder signals the primary nominal mode first. If a nominal directional
+mode is chosen, a secondary syntax element signals the angle delta if an
+offset is present. If the edge strictly aligns with a nominal angle, no
+delta overhead is sent.</li>
+</ul>
+<h4 id="3-edge-alignment-and-prediction-accuracy">3. Edge Alignment and
+Prediction Accuracy</h4>
+<ul>
+<li><strong>HEIC:</strong> If an image edge falls between two of the 33
+fixed angles, the predictor must approximate using the nearest available
+mode. This can leave higher residual energy that requires extra
+transform coefficients to correct.</li>
+<li><strong>AVIF:</strong> The finer 3-degree angular increments provide
+tighter alignment with natural image contours, thin lines, and sharp
+textural transitions. By matching subtle angles more closely, AVIF
+produces lower residual energy after prediction.</li>
+</ul>
+<h4 id="4-supporting-non-directional-alternatives">4. Supporting
+Non-Directional Alternatives</h4>
+<p>Both codecs supplement directional prediction with non-directional
+tools. HEIC relies heavily on its Planar mode to model gradual tone
+changes. AVIF supplements its 56 directional angles with an expanded set
+of non-directional modes, including Paeth predictor and three variations
+of Smooth prediction (Smooth, Smooth Horizontal, and Smooth Vertical).
+This ensures that directional modes in AVIF are reserved strictly for
+true edges, while non-directional modes efficiently model soft
+contours.</p>
+<p>AVIF provides significantly finer angular resolution than HEIC (56
+angles versus 33 angles), using a flexible base-plus-delta signaling
+scheme that reduces prediction residuals along complex, arbitrary
+edges.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

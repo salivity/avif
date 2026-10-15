@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How AV1 Loop Restoration Preserves AVIF Gradients - avif</title>
+    <meta name="description" content="Smooth gradients in digital backgrounds are notoriously difficult to compress without introducing visible banding or blotchy artifacts. The AVIF image format overcomes this limitation by leveraging the AV1 video codec’s sophisticated in-loop filtering pip">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-av-1-loop-restoration-preserves-avif-gradients">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How AV1 Loop Restoration Preserves AVIF Gradients - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-av-1-loop-restoration-preserves-avif-gradients" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Smooth gradients in digital backgrounds are notoriously difficult to compress without introducing visible banding or blotchy artifacts. The AVIF image format overcomes this limitation by leveraging the AV1 video codec’s sophisticated in-loop filtering pip" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-av1-loop-restoration-preserves-avif-gradients">How AV1 Loop
+Restoration Preserves AVIF Gradients</h1>
+<p>Smooth gradients in digital backgrounds are notoriously difficult to
+compress without introducing visible banding or blotchy artifacts. The
+AVIF image format overcomes this limitation by leveraging the AV1 video
+codec’s sophisticated in-loop filtering pipeline. Specifically, the AV1
+loop restoration filter acts as an error-correction mechanism that
+reconstructs subtle tonal transitions, effectively eliminating color
+banding and restoring fine details that are typically lost during lossy
+quantization.</p>
+<h2 id="the-challenge-of-compressing-gradients">The Challenge of
+Compressing Gradients</h2>
+<p>In traditional lossy formats like JPEG, gradients—such as sunsets,
+skies, and soft studio backdrops—suffer heavily from quantization.
+Quantization rounds off continuous color values to save data, which
+turns smooth transitions into distinct, stepped bands of color (known as
+false contouring or color banding).</p>
+<p>While standard deblocking filters can smooth the borders between
+compression blocks, they often blur the entire region uniformly. This
+blunt approach fails to restore subtle shifts in luminance and
+chrominance, frequently trading visible block borders for washed-out,
+unnatural smudges.</p>
+<h2 id="how-the-av1-loop-restoration-filter-works">How the AV1 Loop
+Restoration Filter Works</h2>
+<p>The loop restoration filter is the final stage in AV1’s in-loop
+filtering pipeline, operating after both the deblocking filter and the
+Constrained Directional Enhancement Filter (CDEF). Rather than simply
+smoothing or sharpening pixels locally, the loop restoration filter
+attempts to mathematically reverse the distortion introduced by
+compression by comparing the decoded frame against the original source
+frame.</p>
+<p>The encoder divides the image into larger processing blocks called
+Restoration Units (typically ranging from 64x64 to 256x256 pixels). For
+each unit, the encoder evaluates two primary filtering algorithms and
+chooses the one that minimizes mean squared error (MSE), or disables the
+filter if no benefit is found.</p>
+<h3 id="1-the-separable-symmetric-wiener-filter">1. The Separable
+Symmetric Wiener Filter</h3>
+<p>The Wiener filter treats compression artifacts as a mathematical blur
+combined with additive noise. Using statistical coefficients derived
+directly from the uncompressed source, it acts as an inverse filter:</p>
+<ul>
+<li>It analyzes the variance of the degraded pixel area.</li>
+<li>It reverses the blur introduced by prior filtering stages without
+sharpening block boundaries.</li>
+<li>It mathematically pulls tonal values back toward the original subtle
+variations, preventing the flat "stair-step" look of banded
+gradients.</li>
+</ul>
+<h3 id="2-the-dual-self-guided-filter">2. The Dual Self-Guided
+Filter</h3>
+<p>The self-guided restoration filter applies edge-preserving smoothing
+based on guided image filtering. It uses two separate spatial scales
+with different parameters:</p>
+<ul>
+<li>It identifies structural edges versus flat, gradient regions.</li>
+<li>In smooth areas, it applies large-radius filtering to evenly
+distribute luminance and chrominance steps, creating seamless color
+transitions.</li>
+<li>It simultaneously preserves localized contrast, ensuring that subtle
+background textures are not completely erased while the gradient is
+being smoothed.</li>
+</ul>
+<h2 id="why-loop-restoration-excels-on-avif-backgrounds">Why Loop
+Restoration Excels on AVIF Backgrounds</h2>
+<p>The key to AVIF's clean backgrounds is the adaptability of loop
+restoration at the unit level. Because gradients span large surface
+areas, AVIF can configure large restoration units that analyze color
+shifts globally across the background rather than inside isolated 8x8 or
+16x16 transform blocks.</p>
+<p>Furthermore, because loop restoration is an <em>in-loop</em> process,
+the restored frame is used as the reference point if further spatial
+prediction is needed. By sending minimal corrective metadata alongside
+the image bitstream, AVIF can reconstruct pristine, photorealistic
+background transitions at significantly lower bitrates than legacy
+formats.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

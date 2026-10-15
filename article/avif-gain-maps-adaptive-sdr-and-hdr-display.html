@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Gain Maps: Adaptive SDR and HDR Display - avif</title>
+    <meta name="description" content="AVIF supports adaptive display across Standard Dynamic Range (SDR) and High Dynamic Range (HDR) monitors by utilizing gain maps—secondary image channels paired with specific metadata that instruct a display engine how to scale luminance. This technology e">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-gain-maps-adaptive-sdr-and-hdr-display">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Gain Maps: Adaptive SDR and HDR Display - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-gain-maps-adaptive-sdr-and-hdr-display" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="AVIF supports adaptive display across Standard Dynamic Range (SDR) and High Dynamic Range (HDR) monitors by utilizing gain maps—secondary image channels paired with specific metadata that instruct a display engine how to scale luminance. This technology e" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-gain-maps-adaptive-sdr-and-hdr-display">AVIF Gain Maps:
+Adaptive SDR and HDR Display</h1>
+<p>AVIF supports adaptive display across Standard Dynamic Range (SDR)
+and High Dynamic Range (HDR) monitors by utilizing gain maps—secondary
+image channels paired with specific metadata that instruct a display
+engine how to scale luminance. This technology enables a single AVIF
+file to serve a baseline SDR image to standard screens while dynamically
+reconstructing an HDR image tailored to the precise brightness
+capabilities of an HDR display. By adopting standard gain map
+specifications, AVIF bridges the gap between hardware generations
+without requiring duplicate assets or sacrificing backward
+compatibility.</p>
+<h3 id="the-architecture-of-an-avif-gain-map">The Architecture of an
+AVIF Gain Map</h3>
+<p>AVIF (AV1 Image File Format) is built upon the ISO Base Media File
+Format (ISOBMFF). This container structure allows an AVIF file to store
+multiple image items, auxiliary items, and metadata tracks within a
+single payload.</p>
+<p>When an AVIF file includes a gain map, it typically stores:</p>
+<ul>
+<li><strong>A Base Image:</strong> Usually an SDR-rendered version of
+the photo (encoded via the AV1 codec), ensuring full backward
+compatibility with legacy decoders and standard displays.</li>
+<li><strong>An Auxiliary Image (The Gain Map):</strong> A secondary,
+often lower-resolution AV1-encoded grayscale or color image that
+represents the quotient (difference) between the SDR image and the HDR
+rendition.</li>
+<li><strong>Gain Map Metadata:</strong> Standardized metadata (such as
+ISO 21496-1) detailing parameters like minimum and maximum gain values,
+gamma, exposure offsets, and the target display's intended peak
+luminance.</li>
+</ul>
+<h3 id="how-adaptive-rendering-works">How Adaptive Rendering Works</h3>
+<p>When an image viewer or web browser opens an AVIF file with a gain
+map, the display engine executes a multi-step calculation:</p>
+<ol type="1">
+<li><strong>Hardware Interrogation:</strong> The application queries the
+operating system to determine the peak luminance and dynamic range
+capabilities of the connected monitor.</li>
+<li><strong>Weight Calculation:</strong> The engine compares the
+monitor’s peak brightness with the target brightness specified in the
+gain map metadata. It computes an interpolation factor (a weight between
+0.0 and 1.0).</li>
+<li><strong>Map Scaling:</strong> The gain map values are decoded,
+scaled by the calculated weight, and upscaled to match the resolution of
+the base image if necessary.</li>
+<li><strong>Pixel Synthesis:</strong> The base image pixels are
+multiplied by the adjusted gain map values to produce final pixel
+luminance values that match the display's exact peak capability.</li>
+</ol>
+<p>If the monitor is purely SDR, the engine ignores the auxiliary gain
+map entirely and renders the base image, avoiding any performance
+penalty or visual degradation. If the display is capable of 1,000 nits,
+the engine applies the gain map to boost highlights up to 1,000 nits. If
+the display only supports 600 nits, the gain map scales proportionally,
+preventing clipped highlights or washed-out midtones.</p>
+<h3 id="benefits-over-traditional-hdr-formats">Benefits Over Traditional
+HDR Formats</h3>
+<p>Direct HDR images encoded using transfer functions like PQ
+(Perceptual Quantizer) or HLG (Hybrid Log-Gamma) look incorrect or dull
+when shown on an SDR screen without dynamic tone mapping. Conversely,
+hard-clipping an HDR image down to SDR ruins highlights.</p>
+<p>AVIF gain maps solve this by:</p>
+<ul>
+<li><strong>Ensuring Universal Compatibility:</strong> Older software
+and non-HDR displays simply render the SDR base item without error.</li>
+<li><strong>Eliminating Static Tone Mapping:</strong> Instead of relying
+on a monitor's unpredictable internal tone-mapping algorithm, the
+creator's metadata dictates exactly how the image adapts across
+different brightness thresholds.</li>
+<li><strong>Optimizing Bandwidth:</strong> Because gain maps mostly
+contain low-frequency luminance data, they can be downsampled and
+compressed aggressively with AV1, typically adding only 10% to 20% to
+the total file size compared to a standalone SDR image.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>libavif vs libheif: Key Differences for AVIF - avif</title>
+    <meta name="description" content="Choosing the right library to handle AVIF (AV1 Image File Format) images depends heavily on whether your project requires a dedicated, standard-aligned implementation or a multi-format container framework. This article compares libavif and libheif, detail">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/libavif-vs-libheif-key-differences-for-avif">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="libavif vs libheif: Key Differences for AVIF - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/libavif-vs-libheif-key-differences-for-avif" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Choosing the right library to handle AVIF (AV1 Image File Format) images depends heavily on whether your project requires a dedicated, standard-aligned implementation or a multi-format container framework. This article compares libavif and libheif, detail" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="libavif-vs-libheif-key-differences-for-avif">libavif vs libheif:
+Key Differences for AVIF</h1>
+<p>Choosing the right library to handle AVIF (AV1 Image File Format)
+images depends heavily on whether your project requires a dedicated,
+standard-aligned implementation or a multi-format container framework.
+This article compares <code>libavif</code> and <code>libheif</code>,
+detailing their architectural designs, codec handling, feature support,
+and performance characteristics to help you select the right tool for
+decoding and encoding AVIF files.</p>
+<h2 id="project-scope-and-core-architecture">Project Scope and Core
+Architecture</h2>
+<p>The fundamental difference between the two libraries lies in their
+primary mission and architecture:</p>
+<ul>
+<li><strong>libavif</strong> is the official reference library developed
+by the Alliance for Open Media (AOMedia). It is built exclusively for
+reading and writing AVIF files. Because it is dedicated solely to AVIF,
+its API directly maps to the AVIF specification and its underlying
+container structure.</li>
+<li><strong>libheif</strong> is a generic ISO/IEC 23008-12 HEIF (High
+Efficiency Image File Format) container library developed by struktur
+AG. AVIF is simply an implementation of AV1 compression inside a
+HEIF-compliant container. Consequently, <code>libheif</code> abstracts
+the container format, allowing developers to process both HEIC (H.265)
+and AVIF (AV1) using the same high-level API.</li>
+</ul>
+<h2 id="codec-integration-and-dependencies">Codec Integration and
+Dependencies</h2>
+<p>Neither library compresses or decompresses raw AV1 bitstreams
+entirely on its own; instead, both rely on underlying AV1 codecs.
+However, they manage these codecs differently:</p>
+<ul>
+<li><strong>libavif:</strong> Directly integrates with specialized AV1
+engines. It supports <code>dav1d</code> (for ultra-fast decoding),
+<code>libaom</code> (reference encoding/decoding), <code>rav1e</code>
+(Rust-based encoding), and <code>SVT-AV1</code> (multi-threaded
+production encoding). It allows granular control over AV1-specific
+encoder parameters and tiling configurations.</li>
+<li><strong>libheif:</strong> Uses a plugin architecture. It loads codec
+plugins dynamically or statically (such as <code>libaom</code>,
+<code>dav1d</code>, or <code>rav1e</code> for AV1, and <code>x265</code>
+for HEIC). While this provides modularity, codec-specific fine-tuning is
+often mediated through a generic options interface rather than an
+AVIF-tailored API.</li>
+</ul>
+<h2 id="feature-completeness-for-avif-specifications">Feature
+Completeness for AVIF Specifications</h2>
+<p>Because <code>libavif</code> serves as the reference implementation,
+it usually implements cutting-edge AVIF features first:</p>
+<ul>
+<li><strong>AVIF Image Sequences (Animated AVIF):</strong>
+<code>libavif</code> has first-class native support for parsing and
+creating animated AVIF files with precise temporal controls.
+<code>libheif</code> supports image sequences, but handling animated
+playback pipelines can be less direct.</li>
+<li><strong>Advanced Color and HDR:</strong> Both libraries support high
+bit-depth (10-bit, 12-bit), wide color gamuts, and HDR metadata (SMPTE
+2086, CTA-861-3). However, <code>libavif</code> is typically faster at
+integrating evolving draft standards, such as ISO 21496-1 gain maps for
+HDR-SDR backward compatibility.</li>
+<li><strong>Metadata and Transforms:</strong> Both libraries reliably
+handle Exif, XMP, and clean-aperture/rotation transforms embedded within
+the container.</li>
+</ul>
+<h2 id="performance-and-footprint">Performance and Footprint</h2>
+<ul>
+<li><strong>Binary Size and Overhead:</strong> <code>libavif</code> is
+lightweight and has a small footprint when compiled with only
+<code>dav1d</code> for decoding, making it ideal for client-side
+applications, embedded devices, and web browsers (such as Google
+Chrome). <code>libheif</code> introduces extra container-parsing
+abstractions needed for broad HEIF compliance, which can slightly
+increase overhead.</li>
+<li><strong>Throughput:</strong> When paired with the same underlying
+decoder (such as <code>dav1d</code>), raw pixel decoding speeds are
+nearly identical. Any performance disparity typically stems from memory
+allocation strategies during container demuxing, where
+<code>libavif</code> is optimized specifically for AVIF structures.</li>
+</ul>
+<h2 id="ecosystem-and-typical-use-cases">Ecosystem and Typical Use
+Cases</h2>
+<p>Select <strong>libavif</strong> if:</p>
+<ul>
+<li>Your application exclusively targets AVIF.</li>
+<li>You require a lightweight, minimal-dependency footprint (e.g., in a
+browser engine or mobile app).</li>
+<li>You need the latest AVIF-specific draft specifications, animations,
+or advanced tiling controls.</li>
+</ul>
+<p>Select <strong>libheif</strong> if:</p>
+<ul>
+<li>Your application must support both Apple HEIC images and AVIF
+through a single, unified codebase.</li>
+<li>You are integrating image support into desktop software (such as
+GIMP or ImageMagick) that benefits from broad container
+compatibility.</li>
+<li>You need a plugin-based system where decoders can be updated or
+swapped at runtime without recompiling the core application.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

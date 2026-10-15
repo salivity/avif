@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Vary: Accept Works When Serving AVIF Images - avif</title>
+    <meta name="description" content="The Vary: Accept HTTP response header is a critical component of dynamic content negotiation, allowing web servers to deliver next-generation AVIF images to supported browsers while serving legacy formats like JPEG or PNG to unsupported ones from the exac">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-vary-accept-works-when-serving-avif-images">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How Vary: Accept Works When Serving AVIF Images - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-vary-accept-works-when-serving-avif-images" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The Vary: Accept HTTP response header is a critical component of dynamic content negotiation, allowing web servers to deliver next-generation AVIF images to supported browsers while serving legacy formats like JPEG or PNG to unsupported ones from the exac" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-vary-accept-works-when-serving-avif-images">How Vary: Accept
+Works When Serving AVIF Images</h1>
+<p>The <code>Vary: Accept</code> HTTP response header is a critical
+component of dynamic content negotiation, allowing web servers to
+deliver next-generation AVIF images to supported browsers while serving
+legacy formats like JPEG or PNG to unsupported ones from the exact same
+URL. By instructing intermediate caches and content delivery networks
+(CDNs) to store separate versions of a resource based on the client's
+<code>Accept</code> request header, it prevents caching conflicts where
+an unsupported browser might otherwise receive an unrenderable AVIF
+file.</p>
+<h3 id="the-challenge-of-modern-image-delivery">The Challenge of Modern
+Image Delivery</h3>
+<p>AVIF (AV1 Image File Format) offers superior compression and visual
+quality compared to older formats like JPEG and WebP. However, because
+older browsers and some embedded web views do not support AVIF decoding,
+servers cannot blindly serve AVIF assets to all visitors under static
+URLs without breaking the user experience for a segment of their
+audience.</p>
+<h3 id="the-role-of-the-accept-request-header">The Role of the
+<code>Accept</code> Request Header</h3>
+<p>When a modern browser requests an image, it includes an
+<code>Accept</code> header in the HTTP request detailing which image
+formats it can decode.</p>
+<p>For example, a browser that supports AVIF will send:</p>
+<pre class="http"><code>Accept: image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8</code></pre>
+<p>A client that does not support AVIF will omit <code>image/avif</code>
+from this list. The web server inspects this header to decide which
+format to return: an AVIF image if supported, or a fallback format like
+JPEG or WebP if not.</p>
+<h3 id="how-vary-accept-manages-caching">How <code>Vary: Accept</code>
+Manages Caching</h3>
+<p>Content delivery networks, reverse proxies, and local browser caches
+typically use the request URL as the primary cache key. Without
+intervention, if an AVIF-capable browser is the first to request
+<code>/banner.jpg</code>, the CDN would cache the AVIF response under
+that URL. A subsequent request from an older browser for the same URL
+would then receive the cached AVIF payload, resulting in a broken
+image.</p>
+<p>The <code>Vary: Accept</code> header solves this by modifying the
+cache key generation:</p>
+<ol type="1">
+<li><strong>Header Inclusion:</strong> When the server delivers an image
+based on the client's format support, it includes
+<code>Vary: Accept</code> in the response headers.</li>
+<li><strong>Composite Cache Keys:</strong> The caching layer notices the
+<code>Vary: Accept</code> directive and constructs a cache key that
+combines both the URL and the specific value of the client's
+<code>Accept</code> header.</li>
+<li><strong>Partitioned Storage:</strong> The cache stores the AVIF
+version for requests advertising <code>image/avif</code> support and a
+separate JPEG or WebP version for requests that do not.</li>
+<li><strong>Appropriate Delivery:</strong> Subsequent requests are
+matched against both their URL and their <code>Accept</code> header,
+ensuring clients only receive cached versions they can properly
+display.</li>
+</ol>
+<h3 id="best-practices-for-implementation">Best Practices for
+Implementation</h3>
+<p>To make <code>Vary: Accept</code> work efficiently:</p>
+<ul>
+<li><strong>Normalize the <code>Accept</code> Header at the CDN
+Level:</strong> Different browsers send slightly different
+<code>Accept</code> strings, which can cause excessive cache
+fragmentation and lower cache hit ratios. Configure your CDN or edge
+proxy to normalize the incoming <code>Accept</code> header into
+standardized buckets (such as <code>avif</code>, <code>webp</code>, or
+<code>default</code>) before forwarding it to the origin or evaluating
+the cache key.</li>
+<li><strong>Combine with Correct Content-Type:</strong> Always ensure
+the server pairs <code>Vary: Accept</code> with the correct
+<code>Content-Type: image/avif</code> response header so the client
+correctly parses the incoming byte stream.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

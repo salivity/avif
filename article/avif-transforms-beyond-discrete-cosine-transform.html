@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Transforms Beyond Discrete Cosine Transform - avif</title>
+    <meta name="description" content="The AV1 Image File Format (AVIF), derived from the video codec AV1 developed by the Alliance for Open Media, achieves superior compression efficiency over legacy formats like JPEG by modernizing how pixel data is mapped into the frequency domain. While tr">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-transforms-beyond-discrete-cosine-transform">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Transforms Beyond Discrete Cosine Transform - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-transforms-beyond-discrete-cosine-transform" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The AV1 Image File Format (AVIF), derived from the video codec AV1 developed by the Alliance for Open Media, achieves superior compression efficiency over legacy formats like JPEG by modernizing how pixel data is mapped into the frequency domain. While tr" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-transforms-beyond-discrete-cosine-transform">AVIF
+Transforms Beyond Discrete Cosine Transform</h1>
+<p>The AV1 Image File Format (AVIF), derived from the video codec AV1
+developed by the Alliance for Open Media, achieves superior compression
+efficiency over legacy formats like JPEG by modernizing how pixel data
+is mapped into the frequency domain. While traditional image formats
+rely almost exclusively on the standard Discrete Cosine Transform (DCT),
+AVIF introduces a flexible transform framework that incorporates the
+Discrete Sine Transform (DST), the Identity Transform (IDTX), and hybrid
+two-dimensional transform combinations tailored to directional
+intra-prediction and complex visual patterns.</p>
+<h3 id="the-discrete-sine-transform-dst">The Discrete Sine Transform
+(DST)</h3>
+<p>In image compression, prediction algorithms estimate pixel values
+based on adjacent reconstructed blocks, leaving behind a prediction
+residual. The residual error often exhibits asymmetric energy
+distribution; for example, prediction error tends to be smallest near
+the reference boundary and increases farther into the block.</p>
+<p>Standard DCT (specifically DCT-II) assumes symmetric boundary
+conditions and works best when residual energy is evenly spread. AVIF
+addresses this limitation by using the Discrete Sine Transform
+(specifically DST-VII). Mathematically, DST-VII enforces zero-value
+boundary conditions at the starting edge, making it optimal for
+representing residuals that grow monotonically along the prediction
+direction. By concentrating energy into fewer transform coefficients,
+DST reduces high-frequency noise and preserves fine details in
+directional gradients.</p>
+<h3 id="the-identity-transform-idtx">The Identity Transform (IDTX)</h3>
+<p>The Identity Transform bypasses frequency-domain conversion entirely
+along a given axis, effectively leaving the spatial residuals untouched
+prior to quantization.</p>
+<p>Traditional frequency transforms like the DCT assume that visual
+signals are smooth and continuous. When applied to sharp artificial
+discontinuities—such as line art, UI elements, computer graphics, or
+text—DCT causes high-frequency oscillations known as ringing or Gibbs
+phenomenon. By employing the Identity Transform, AVIF quantizes spatial
+pixel values directly. This avoids blurring, eliminates halo artifacts
+around sharp edges, and dramatically improves compression ratios for
+screen-content images.</p>
+<h3 id="asymmetric-and-hybrid-2d-transform-combinations">Asymmetric and
+Hybrid 2D Transform Combinations</h3>
+<p>AVIF does not restrict a block to using the same mathematical
+transform in both the horizontal and vertical directions. Instead, it
+treats 2D transforms as separable operations, allowing the encoder to
+pair different 1D transforms along the X and Y axes.</p>
+<p>An encoder can choose from up to 16 combinations for a given block,
+mixing and matching:</p>
+<ul>
+<li><strong>DCT / DCT:</strong> Standard symmetric frequency
+compaction.</li>
+<li><strong>DCT / DST or DST / DCT:</strong> Ideal for blocks with
+directional intra-prediction along one axis and smooth variation along
+the other.</li>
+<li><strong>IDTX / DCT or DCT / IDTX:</strong> Ideal for textures with
+vertical or horizontal stripes, scanlines, or straight boundaries.</li>
+<li><strong>IDTX / IDTX:</strong> A complete bypass of frequency
+transforms in both dimensions for complex sharp patterns.</li>
+</ul>
+<h3 id="non-square-and-large-transform-sizes">Non-Square and Large
+Transform Sizes</h3>
+<p>Beyond introducing new transform types, AVIF expands the physical
+geometry to which these transforms apply. Legacy JPEG restricts DCT
+operations to rigid 8×8 square blocks. AVIF supports transform sizes
+ranging from 4×4 up to 64×64 pixels, including non-square rectangular
+shapes with 1:2, 2:1, 1:4, and 4:1 aspect ratios (such as 4×16 or 32×8).
+Applying DST, DCT, and Identity transforms across rectangular partitions
+allows AVIF to match the natural geometry of edges and gradients far
+more accurately, minimizing residual energy before entropy coding.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schema Markup for AVIF Product Photos - avif</title>
+    <meta name="description" content="This article outlines the recommended Schema.org configurations for implementing AVIF product photos on e-commerce websites. You will learn how to structure JSON-LD using the ImageObject specification, declare the proper MIME type, define essential dimens">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/schema-markup-for-avif-product-photos">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Schema Markup for AVIF Product Photos - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/schema-markup-for-avif-product-photos" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article outlines the recommended Schema.org configurations for implementing AVIF product photos on e-commerce websites. You will learn how to structure JSON-LD using the ImageObject specification, declare the proper MIME type, define essential dimens" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="schema-markup-for-avif-product-photos">Schema Markup for AVIF
+Product Photos</h1>
+<p>This article outlines the recommended Schema.org configurations for
+implementing AVIF product photos on e-commerce websites. You will learn
+how to structure JSON-LD using the <code>ImageObject</code>
+specification, declare the proper MIME type, define essential
+dimensional properties, and provide fallback formats to ensure optimal
+search engine indexing and rich result eligibility.</p>
+<h3 id="use-the-imageobject-specification">Use the
+<code>ImageObject</code> Specification</h3>
+<p>When referencing product images in modern formats like AVIF, avoid
+using a single string URL for the <code>image</code> property. Instead,
+expand the property into an <code>ImageObject</code>. This structure
+allows you to pass technical metadata directly to web crawlers, removing
+ambiguity about file type and dimensions.</p>
+<h3 id="declare-the-correct-encodingformat">Declare the Correct
+<code>encodingFormat</code></h3>
+<p>Search engines rely on accurate MIME types to understand how to
+process modern file formats. AVIF files must be explicitly declared
+using the standard MIME type:</p>
+<ul>
+<li><strong>Property:</strong> <code>encodingFormat</code></li>
+<li><strong>Value:</strong> <code>image/avif</code></li>
+</ul>
+<p>Explicitly declaring this property ensures crawlers do not have to
+inspect the binary header or rely solely on file extensions to determine
+format support.</p>
+<h3 id="define-explicit-dimensions">Define Explicit Dimensions</h3>
+<p>Search engines use image dimensions to determine eligibility for rich
+snippets, Discover, and merchant listings. Always include the exact
+pixel dimensions:</p>
+<ul>
+<li><strong><code>width</code>:</strong> The width of the image in
+pixels (e.g., <code>1200</code>).</li>
+<li><strong><code>height</code>:</strong> The height of the image in
+pixels (e.g., <code>1200</code>).</li>
+</ul>
+<p>For Google Search, product images must meet minimum size requirements
+(typically at least 50,000 total pixels, with high-resolution images of
+at least 1200px width recommended for advanced placements).</p>
+<h3 id="provide-multi-format-fallbacks">Provide Multi-Format
+Fallbacks</h3>
+<p>While Googlebot supports AVIF images, not all third-party parsers,
+social crawlers, or feed consumers render AVIF properly. The standard
+recommendation is to supply an array of <code>ImageObject</code>
+entities within the <code>image</code> field, providing the AVIF version
+alongside a universally supported format such as WebP or JPEG.</p>
+<h3 id="recommended-json-ld-configuration">Recommended JSON-LD
+Configuration</h3>
+<p>Below is the recommended JSON-LD structure for a product referencing
+an AVIF image with a JPEG fallback:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;@context&quot;</span><span class="fu">:</span> <span class="st">&quot;https://schema.org/&quot;</span><span class="fu">,</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;@type&quot;</span><span class="fu">:</span> <span class="st">&quot;Product&quot;</span><span class="fu">,</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Ergonomic Office Chair&quot;</span><span class="fu">,</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;image&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;@type&quot;</span><span class="fu">:</span> <span class="st">&quot;ImageObject&quot;</span><span class="fu">,</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;contentUrl&quot;</span><span class="fu">:</span> <span class="st">&quot;https://example.com/images/chair-front.avif&quot;</span><span class="fu">,</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;encodingFormat&quot;</span><span class="fu">:</span> <span class="st">&quot;image/avif&quot;</span><span class="fu">,</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;width&quot;</span><span class="fu">:</span> <span class="dv">1200</span><span class="fu">,</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;height&quot;</span><span class="fu">:</span> <span class="dv">1200</span><span class="fu">,</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;caption&quot;</span><span class="fu">:</span> <span class="st">&quot;Front view of Ergonomic Office Chair&quot;</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;@type&quot;</span><span class="fu">:</span> <span class="st">&quot;ImageObject&quot;</span><span class="fu">,</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;contentUrl&quot;</span><span class="fu">:</span> <span class="st">&quot;https://example.com/images/chair-front.jpg&quot;</span><span class="fu">,</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;encodingFormat&quot;</span><span class="fu">:</span> <span class="st">&quot;image/jpeg&quot;</span><span class="fu">,</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;width&quot;</span><span class="fu">:</span> <span class="dv">1200</span><span class="fu">,</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;height&quot;</span><span class="fu">:</span> <span class="dv">1200</span><span class="fu">,</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;caption&quot;</span><span class="fu">:</span> <span class="st">&quot;Front view of Ergonomic Office Chair&quot;</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;description&quot;</span><span class="fu">:</span> <span class="st">&quot;High-performance mesh ergonomic office chair.&quot;</span><span class="fu">,</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;sku&quot;</span><span class="fu">:</span> <span class="st">&quot;CHAIR-001&quot;</span><span class="fu">,</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;offers&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;@type&quot;</span><span class="fu">:</span> <span class="st">&quot;Offer&quot;</span><span class="fu">,</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;priceCurrency&quot;</span><span class="fu">:</span> <span class="st">&quot;USD&quot;</span><span class="fu">,</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;price&quot;</span><span class="fu">:</span> <span class="st">&quot;299.99&quot;</span><span class="fu">,</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;availability&quot;</span><span class="fu">:</span> <span class="st">&quot;https://schema.org/InStock&quot;</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<h3 id="server-side-requirements">Server-Side Requirements</h3>
+<p>Schema markup must match your server's delivery configuration:</p>
+<ul>
+<li><strong>HTTP Headers:</strong> Ensure your server serves the AVIF
+asset with the <code>Content-Type: image/avif</code> response header. A
+mismatch between the schema <code>encodingFormat</code> and the actual
+HTTP header can cause parsing failures.</li>
+<li><strong>Crawlability:</strong> Verify that the image URLs listed in
+<code>contentUrl</code> are not blocked by <code>robots.txt</code> and
+return a standard <code>200 OK</code> HTTP status code without
+unnecessary redirects.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

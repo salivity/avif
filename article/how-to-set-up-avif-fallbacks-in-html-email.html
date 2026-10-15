@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Set Up AVIF Fallbacks in HTML Email - avif</title>
+    <meta name="description" content="AVIF delivers superior compression and image fidelity compared to legacy formats, but inconsistent rendering support across major email clients prevents it from being used as a standalone solution. To leverage the bandwidth savings of AVIF without sacrifi">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-to-set-up-avif-fallbacks-in-html-email">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How to Set Up AVIF Fallbacks in HTML Email - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-to-set-up-avif-fallbacks-in-html-email" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="AVIF delivers superior compression and image fidelity compared to legacy formats, but inconsistent rendering support across major email clients prevents it from being used as a standalone solution. To leverage the bandwidth savings of AVIF without sacrifi" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-to-set-up-avif-fallbacks-in-html-email">How to Set Up AVIF
+Fallbacks in HTML Email</h1>
+<p>AVIF delivers superior compression and image fidelity compared to
+legacy formats, but inconsistent rendering support across major email
+clients prevents it from being used as a standalone solution. To
+leverage the bandwidth savings of AVIF without sacrificing
+deliverability or visual rendering, email marketers must implement
+multi-format fallback strategies. This article details practical methods
+for layering AVIF, WebP, and traditional formats (PNG or JPEG) using the
+HTML5 <code>&lt;picture&gt;</code> tag, conditional markup for desktop
+Outlook, and CSS-based background replacements.</p>
+<h2 id="the-multi-format-strategy-avif-webp-and-jpegpng">The
+Multi-Format Strategy: AVIF, WebP, and JPEG/PNG</h2>
+<p>A reliable multi-format delivery pipeline operates on progressive
+enhancement: deliver the smallest, highest-quality format (AVIF) to
+modern clients, fall back to WebP for intermediate clients, and serve
+universal formats (JPEG or PNG) to legacy clients.</p>
+<p>Because email rendering engines vary dramatically—from WebKit in
+Apple Mail to the Microsoft Word engine in desktop Outlook—relying
+solely on a standard <code>&lt;img&gt;</code> tag with an AVIF source
+will lead to broken image icons for a large portion of your subscriber
+base.</p>
+<h2 id="implementing-the-picture-element">Implementing the
+<code>&lt;picture&gt;</code> Element</h2>
+<p>The primary method for serving AVIF with fallbacks is the HTML5
+<code>&lt;picture&gt;</code> element. Modern webmail clients and mobile
+apps that support AVIF evaluate the <code>&lt;source&gt;</code> elements
+sequentially and render the first supported MIME type.</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode html"><code class="sourceCode html"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">picture</span><span class="dt">&gt;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="co">&lt;!-- AVIF for fully compatible clients --&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">source</span><span class="ot"> srcset</span><span class="op">=</span><span class="st">&quot;https://example.com/hero.avif&quot;</span><span class="ot"> type</span><span class="op">=</span><span class="st">&quot;image/avif&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="co">&lt;!-- WebP for clients supporting intermediate modern formats --&gt;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">source</span><span class="ot"> srcset</span><span class="op">=</span><span class="st">&quot;https://example.com/hero.webp&quot;</span><span class="ot"> type</span><span class="op">=</span><span class="st">&quot;image/webp&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="co">&lt;!-- Universal fallback for legacy engines --&gt;</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">img</span><span class="ot"> src</span><span class="op">=</span><span class="st">&quot;https://example.com/hero.jpg&quot;</span><span class="ot"> alt</span><span class="op">=</span><span class="st">&quot;Campaign visual&quot;</span><span class="ot"> width</span><span class="op">=</span><span class="st">&quot;600&quot;</span><span class="ot"> height</span><span class="op">=</span><span class="st">&quot;300&quot;</span><span class="ot"> style</span><span class="op">=</span><span class="st">&quot;display: block; width: 100%; max-width: 600px; height: auto;&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">picture</span><span class="dt">&gt;</span></span></code></pre></div>
+<p>When structuring this block:</p>
+<ul>
+<li>Always place the <code>image/avif</code> source first.</li>
+<li>Follow with <code>image/webp</code>.</li>
+<li>Place the standard <code>&lt;img&gt;</code> tag last with a
+universally supported JPEG or PNG. Attributes such as <code>alt</code>,
+<code>width</code>, <code>height</code>, and inline styling must live on
+the nested <code>&lt;img&gt;</code> tag, as the browser inherits these
+properties when rendering the selected <code>&lt;source&gt;</code>.</li>
+</ul>
+<h2 id="handling-microsoft-outlook-desktop">Handling Microsoft Outlook
+Desktop</h2>
+<p>Desktop versions of Microsoft Outlook (2007 through 2021) utilize the
+Word rendering engine, which does not recognize the
+<code>&lt;picture&gt;</code> element or modern image formats. Outlook
+often attempts to parse the tags incorrectly, potentially causing layout
+collapse or rendering blank spaces.</p>
+<p>To prevent Outlook rendering issues, wrap the
+<code>&lt;picture&gt;</code> element in conditional comments so that
+Outlook only sees standard HTML:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode html"><code class="sourceCode html"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">&lt;!--[if !mso]&gt;&lt;!--&gt;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">picture</span><span class="dt">&gt;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">source</span><span class="ot"> srcset</span><span class="op">=</span><span class="st">&quot;https://example.com/hero.avif&quot;</span><span class="ot"> type</span><span class="op">=</span><span class="st">&quot;image/avif&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">source</span><span class="ot"> srcset</span><span class="op">=</span><span class="st">&quot;https://example.com/hero.webp&quot;</span><span class="ot"> type</span><span class="op">=</span><span class="st">&quot;image/webp&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">&lt;!--&lt;![endif]--&gt;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">img</span><span class="ot"> src</span><span class="op">=</span><span class="st">&quot;https://example.com/hero.jpg&quot;</span><span class="ot"> alt</span><span class="op">=</span><span class="st">&quot;Campaign visual&quot;</span><span class="ot"> width</span><span class="op">=</span><span class="st">&quot;600&quot;</span><span class="ot"> height</span><span class="op">=</span><span class="st">&quot;300&quot;</span><span class="ot"> style</span><span class="op">=</span><span class="st">&quot;display: block; width: 100%; max-width: 600px; height: auto;&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">&lt;!--[if !mso]&gt;&lt;!--&gt;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">picture</span><span class="dt">&gt;</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">&lt;!--&lt;![endif]--&gt;</span></span></code></pre></div>
+<p>In this pattern, non-Outlook clients process the full
+<code>&lt;picture&gt;</code> element with AVIF and WebP sources, while
+Outlook bypasses the modern markup entirely and renders only the
+standard <code>&lt;img&gt;</code> tag with the JPEG fallback.</p>
+<h2 id="configuring-fallbacks-for-css-background-images">Configuring
+Fallbacks for CSS Background Images</h2>
+<p>When using images as backgrounds rather than inline content, the
+<code>&lt;picture&gt;</code> element cannot be used. Instead, use CSS
+cascading rules paired with <code>@supports</code> queries in an
+embedded <code>&lt;style&gt;</code> block.</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode css"><code class="sourceCode css"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">.hero-cell</span> {</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="co">/* Baseline fallback for all clients */</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">background-image</span><span class="ch">:</span> <span class="fu">url(</span><span class="st">&#39;https://example.com/bg.jpg&#39;</span><span class="fu">)</span><span class="op">;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="im">@supports</span> <span class="fu">(</span><span class="kw">background-image</span><span class="ch">:</span> <span class="fu">url(</span><span class="st">&#39;https://example.com/test.webp&#39;</span><span class="fu">))</span> {</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">.hero-cell</span> {</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">background-image</span><span class="ch">:</span> <span class="fu">url(</span><span class="st">&#39;https://example.com/bg.webp&#39;</span><span class="fu">)</span><span class="op">;</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="im">@supports</span> <span class="fu">(</span><span class="kw">background-image</span><span class="ch">:</span> <span class="fu">url(</span><span class="st">&#39;https://example.com/test.avif&#39;</span><span class="fu">))</span> {</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">.hero-cell</span> {</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">background-image</span><span class="ch">:</span> <span class="fu">url(</span><span class="st">&#39;https://example.com/bg.avif&#39;</span><span class="fu">)</span><span class="op">;</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>Email clients that strip <code>&lt;style&gt;</code> blocks or ignore
+<code>@supports</code> will retain the default JPEG declared in the
+primary rule.</p>
+<h2 id="verification-and-testing">Verification and Testing</h2>
+<p>Before deploying campaigns featuring AVIF:</p>
+<ul>
+<li><strong>Inspect Gmail behavior:</strong> Depending on the platform
+(iOS, Android, or web), Gmail's Image Proxy caches images on Google's
+servers. Ensure the proxy successfully requests and converts or displays
+your fallbacks without truncating your code.</li>
+<li><strong>Check Apple Mail:</strong> Apple devices on recent OS
+versions natively support AVIF, making them the primary beneficiary of
+bandwidth reductions.</li>
+<li><strong>Automated Render Testing:</strong> Run your email through
+testing suites such as Litmus or Email on Acid to confirm that clients
+without AVIF support fall back cleanly to WebP or JPEG without rendering
+duplicate images or empty boxes.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

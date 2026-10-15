@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caching Strategies for Dynamic AVIF Conversion - avif</title>
+    <meta name="description" content="Dynamic AVIF conversion delivers superior image compression and visual quality compared to legacy formats, but its encoding process demands substantial CPU resources. To prevent high latency and server exhaustion, web servers must implement multi-layered">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/caching-strategies-for-dynamic-avif-conversion">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Caching Strategies for Dynamic AVIF Conversion - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/caching-strategies-for-dynamic-avif-conversion" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Dynamic AVIF conversion delivers superior image compression and visual quality compared to legacy formats, but its encoding process demands substantial CPU resources. To prevent high latency and server exhaustion, web servers must implement multi-layered" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="caching-strategies-for-dynamic-avif-conversion">Caching
+Strategies for Dynamic AVIF Conversion</h1>
+<p>Dynamic AVIF conversion delivers superior image compression and
+visual quality compared to legacy formats, but its encoding process
+demands substantial CPU resources. To prevent high latency and server
+exhaustion, web servers must implement multi-layered caching
+architectures. Effective strategies include rigorous content negotiation
+via the <code>Vary</code> header, edge-level caching through Content
+Delivery Networks (CDNs), tiered origin storage, and asynchronous
+background generation using <code>stale-while-revalidate</code>
+directives.</p>
+<h3 id="content-negotiation-with-the-vary-header">Content Negotiation
+with the Vary Header</h3>
+<p>Dynamic AVIF delivery relies on HTTP content negotiation. When a
+browser requests an image, it indicates format support through the
+<code>Accept: image/avif</code> header. Web servers handling on-the-fly
+conversion must return the <code>Vary: Accept</code> HTTP response
+header.</p>
+<p>This header instructs downstream intermediaries, proxies, and browser
+caches to store distinct versions of the resource under the exact same
+URL. Without <code>Vary: Accept</code>, a non-supporting browser might
+be served an AVIF image cached from an earlier request, or a modern
+browser might receive an uncompressed JPEG or WebP fallback.</p>
+<h3 id="edge-caching-via-content-delivery-networks-cdns">Edge Caching
+via Content Delivery Networks (CDNs)</h3>
+<p>Because AVIF encoding has high computational overhead, transformation
+should occur as close to the user as possible, or be cached aggressively
+at the edge to protect origin servers. Modern CDNs can intercept
+incoming requests, evaluate the <code>Accept</code> header, and serve a
+cached AVIF file from an edge node.</p>
+<p>To maximize edge cache hit ratios:</p>
+<ul>
+<li><strong>Normalize the <code>Accept</code> header:</strong> CDNs
+should normalize the diverse <code>Accept</code> strings sent by
+different browsers into a boolean state (e.g.,
+<code>avif-supported: true</code>) to avoid cache fragmentation.</li>
+<li><strong>Cache on unique cache keys:</strong> Construct edge cache
+keys that combine the asset URL, dimensions, quality parameters, and the
+resolved format (<code>avif</code>).</li>
+</ul>
+<h3 id="tiered-local-caching-at-the-origin">Tiered Local Caching at the
+Origin</h3>
+<p>When a request misses the edge cache and reaches the origin server,
+dynamic conversion must not execute repeatedly for identical parameters.
+A two-tier caching layer on the origin server mitigates processing
+bottlenecks:</p>
+<ol type="1">
+<li><strong>In-Memory Cache (RAM):</strong> Retains high-frequency
+metadata, lookup tables, and ultra-popular AVIF assets using algorithms
+like Least Recently Used (LRU).</li>
+<li><strong>Persistent Disk Storage (NVMe/SSD):</strong> Stores
+converted AVIF files permanently or with a long Time-To-Live (TTL). The
+storage path should hash the transformation parameters (such as
+<code>/cache/avif/q80_w800/hash.avif</code>).</li>
+</ol>
+<p>The web server (e.g., NGINX, Apache, or Caddy) should check local
+disk storage for the pre-generated AVIF file before delegating the
+request to an image processing worker (like libvips or an external
+service).</p>
+<h3 id="asynchronous-generation-and-stale-while-revalidate">Asynchronous
+Generation and Stale-While-Revalidate</h3>
+<p>Real-time AVIF encoding can introduce Time to First Byte (TTFB)
+spikes of several hundred milliseconds. To solve this, servers should
+implement the <code>stale-while-revalidate</code> Cache-Control
+directive:</p>
+<pre class="http"><code>Cache-Control: public, max-age=31536000, stale-while-revalidate=86400</code></pre>
+<p>When an AVIF file expires:</p>
+<ul>
+<li>The client immediately receives the cached version, avoiding latency
+penalties.</li>
+<li>The server re-encodes and updates the AVIF file asynchronously in
+the background.</li>
+</ul>
+<p>For cold cache misses where an AVIF file does not yet exist, servers
+can fall back to a faster-encoding format like WebP or standard JPEG for
+the initial request, while placing the AVIF conversion task into a
+background processing queue.</p>
+<h3 id="cache-invalidation-via-asset-fingerprinting">Cache Invalidation
+via Asset Fingerprinting</h3>
+<p>Purging cached AVIF assets across CDNs and browser caches can be
+challenging when the original source image changes. Rather than using
+administrative purge APIs, use URL fingerprinting (e.g.,
+<code>image.a1b2c3.jpg?format=avif</code>). When the source image
+changes, its hash changes, creating an entirely new cache key that
+triggers a one-time conversion and guarantees immediate consistency
+across all caching layers.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

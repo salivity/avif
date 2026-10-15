@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Performance on Dense Document Scans and Text - avif</title>
+    <meta name="description" content="AVIF offers exceptional compression efficiency for complex photographic imagery, but applying it to dense document scans with fine typography reveals distinct trade-offs between file size and legibility. While the format can dramatically reduce file sizes">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-performance-on-dense-document-scans-and-text">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Performance on Dense Document Scans and Text - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-performance-on-dense-document-scans-and-text" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="AVIF offers exceptional compression efficiency for complex photographic imagery, but applying it to dense document scans with fine typography reveals distinct trade-offs between file size and legibility. While the format can dramatically reduce file sizes" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-performance-on-dense-document-scans-and-text">AVIF
+Performance on Dense Document Scans and Text</h1>
+<p>AVIF offers exceptional compression efficiency for complex
+photographic imagery, but applying it to dense document scans with fine
+typography reveals distinct trade-offs between file size and legibility.
+While the format can dramatically reduce file sizes compared to legacy
+formats like JPEG, its lossy compression architecture presents specific
+challenges for rendering micro-text, thin serifs, and high-frequency
+line art. Understanding how AVIF handles high-contrast, text-heavy scans
+requires evaluating its transform mechanics, filtering tools, color
+subsampling, and configuration requirements.</p>
+<h3 id="the-challenge-of-fine-typography">The Challenge of Fine
+Typography</h3>
+<p>Text documents consist of sharp, bi-level or high-contrast edges with
+high spatial frequency. Traditional lossy image encoders rely on
+discrete cosine transforms (DCT) or similar block transforms to discard
+high-frequency data that human vision typically ignores in natural
+scenes. In dense text documents, this high-frequency information
+constitutes the actual characters. Removing or approximating it leads
+directly to degraded legibility, smearing, and edge halos.</p>
+<h3 id="smoothing-and-in-loop-filtering-artifacts">Smoothing and In-Loop
+Filtering Artifacts</h3>
+<p>The primary issue AVIF encounters with dense typography stems from
+the AV1 video codec's in-loop filtering toolset, specifically the
+Deblocking Filter and the Constrained Directional Enhancement Filter
+(CDEF).</p>
+<p>In photographic content, these filters successfully eliminate block
+boundary artifacts and smooth out noise. On dense text, however, the
+encoder frequently interprets tiny serifs, punctuation marks, and
+diacritics as noise or block edges:</p>
+<ul>
+<li><strong>Serif and Stroke Erosion:</strong> Thin horizontal crossbars
+(such as in the letters "e", "t", or "f") can disappear entirely at
+moderate compression ratios.</li>
+<li><strong>Loss of Fine Punctuation:</strong> Commas, periods, and
+accents are frequently smoothed into the background or blurred into
+neighboring characters.</li>
+<li><strong>Contrast Bleed:</strong> Instead of the high-frequency
+ringing common in JPEG, AVIF tends to produce watercolor-like smudges
+around characters, softening the transition between ink and paper.</li>
+</ul>
+<h3 id="the-impact-of-chroma-subsampling">The Impact of Chroma
+Subsampling</h3>
+<p>By default, many AVIF encoders convert input images to YUV 4:2:0. In
+document scans, this causes severe degradation:</p>
+<ul>
+<li><strong>Colored Text and Highlights:</strong> Colored inks,
+annotations, or stamps lose edge definition and bleed into the
+surrounding page.</li>
+<li><strong>Fringing Around Dark Text:</strong> Subsampling chroma
+channels introduces noticeable color artifacts around black text on
+white paper.</li>
+</ul>
+<p>To preserve acceptable legibility on document scans, encoding in YUV
+4:4:4 or native RGB is essential, even though this reduces overall
+compression gains.</p>
+<h3 id="lossless-avif-vs-dedicated-document-formats">Lossless AVIF vs.
+Dedicated Document Formats</h3>
+<p>AVIF supports a lossless mode, but it is not inherently optimized for
+the high-contrast, repetitive patterns found in scanned documents.</p>
+<ul>
+<li><strong>Compared to PNG:</strong> Lossless AVIF often trails
+optimized PNG (using tools like Oxipng) in file size when dealing with
+clean, high-contrast black-and-white documents.</li>
+<li><strong>Compared to JBIG2:</strong> For bi-level (monochrome) scans,
+JBIG2 vastly outperforms AVIF in both compression ratio and fidelity, as
+JBIG2 uses symbol dictionary matching designed specifically for
+recurring letterforms.</li>
+<li><strong>Compared to JPEG XL:</strong> JPEG XL generally outperforms
+AVIF on document scans, offering superior edge preservation, better
+handling of high-frequency text boundaries, and stronger lossless
+compression ratios.</li>
+</ul>
+<h3 id="optimal-avif-configuration-for-text-scans">Optimal AVIF
+Configuration for Text Scans</h3>
+<p>When AVIF must be used for documents—such as in web delivery
+pipelines constrained to modern browser-supported formats—specific
+encoding parameters are necessary:</p>
+<ol type="1">
+<li><strong>Pixel Format:</strong> Force <code>yuv444</code> or RGB to
+prevent color bleeding on character edges.</li>
+<li><strong>Loop Filter Suppression:</strong> Lower or disable the
+deblocking filter strength to prevent the encoder from smoothing away
+fine strokes.</li>
+<li><strong>Low Quantization (CRF):</strong> Keep the Constant Rate
+Factor low (typically below 20–25) to avoid catastrophic text
+degradation.</li>
+<li><strong>Sharpness Tuning:</strong> Utilize encoder tunings optimized
+for sharpness or SSIM rather than perceptual metrics (like VMAF or
+tune=vmaf), which aggressively prioritize large-scale structures over
+micro-details.</li>
+</ol>
+<h3 id="verdict">Verdict</h3>
+<p>AVIF is not inherently suited for dense document scans featuring fine
+typography. While it can produce remarkably small files for
+mixed-content pages containing both photos and large text, pure or
+high-density document scans are prone to character dropouts and edge
+blurring. When fine text must be preserved accurately at high densities,
+formats such as JPEG XL, JBIG2 (for monochrome), or well-optimized PNG
+remain technically superior options.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

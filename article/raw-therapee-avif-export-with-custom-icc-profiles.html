@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RawTherapee AVIF Export With Custom ICC Profiles - avif</title>
+    <meta name="description" content="RawTherapee does not support exporting raw images directly to the AVIF (AV1 Image File) format, regardless of whether you are using standard or custom ICC profiles. While the software provides robust color management and full support for embedding custom">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/raw-therapee-avif-export-with-custom-icc-profiles">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="RawTherapee AVIF Export With Custom ICC Profiles - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/raw-therapee-avif-export-with-custom-icc-profiles" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="RawTherapee does not support exporting raw images directly to the AVIF (AV1 Image File) format, regardless of whether you are using standard or custom ICC profiles. While the software provides robust color management and full support for embedding custom" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="rawtherapee-avif-export-with-custom-icc-profiles">RawTherapee
+AVIF Export With Custom ICC Profiles</h1>
+<p>RawTherapee does not support exporting raw images directly to the
+AVIF (AV1 Image File) format, regardless of whether you are using
+standard or custom ICC profiles. While the software provides robust
+color management and full support for embedding custom output ICC
+profiles, its direct export capabilities are restricted to traditional
+image formats. To obtain an AVIF file with a custom ICC profile applied
+from RawTherapee, users must export to an intermediate format such as
+16-bit TIFF and convert it using an external encoder.</p>
+<h3 id="native-export-capabilities-in-rawtherapee">Native Export
+Capabilities in RawTherapee</h3>
+<p>RawTherapee's save and queue options natively support three primary
+file formats:</p>
+<ul>
+<li><strong>JPEG:</strong> 8-bit, lossy compression.</li>
+<li><strong>TIFF:</strong> 8-bit, 16-bit integer, and 32-bit
+floating-point options with uncompressed, Deflate, or ZIP
+compression.</li>
+<li><strong>PNG:</strong> 8-bit and 16-bit options.</li>
+</ul>
+<p>None of the current stable releases of RawTherapee include an AVIF
+encoder. Consequently, you cannot select <code>.avif</code> as a direct
+output container from the Editor or the Batch Queue.</p>
+<h3 id="color-management-and-custom-icc-profiles">Color Management and
+Custom ICC Profiles</h3>
+<p>RawTherapee has comprehensive color management capabilities located
+in the <strong>Color</strong> tab under the <strong>Color
+Management</strong> panel. Users can assign custom output profiles by
+placing <code>.icc</code> or <code>.icm</code> files into the designated
+color profiles directory.</p>
+<p>When you export an image, RawTherapee converts the internal working
+color space (such as ProPhoto RGB) into your selected output profile and
+embeds the ICC profile directly into the output file's metadata. This
+color management pipeline operates independently of the final delivery
+container, but it is limited to the formats RawTherapee can write
+directly.</p>
+<h3 id="recommended-workaround-intermediate-conversion">Recommended
+Workaround: Intermediate Conversion</h3>
+<p>To generate an AVIF image with your desired custom ICC profile from
+RawTherapee, use the following workflow:</p>
+<ol type="1">
+<li><strong>Set the Output Profile:</strong> Go to the <strong>Color
+Management</strong> panel in RawTherapee, select <strong>Custom</strong>
+under the <strong>Output Profile</strong> section, and choose your
+preferred ICC profile.</li>
+<li><strong>Export as a 16-bit TIFF:</strong> Save the processed raw
+image as an uncompressed or lossless compressed 16-bit TIFF. This
+preserves maximum dynamic range, bit depth, and embeds the custom ICC
+profile.</li>
+<li><strong>Convert to AVIF Externally:</strong> Use an external
+command-line tool or image processor that reads embedded ICC profiles
+and supports AVIF encoding, such as <code>avifenc</code> (from libavif)
+or ImageMagick.</li>
+</ol>
+<h4 id="using-avifenc">Using <code>avifenc</code></h4>
+<p>The official <code>avifenc</code> utility automatically reads and
+preserves embedded ICC profiles from TIFF sources by default:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">avifenc</span> <span class="at">--lossless</span> input.tif output.avif</span></code></pre></div>
+<p>Or for lossy compression with visually lossless quality:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">avifenc</span> <span class="at">-s</span> 4 <span class="at">-q</span> 85 input.tif output.avif</span></code></pre></div>
+<h4 id="using-imagemagick">Using ImageMagick</h4>
+<p>ImageMagick can also convert the file while retaining the embedded
+profile:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">magick</span> input.tif <span class="at">-quality</span> 85 output.avif</span></code></pre></div>
+<p>By using a 16-bit intermediate file, you avoid banding and color
+degradation, ensuring that the final AVIF image retains the precise
+color characteristics defined by your custom ICC profile in
+RawTherapee.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Compression Gains for High-ISO Photos - avif</title>
+    <meta name="description" content="High-ISO photography introduces sensor noise and luminance grain that traditionally breaks down lossy image compression, resulting in inflated file sizes or smeared, blotchy artifacts. The AV1 Image File Format (AVIF) addresses this problem through advanc">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-compression-gains-for-high-iso-photos">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Compression Gains for High-ISO Photos - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-compression-gains-for-high-iso-photos" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="High-ISO photography introduces sensor noise and luminance grain that traditionally breaks down lossy image compression, resulting in inflated file sizes or smeared, blotchy artifacts. The AV1 Image File Format (AVIF) addresses this problem through advanc" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-compression-gains-for-high-iso-photos">AVIF Compression
+Gains for High-ISO Photos</h1>
+<p>High-ISO photography introduces sensor noise and luminance grain that
+traditionally breaks down lossy image compression, resulting in inflated
+file sizes or smeared, blotchy artifacts. The AV1 Image File Format
+(AVIF) addresses this problem through advanced encoding architectures
+derived from the AV1 video codec. Compared to legacy formats like JPEG
+and WebP, AVIF delivers significant file-size reductions—often between
+30% and 50% at comparable or superior perceptual quality—while better
+retaining fine high-frequency noise patterns and preventing the severe
+visual degradation typical of low-light captures.</p>
+<h3 id="the-problem-of-high-iso-noise-in-traditional-formats">The
+Problem of High-ISO Noise in Traditional Formats</h3>
+<p>In high-ISO exposures, sensor noise behaves as high-frequency entropy
+across an entire image. Legacy formats such as JPEG rely on the Discrete
+Cosine Transform (DCT) across fixed 8x8 pixel blocks. Because high-ISO
+noise scatters energy across all transform coefficients, the encoder
+must either preserve all high-frequency data—causing file sizes to
+skyrocket—or aggressively quantize the coefficients, which turns organic
+grain into distracting square macroblocks and color splotches. WebP
+offers moderate improvements, but its 16x16 macroblock structure
+frequently blurs the noise floor unevenly, creating an unnatural, waxy
+texture.</p>
+<h3 id="variable-block-partitioning-and-adaptive-transforms">Variable
+Block Partitioning and Adaptive Transforms</h3>
+<p>AVIF resolves noise mapping issues using dynamic block partitioning
+ranging from 4x4 up to 128x128 pixels. Instead of treating the entire
+image with a rigid block matrix, an AVIF encoder isolates flat regions,
+edges, and noisy gradients with high precision. In noisy areas, the
+encoder employs smaller transform blocks paired with directional
+transforms (such as the Identity transform or asymmetric DCT/ADST
+variants). This design prevents noise from "bleeding" across
+high-contrast edges and eliminates the rigid block boundaries that
+compromise low-light JPEG images.</p>
+<h3 id="bit-depth-and-chroma-handling">Bit Depth and Chroma
+Handling</h3>
+<p>High-ISO photography frequently suffers from chrominance
+noise—random, discolored pixels appearing in dark tones and shadow
+gradients. AVIF natively supports 10-bit and 12-bit color depths. The
+added precision allows the encoder to compress fine tonal transitions in
+high-ISO shadows without posterization or color banding. Furthermore,
+AVIF's advanced chroma subsampling and 4:4:4 color profile options
+preserve fine color grain without collapsing into the saturated, muddy
+patches typical of 8-bit JPEG compression.</p>
+<h3 id="film-grain-synthesis">Film Grain Synthesis</h3>
+<p>The most significant efficiency gain AVIF provides for noisy captures
+is Film Grain Synthesis (FGS). Rather than expending bits to encode
+millions of individual, pseudo-random noise pixels, an AVIF encoder
+equipped with grain modeling can estimate the noise characteristics
+(such as grain size, distribution, and luminance dependency), smooth the
+underlying base image, and write parametric grain metadata into the file
+container.</p>
+<p>During decoding, the viewing software regenerates the noise profile
+on top of the compressed base image in real time. This process yields
+multiple technical advantages:</p>
+<ul>
+<li><strong>Massive Bitrate Reductions:</strong> By compressing a clean
+base plate instead of chaotic high-frequency noise, file sizes decrease
+dramatically, often exceeding a 60% reduction over direct noise
+encoding.</li>
+<li><strong>Aesthetic Preservation:</strong> The photograph retains its
+natural high-ISO grit, avoiding the plastic, over-smoothed appearance
+caused by standard spatial noise reduction filters.</li>
+<li><strong>Artifact Elimination:</strong> Because the grain is
+generated algorithmically at playback, it is free of ringing, mosquito
+noise, and compression blockiness.</li>
+</ul>
+<h3 id="practical-performance-metrics">Practical Performance
+Metrics</h3>
+<p>In direct visual comparisons of high-ISO scenes shot above ISO 3200,
+an AVIF file encoded at a structural similarity metric (SSIM) matching a
+high-quality JPEG consistently requires 30% to 50% less storage space.
+When leveraging Film Grain Synthesis, storage gains approach 60% to 70%
+without sacrificing visual sharpness. For photo-heavy platforms, digital
+asset management systems, and high-resolution galleries, AVIF provides a
+dependable solution for serving low-light imagery with optimal fidelity
+and reduced bandwidth overhead.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

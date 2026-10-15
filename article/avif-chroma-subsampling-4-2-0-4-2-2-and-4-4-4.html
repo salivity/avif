@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Chroma Subsampling: 4:2:0, 4:2:2, and 4:4:4 - avif</title>
+    <meta name="description" content="The AVIF (AV1 Image File Format) standard offers versatile support for various chroma subsampling formats, primarily 4:2:0, 4:2:2, and 4:4:4, directly derived from the underlying AV1 video codec. Chroma subsampling reduces color information (chrominance)">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-chroma-subsampling-4-2-0-4-2-2-and-4-4-4">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Chroma Subsampling: 4:2:0, 4:2:2, and 4:4:4 - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-chroma-subsampling-4-2-0-4-2-2-and-4-4-4" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The AVIF (AV1 Image File Format) standard offers versatile support for various chroma subsampling formats, primarily 4:2:0, 4:2:2, and 4:4:4, directly derived from the underlying AV1 video codec. Chroma subsampling reduces color information (chrominance)" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-chroma-subsampling-420-422-and-444">AVIF Chroma
+Subsampling: 4:2:0, 4:2:2, and 4:4:4</h1>
+<p>The AVIF (AV1 Image File Format) standard offers versatile support
+for various chroma subsampling formats, primarily 4:2:0, 4:2:2, and
+4:4:4, directly derived from the underlying AV1 video codec. Chroma
+subsampling reduces color information (chrominance) relative to
+brightness information (luminance) to decrease overall file size without
+noticeably degrading perceived visual quality. This article breaks down
+how AVIF implements these subsampling schemes, how each format affects
+compression and visual fidelity, and when to use each configuration.</p>
+<h2 id="understanding-chroma-subsampling-in-avif">Understanding Chroma
+Subsampling in AVIF</h2>
+<p>AVIF encodes images using the YCbCr color space, which separates an
+image into luminance (Y, brightness) and two chrominance channels (Cb
+and Cr, color). Because human vision is far more sensitive to variations
+in brightness than in color, AVIF allows encoders to discard color
+resolution across horizontal and vertical axes to save bandwidth.</p>
+<p>How AVIF manages this depends on the AV1 profile used during
+encoding:</p>
+<ul>
+<li><strong>AV1 Main Profile:</strong> Supports 8-bit and 10-bit color
+depths with 4:0:0 (monochrome) and 4:2:0 subsampling.</li>
+<li><strong>AV1 High Profile:</strong> Adds support for 8-bit and 10-bit
+color with 4:4:4 subsampling.</li>
+<li><strong>AV1 Professional Profile:</strong> Adds support for 12-bit
+color depths and includes 4:2:2 subsampling across all bit depths.</li>
+</ul>
+<hr />
+<h2 id="420-chroma-subsampling-in-avif">4:2:0 Chroma Subsampling in
+AVIF</h2>
+<p>In a 4:2:0 configuration, chroma resolution is halved both
+horizontally and vertically. For every 2x2 grid of luma samples (four
+pixels), there is only one Cb sample and one Cr sample, effectively
+reducing color data to one-quarter of the original resolution.</p>
+<h3 id="implementation-and-behavior">Implementation and Behavior</h3>
+<ul>
+<li><strong>Compression Efficiency:</strong> This is the default and
+most compression-efficient mode in AVIF. It yields the smallest file
+sizes and is widely compatible with hardware decoders and web
+browsers.</li>
+<li><strong>Best Use Cases:</strong> Continuous-tone content, such as
+standard digital photographs, natural landscapes, and portraits. The
+human eye rarely detects color degradation in complex, natural
+scenes.</li>
+<li><strong>Drawbacks:</strong> High-contrast color edges—such as bright
+red text on a black background, user interface icons, and pixel
+art—suffer from visible color bleeding, softening, or fringing
+artifacts.</li>
+</ul>
+<hr />
+<h2 id="422-chroma-subsampling-in-avif">4:2:2 Chroma Subsampling in
+AVIF</h2>
+<p>In 4:2:2 subsampling, chroma resolution is halved horizontally, but
+preserved at full resolution vertically. For every four horizontal luma
+pixels, there are two chroma samples per row.</p>
+<h3 id="implementation-and-behavior-1">Implementation and Behavior</h3>
+<ul>
+<li><strong>Implementation Profile:</strong> Because 4:2:2 is
+categorized under the AV1 Professional Profile, it requires decoders
+that support this extended profile.</li>
+<li><strong>Best Use Cases:</strong> Primarily used in video editing,
+post-production, and capture pipelines where intermediate assets must
+preserve vertical resolution.</li>
+<li><strong>Drawbacks:</strong> It is rarely optimal for web-delivered
+AVIF images. Browser and hardware acceleration support for the AV1
+Professional Profile is less consistent than for the Main Profile.
+Furthermore, 4:2:2 rarely outperforms 4:4:4 in visual sharpness or 4:2:0
+in bandwidth efficiency for typical web use.</li>
+</ul>
+<hr />
+<h2 id="444-chroma-subsampling-in-avif">4:4:4 Chroma Subsampling in
+AVIF</h2>
+<p>The 4:4:4 scheme disables subsampling entirely. Every pixel retains
+its full, discrete luma and chroma data, maintaining 1:1 color
+resolution matching the original image.</p>
+<h3 id="implementation-and-behavior-2">Implementation and Behavior</h3>
+<ul>
+<li><strong>Implementation Profile:</strong> Encoded under the AV1 High
+Profile (for 8-bit and 10-bit images). Most modern browsers (such as
+Chrome, Firefox, and Safari) support 4:4:4 AVIF decoding via software or
+modern hardware.</li>
+<li><strong>Best Use Cases:</strong> Screenshots, application user
+interfaces, vector graphics, charts, digital illustrations, and
+typography. Any graphic containing crisp lines and sharp color
+transitions benefits noticeably from 4:4:4.</li>
+<li><strong>Drawbacks:</strong> File sizes are larger compared to 4:2:0
+at identical visual quality targets, typically requiring 15% to 30% more
+data depending on the image complexity.</li>
+</ul>
+<hr />
+<h2 id="chroma-sample-positioning">Chroma Sample Positioning</h2>
+<p>Beyond sampling density, AVIF allows explicit signaling of chroma
+sample locations within the bitstream metadata. AV1 defines whether
+subsampled chroma points are:</p>
+<ul>
+<li><strong>Centered:</strong> Positioned equidistant between luma
+samples.</li>
+<li><strong>Colocated (Cosited):</strong> Aligned precisely over the
+top-left luma sample.</li>
+</ul>
+<p>Proper signaling prevents horizontal or vertical color shift (chroma
+phasing issues) when decoding 4:2:0 and 4:2:2 images, ensuring that
+colors align accurately with image contours during reconstruction.</p>
+<hr />
+<h2 id="choosing-the-right-format">Choosing the Right Format</h2>
+<ul>
+<li><strong>Choose 4:2:0</strong> for standard web photography,
+e-commerce product photos, and background images where minimum payload
+size is the primary objective.</li>
+<li><strong>Choose 4:4:4</strong> for logos, digital artwork, software
+screenshots, diagrams, and images containing embedded text to prevent
+color bleeding and keep edges sharp.</li>
+<li><strong>Avoid 4:2:2</strong> for public web delivery to ensure
+broader decoder compatibility and predictable compression behavior.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

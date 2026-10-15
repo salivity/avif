@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Limitations of 10-Bit AVIF on HTML Canvas - avif</title>
+    <meta name="description" content="This article examines the technical constraints developers encounter when drawing 10-bit AVIF (AV1 Image File Format) images onto standard HTML &lt;canvas&gt; elements. While 10-bit AVIF files offer superior color depth, High Dynamic Range (HDR), and Wide Color">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/limitations-of-10-bit-avif-on-html-canvas">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Limitations of 10-Bit AVIF on HTML Canvas - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/limitations-of-10-bit-avif-on-html-canvas" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article examines the technical constraints developers encounter when drawing 10-bit AVIF (AV1 Image File Format) images onto standard HTML &lt;canvas&gt; elements. While 10-bit AVIF files offer superior color depth, High Dynamic Range (HDR), and Wide Color" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="limitations-of-10-bit-avif-on-html-canvas">Limitations of 10-Bit
+AVIF on HTML Canvas</h1>
+<p>This article examines the technical constraints developers encounter
+when drawing 10-bit AVIF (AV1 Image File Format) images onto standard
+HTML <code>&lt;canvas&gt;</code> elements. While 10-bit AVIF files offer
+superior color depth, High Dynamic Range (HDR), and Wide Color Gamut
+(WCG) support, standard 2D canvas contexts typically operate within
+traditional 8-bit sRGB constraints. Understanding these
+limitations—ranging from bit-depth downsampling and gamut clipping to
+performance bottlenecks and inconsistent cross-browser tone mapping—is
+critical for preserving image fidelity in modern web applications.</p>
+<h3 id="8-bit-downsampling-and-quantization-artifacts">8-Bit
+Downsampling and Quantization Artifacts</h3>
+<p>The primary limitation of the standard 2D canvas context
+(<code>CanvasRenderingContext2D</code>) is its default 8-bit color depth
+per channel (RGBA8). When a 10-bit AVIF is drawn to a standard canvas
+using <code>drawImage()</code>, the browser must discard two bits of
+precision per color channel, reducing 1,024 distinct color levels per
+channel down to 256.</p>
+<p>This truncation eliminates the smooth transitions inherent to 10-bit
+media, frequently introducing banding (posterization) in subtle
+gradients such as skies, shadows, and skin tones. The visual benefits
+gained by using a 10-bit source are largely lost once drawn into an
+unconfigured 2D context.</p>
+<h3 id="color-gamut-and-dynamic-range-clamping">Color Gamut and Dynamic
+Range Clamping</h3>
+<p>Most 10-bit AVIF images are encoded using wide color gamuts—such as
+Display P3 or ITU-R BT.2020—alongside HDR transfer characteristics (such
+as Perceptual Quantizer [PQ] or Hybrid Log-Gamma [HLG]).</p>
+<p>A standard canvas context defaults to the sRGB color space and
+Standard Dynamic Range (SDR). Drawing an HDR or wide-gamut 10-bit image
+onto an sRGB canvas forces the browser to compress or clamp the color
+data into the narrower sRGB envelope. Highlights above 100% SDR
+luminance are clipped, resulting in lost details in bright areas and
+desaturated or inaccurate colors if color management profiles are not
+seamlessly translated by the browser engine.</p>
+<h3 id="inconsistent-browser-tone-mapping">Inconsistent Browser Tone
+Mapping</h3>
+<p>Because standard canvas elements are primarily designed for SDR
+output, browsers must apply tone mapping when interpreting 10-bit HDR
+inputs via <code>drawImage()</code>. Currently, there is no unified
+standard for how HTML canvas engines execute this conversion.</p>
+<p>Different browsers (such as Chromium, Safari, and Firefox) use
+different tone-mapping algorithms to convert HDR luminance down to SDR
+levels. As a result, the same 10-bit AVIF file rendered onto an HTML
+canvas may exhibit noticeable differences in exposure, contrast, and
+color balance depending on the user's browser, operating system, and
+display hardware.</p>
+<h3 id="pixel-extraction-limitations-with-getimagedata">Pixel Extraction
+Limitations with <code>getImageData</code></h3>
+<p>Direct pixel manipulation via <code>ctx.getImageData()</code> is
+traditionally restricted to an 8-bit <code>Uint8ClampedArray</code>.
+Even if a browser partially preserves high bit-depth values internally
+during rendering:</p>
+<ul>
+<li>Inspecting or modifying the image data via
+<code>getImageData()</code> immediately forces quantization to 8-bit
+values.</li>
+<li>High-precision pixel processing, such as custom shaders, filter
+effects, or scientific analysis, cannot access the native 10-bit data
+through traditional 2D canvas methods.</li>
+<li>Modern extensions allowing <code>Float32Array</code> or
+<code>Uint16Array</code> storage formats require newer settings (such as
+specifying <code>colorSpace</code> and <code>pixelFormat</code> during
+context creation), which are not uniformly supported across all browsers
+and still may not properly ingest HDR transfer curves without manual
+decoding.</li>
+</ul>
+<h3 id="decoding-and-conversion-overhead">Decoding and Conversion
+Overhead</h3>
+<p>10-bit AVIF images rely on AV1 intra-frame decoding, which is
+computationally heavier than decoding standard JPEG, PNG, or WebP files.
+When drawn to an HTML canvas:</p>
+<ul>
+<li>The browser must decode the AV1 bitstream.</li>
+<li>It must perform color space conversion (e.g., BT.2020 to sRGB).</li>
+<li>It must downsample 10-bit data to 8-bit buffers.</li>
+</ul>
+<p>This multi-step pipeline introduces measurable CPU and GPU overhead,
+increasing frame times and memory consumption. In scenarios involving
+real-time canvas redrawing, animations, or batch image operations,
+drawing 10-bit AVIF images can lead to dropped frames and degraded
+performance compared to native 8-bit assets.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

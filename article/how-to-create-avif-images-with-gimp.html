@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Create AVIF Images with GIMP - avif</title>
+    <meta name="description" content="AVIF (AV1 Image File Format) is a modern image format that delivers significantly better compression and quality than legacy formats like JPEG and WebP. This guide explains how to convert and export images into the AVIF format using GIMP, the popular free">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-to-create-avif-images-with-gimp">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How to Create AVIF Images with GIMP - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-to-create-avif-images-with-gimp" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="AVIF (AV1 Image File Format) is a modern image format that delivers significantly better compression and quality than legacy formats like JPEG and WebP. This guide explains how to convert and export images into the AVIF format using GIMP, the popular free" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-to-create-avif-images-with-gimp">How to Create AVIF Images
+with GIMP</h1>
+<p>AVIF (AV1 Image File Format) is a modern image format that delivers
+significantly better compression and quality than legacy formats like
+JPEG and WebP. This guide explains how to convert and export images into
+the AVIF format using GIMP, the popular free and open-source image
+editor, alongside a few quick alternative open-source command-line
+tools.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>Native AVIF support was introduced in GIMP version 2.10.22 via the
+<code>libheif</code> library. Before starting, ensure that your
+installation of GIMP is updated to version 2.10.22 or higher. You can
+verify your version by navigating to <strong>Help &gt; About
+GIMP</strong>.</p>
+<h2 id="step-by-step-guide-to-exporting-avif-in-gimp">Step-by-Step Guide
+to Exporting AVIF in GIMP</h2>
+<h3 id="1-open-your-image">1. Open Your Image</h3>
+<p>Launch GIMP and open the image you want to convert by going to
+<strong>File &gt; Open</strong>, or drag and drop your file into the
+GIMP workspace. Perform any necessary cropping, resizing, or color
+adjustments before exporting.</p>
+<h3 id="2-open-the-export-dialog">2. Open the Export Dialog</h3>
+<p>Click <strong>File</strong> in the top menu and select <strong>Export
+As...</strong> (or use the shortcut <code>Shift + Ctrl + E</code>).</p>
+<h3 id="3-set-the-file-extension">3. Set the File Extension</h3>
+<p>In the Export Image window:</p>
+<ul>
+<li>Name your file and append <code>.avif</code> to the end of the
+filename (e.g., <code>my-image.avif</code>).</li>
+<li>Alternatively, expand the <strong>Select File Type (By
+Extension)</strong> menu at the bottom of the dialog box and scroll down
+to select **AVIF image (*.avif)**.</li>
+<li>Choose your destination folder and click
+<strong>Export</strong>.</li>
+</ul>
+<h3 id="4-adjust-avif-export-settings">4. Adjust AVIF Export
+Settings</h3>
+<p>A dialog box titled <strong>Export Image as AVIF</strong> will appear
+with several compression parameters:</p>
+<ul>
+<li><strong>Lossless:</strong> Check this box if you require
+pixel-perfect preservation of the original image data without any
+compression artifacts. Note that lossless AVIF files will be
+larger.</li>
+<li><strong>Quality:</strong> If "Lossless" is unchecked, adjust the
+quality slider between 0 and 100. A setting between 60 and 80 usually
+provides an optimal balance between visual fidelity and small file size
+for web use.</li>
+<li><strong>Speed:</strong> This slider controls the CPU effort used
+during encoding. Slower speeds result in better compression efficiency
+and smaller files, while faster speeds reduce processing time.</li>
+<li><strong>Metadata options:</strong> Toggle options such as EXIF data,
+XMP, and color profiles depending on whether you want to preserve camera
+metadata or strip it to minimize file weight.</li>
+</ul>
+<h3 id="5-finalize-the-export">5. Finalize the Export</h3>
+<p>Click the <strong>Export</strong> button. GIMP will process the image
+and save your new AVIF file to the designated directory.</p>
+<h2 id="alternative-open-source-methods">Alternative Open-Source
+Methods</h2>
+<p>If you need to batch-process images or prefer working from the
+terminal, other open-source tools can create AVIF images quickly:</p>
+<h3 id="imagemagick">ImageMagick</h3>
+<p>With ImageMagick installed (v7.0.10-25 or later with
+<code>libheif</code> support), convert an image using:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">magick</span> input.jpg <span class="at">-quality</span> 75 output.avif</span></code></pre></div>
+<h3 id="ffmpeg">FFmpeg</h3>
+<p>If your FFmpeg build includes <code>libsvtav1</code> or
+<code>libaom-av1</code>, convert images directly via the command
+line:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ffmpeg</span> <span class="at">-i</span> input.png <span class="at">-c:v</span> libaom-av1 <span class="at">-crf</span> 30 output.avif</span></code></pre></div></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

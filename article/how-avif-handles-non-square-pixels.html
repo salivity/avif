@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How AVIF Handles Non-Square Pixels - avif</title>
+    <meta name="description" content="The AV1 Image File Format (AVIF) accommodates non-square pixels by decoupling an image’s stored pixel dimensions from its intended display geometry. Inheriting the container architecture of the ISO Base Media File Format (ISOBMFF), AVIF utilizes standardi">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-avif-handles-non-square-pixels">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How AVIF Handles Non-Square Pixels - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-avif-handles-non-square-pixels" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The AV1 Image File Format (AVIF) accommodates non-square pixels by decoupling an image’s stored pixel dimensions from its intended display geometry. Inheriting the container architecture of the ISO Base Media File Format (ISOBMFF), AVIF utilizes standardi" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-avif-handles-non-square-pixels">How AVIF Handles Non-Square
+Pixels</h1>
+<p>The AV1 Image File Format (AVIF) accommodates non-square pixels by
+decoupling an image’s stored pixel dimensions from its intended display
+geometry. Inheriting the container architecture of the ISO Base Media
+File Format (ISOBMFF), AVIF utilizes standardized metadata boxes to
+define non-unity Pixel Aspect Ratios (PAR). This allows specialized
+fields—such as medical diagnostics, archival broadcast, microscopy, and
+anamorphic cinematography—to preserve raw sensor resolution and spatial
+fidelity without introducing interpolation artifacts caused by
+pre-compression resampling.</p>
+<h3 id="the-container-level-mechanism-the-pasp-box">The Container-Level
+Mechanism: The <code>pasp</code> Box</h3>
+<p>AVIF relies primarily on the ISOBMFF Pixel Aspect Ratio Box
+(<code>pasp</code>) to handle non-square pixels. While the underlying
+AV1 video compression standard encodes pixel data on a uniform
+rectangular grid, the container dictates how a compliant decoder scales
+that data for rendering.</p>
+<p>The <code>pasp</code> box contains two 32-bit unsigned integers:</p>
+<ul>
+<li><strong><code>hSpacing</code>:</strong> The relative horizontal
+spacing of pixels.</li>
+<li><strong><code>vSpacing</code>:</strong> The relative vertical
+spacing of pixels.</li>
+</ul>
+<p>When a display engine renders an AVIF image with a <code>pasp</code>
+property, it calculates the target display aspect ratio (DAR) using the
+formula:</p>
+<p><span class="math display">\[\text{Display Aspect Ratio} =
+\left(\frac{\text{Storage Width}}{\text{Storage Height}}\right) \times
+\left(\frac{\text{hSpacing}}{\text{vSpacing}}\right)\]</span></p>
+<p>By altering only the metadata ratio, the actual coded byte payload
+remains unaffected, preserving mathematical precision at the bitstream
+level.</p>
+<h3 id="interaction-with-the-av1-bitstream">Interaction with the AV1
+Bitstream</h3>
+<p>Non-square geometry can also be signaled directly within the AV1
+sequence header through the <code>render_and_frame_size_different</code>
+flag, which defines separate <code>render_width</code> and
+<code>render_height</code> values.</p>
+<p>However, in an AVIF item, container-level signaling via the
+<code>pasp</code> item property takes precedence in standard rendering
+pipelines. In strict specialized environments, decoders verify that the
+bitstream's internal render size parameters align with the container's
+<code>pasp</code> ratios to prevent display mismatch errors.</p>
+<h3 id="use-cases-in-specialized-environments">Use Cases in Specialized
+Environments</h3>
+<h4 id="1-medical-imaging-and-dicom">1. Medical Imaging and DICOM</h4>
+<p>Certain modalities, like legacy ultrasound or specialized computed
+tomography (CT) scanners, capture physical cross-sections where the
+spatial sampling interval along the X-axis differs from the Y-axis.
+Converting these images to square pixels prior to compression requires
+spatial resampling (e.g., bicubic or Lanczos filtering), which modifies
+pixel intensity values and can obscure diagnostic details. AVIF retains
+the raw capture matrix, using <code>pasp</code> to reflect anisotropic
+spatial dimensions accurately.</p>
+<h4 id="2-anamorphic-film-and-video-archiving">2. Anamorphic Film and
+Video Archiving</h4>
+<p>In anamorphic production, lenses optically compress a widescreen
+field of view horizontally onto a narrower sensor or film stock. Storing
+these assets in AVIF allows archives to preserve the original 2:1 or
+1.33:1 optical squeeze natively. The image data is stored in its
+squeezed form, maximizing effective resolution, while the metadata
+instructs the display to stretch the image to the correct widescreen
+aspect ratio on playback.</p>
+<h4 id="3-remote-sensing-and-geospatial-imagery">3. Remote Sensing and
+Geospatial Imagery</h4>
+<p>Satellite and aerial sensors operating in push-broom configurations
+frequently record data with different along-track and across-track
+ground sampling distances (GSD). Storing this data in AVIF maintains the
+true physical detector resolution, while ensuring GIS software correctly
+scales the raster layer without requiring on-disk reprojection.</p>
+<h3 id="clean-aperture-and-alignment-the-clap-box">Clean Aperture and
+Alignment: The <code>clap</code> Box</h3>
+<p>Specialized imaging often pairs non-square pixels with non-standard
+edge artifacts, such as blanking intervals in digitized analog video or
+sensor calibration margins. AVIF addresses this by pairing the
+<code>pasp</code> box with the Clean Aperture Box
+(<code>clap</code>).</p>
+<p>The <code>clap</code> box specifies fractional cropping parameters to
+define the exact subset of pixels meant for display. Decoders first crop
+the raw pixel array according to the <code>clap</code> instructions and
+then apply the <code>pasp</code> horizontal and vertical scaling
+factors, guaranteeing that geometric measurements remain scientifically
+valid.</p>
+<h3 id="decoder-and-ecosystem-considerations">Decoder and Ecosystem
+Considerations</h3>
+<p>While the AVIF specification fully supports non-square pixels,
+application-level support varies:</p>
+<ul>
+<li><strong>Scientific and Professional Tools:</strong> Image viewers
+based on <code>libavif</code> or <code>libheif</code> generally read the
+<code>pasp</code> box correctly, passing the display transform matrix to
+the GPU for real-time, hardware-accelerated scaling.</li>
+<li><strong>Web Browsers:</strong> Consumer web browsers prioritize
+square-pixel web assets. Some current browser implementations decode the
+raw AV1 frame correctly but ignore the container-level <code>pasp</code>
+box, resulting in visually stretched or compressed output unless forced
+via CSS aspect-ratio properties.</li>
+</ul>
+<p>In specialized production pipelines, systems must validate that the
+target viewing and processing software actively queries ISOBMFF
+transformation properties rather than assuming a 1:1 pixel aspect
+ratio.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

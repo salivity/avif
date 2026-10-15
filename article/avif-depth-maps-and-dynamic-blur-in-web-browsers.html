@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Depth Maps and Dynamic Blur in Web Browsers - avif</title>
+    <meta name="description" content="AVIF files can store auxiliary depth maps, but web browsers cannot natively use this embedded data to produce dynamic blur effects out of the box. While standard HTML and CSS lack the native mechanisms to decode and map auxiliary depth tracks directly to">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-depth-maps-and-dynamic-blur-in-web-browsers">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Depth Maps and Dynamic Blur in Web Browsers - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-depth-maps-and-dynamic-blur-in-web-browsers" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="AVIF files can store auxiliary depth maps, but web browsers cannot natively use this embedded data to produce dynamic blur effects out of the box. While standard HTML and CSS lack the native mechanisms to decode and map auxiliary depth tracks directly to" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-depth-maps-and-dynamic-blur-in-web-browsers">AVIF Depth
+Maps and Dynamic Blur in Web Browsers</h1>
+<p>AVIF files can store auxiliary depth maps, but web browsers cannot
+natively use this embedded data to produce dynamic blur effects out of
+the box. While standard HTML and CSS lack the native mechanisms to
+decode and map auxiliary depth tracks directly to filters, developers
+can still achieve real-time, depth-aware blur effects today by combining
+client-side JavaScript decoders with WebGL or WebGPU shaders.</p>
+<h3 id="understanding-depth-maps-in-avif">Understanding Depth Maps in
+AVIF</h3>
+<p>The AV1 Image File Format (AVIF) utilizes the ISO Base Media File
+Format (ISOBMFF) container, which is derived from the HEIF standard.
+This container specification natively supports auxiliary image items
+alongside the primary visual item.</p>
+<p>An auxiliary item can represent different types of supplementary
+data, such as an alpha transparency mask, gain maps for High Dynamic
+Range (HDR), or depth/disparity maps. When an AVIF file includes a depth
+map, it typically stores a monochrome representation of scene depth,
+where pixel brightness corresponds to the distance between the camera
+and the captured object.</p>
+<h3 id="current-browser-support-and-limitations">Current Browser Support
+and Limitations</h3>
+<p>Modern web browsers implement support for basic AVIF rendering,
+decoding the primary visual track and standard alpha transparency.
+However, browser engines (such as Chromium, Gecko, and WebKit) do not
+expose auxiliary depth map items to the DOM, CSS, or standard HTML
+rendering pipelines.</p>
+<p>Key limitations include:</p>
+<ul>
+<li><strong>No Native CSS Integration:</strong> Standard CSS filters
+like <code>filter: blur()</code> apply a uniform Gaussian blur across an
+entire element. There is no standard CSS property or filter function
+designed to parse an embedded depth map to apply a variable,
+distance-based blur (such as a simulated bokeh or depth-of-field
+effect).</li>
+<li><strong>Element Abstraction:</strong> When an AVIF is loaded via an
+<code>&lt;img&gt;</code> tag or drawn to a 2D canvas context via
+<code>drawImage()</code>, the browser’s internal image decoder discards
+or ignores auxiliary items that are not designated as standard alpha
+channels.</li>
+</ul>
+<h3 id="how-to-achieve-dynamic-depth-blur-today">How to Achieve Dynamic
+Depth Blur Today</h3>
+<p>Even without native browser automation, developers can implement
+dynamic depth blur using modern web technologies:</p>
+<ol type="1">
+<li><strong>Custom Client-Side Decoding:</strong> By utilizing
+WebAssembly (Wasm) ports of decoders like <code>libavif</code>,
+developers can parse the underlying ISOBMFF container of an AVIF file
+directly. This enables the programmatic extraction of both the primary
+RGB image item and the auxiliary depth map item as raw pixel
+arrays.</li>
+<li><strong>GPU Processing with WebGL or WebGPU:</strong> Once
+extracted, both the color image and the depth map can be uploaded as
+separate textures to the GPU.</li>
+<li><strong>Custom Fragment Shaders:</strong> A fragment shader can
+evaluate the depth texture to determine blur intensity per pixel. By
+defining a focal point and a focal range (aperture), the shader can
+sample neighboring pixels using an algorithm like a disc or hexagonal
+blur to simulate a realistic camera lens blur. Moving the focal point
+via JavaScript allows users to click or hover to shift focus dynamically
+across different depths in the image.</li>
+</ol>
+<h3 id="future-outlook">Future Outlook</h3>
+<p>For dynamic depth-of-field effects to become mainstream on the web
+without heavy JavaScript overhead, browser vendors and standards bodies
+(such as the W3C) would need to standardize APIs that expose auxiliary
+image tracks. Emerging technologies like the WebCodecs API offer
+lower-level access to media decoders, which may eventually provide a
+more performant bridge between container-level depth maps and
+browser-based rendering pipelines. Until direct CSS support exists,
+implementing dynamic blur using AVIF depth data remains entirely reliant
+on custom WebGL post-processing workflows.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

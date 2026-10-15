@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accelerating AVIF Tile Grids with HTTP/2 Multiplexing - avif</title>
+    <meta name="description" content="This article explores how HTTP/2 multiplexing optimizes the delivery of AVIF (AV1 Image File Format) tile grids. AVIF allows large images to be partitioned into a grid of independently decodable tiles, but fetching dozens of small image chunks can quickly">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/accelerating-avif-tile-grids-with-http-2-multiplexing">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Accelerating AVIF Tile Grids with HTTP/2 Multiplexing - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/accelerating-avif-tile-grids-with-http-2-multiplexing" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explores how HTTP/2 multiplexing optimizes the delivery of AVIF (AV1 Image File Format) tile grids. AVIF allows large images to be partitioned into a grid of independently decodable tiles, but fetching dozens of small image chunks can quickly" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1
+id="accelerating-avif-tile-grids-with-http2-multiplexing">Accelerating
+AVIF Tile Grids with HTTP/2 Multiplexing</h1>
+<p>This article explores how HTTP/2 multiplexing optimizes the delivery
+of AVIF (AV1 Image File Format) tile grids. AVIF allows large images to
+be partitioned into a grid of independently decodable tiles, but
+fetching dozens of small image chunks can quickly saturate traditional
+network pipelines. By eliminating transport-layer head-of-line blocking
+and transmitting multiple requests simultaneously over a single TCP
+connection, HTTP/2 multiplexing allows browsers to fetch, reconstruct,
+and render complex image grids rapidly and with minimal latency.</p>
+<h3 id="understanding-avif-tile-grids">Understanding AVIF Tile
+Grids</h3>
+<p>AVIF leverages the tiling capabilities inherent in the AV1 video
+codec. When an image is encoded using a tile grid, the source canvas is
+divided into a matrix of smaller, rectangular cells. Each tile functions
+as an independent image sequence or item that can be decoded in
+isolation without needing the full image payload.</p>
+<p>This modular structure is particularly advantageous for
+high-resolution photography, deep-zoom viewers, and memory-constrained
+devices. Devices can selectively request and decode only the visible
+portions of an ultra-high-resolution asset, significantly lowering
+memory consumption and initial parse times.</p>
+<h3 id="the-network-bottleneck-of-http11">The Network Bottleneck of
+HTTP/1.1</h3>
+<p>Under older protocols like HTTP/1.1, the tile grid architecture
+introduces a major drawback: request overhead. HTTP/1.1 can only process
+one active request per TCP connection at a time. While browsers attempt
+to mitigate this by opening up to six concurrent TCP connections per
+origin, an image split into a 4x4 or 8x8 grid (requiring 16 to 64
+independent resource fetches) rapidly exhausts the available connection
+pool.</p>
+<p>This creates request queueing (head-of-line blocking at the
+application level). The browser must wait for earlier tiles to complete
+their round trips before initiating requests for subsequent tiles,
+causing staggered rendering, layout shifts, and visual stuttering.</p>
+<h3 id="how-http2-multiplexing-solves-the-problem">How HTTP/2
+Multiplexing Solves the Problem</h3>
+<p>HTTP/2 replaces the sequential, plain-text request-response model
+with a binary framing layer. Multiplexing enables thousands of
+bidirectional streams to interleave over a single, persistent TCP
+connection.</p>
+<p>When an application requests an AVIF image constructed from multiple
+tiles, HTTP/2 handles the concurrent load through several distinct
+mechanisms:</p>
+<ul>
+<li><strong>Elimination of Connection Overhead:</strong> All grid tiles
+are requested through a single existing TCP connection. This bypasses
+the repetitive latency penalties of TCP three-way handshakes, TLS
+negotiations, and slow-start congestion control routines for each
+chunk.</li>
+<li><strong>Concurrent Stream Interleaving:</strong> Requests for every
+tile in the grid are dispatched virtually simultaneously. HTTP/2 breaks
+each file request into discrete binary frames with stream identifiers
+and interleaves them across the wire. The client does not need to wait
+for Tile 1 to download before receiving packets for Tile 16.</li>
+<li><strong>Stream Prioritization:</strong> HTTP/2 allows clients to
+assign dependency weights and priorities to individual streams. Browsers
+can prioritize tiles that map directly to the user’s current viewport,
+ensuring that visible imagery loads immediately while off-screen tiles
+are transmitted with lower priority.</li>
+<li><strong>Header Compression (HPACK):</strong> When fetching dozens of
+tiles from the same origin, redundant HTTP request headers introduce
+unnecessary bandwidth consumption. HPACK compresses these headers across
+requests, minimizing network overhead for micro-transactions.</li>
+</ul>
+<h3 id="impact-on-rendering-performance">Impact on Rendering
+Performance</h3>
+<p>By marrying the modularity of AVIF tile grids with HTTP/2
+multiplexing, the client receives all structural segments of an image in
+parallel. Because modern multi-core processors can decode AV1 tiles
+across parallel threads, the browser can ingest, decompress, and
+assemble the final bitmap concurrently as data streams arrive.</p>
+<p>This pipeline significantly reduces metrics like Largest Contentful
+Paint (LCP) and Time to Interactive (TTI), transforming high-resolution
+image delivery from a sequential bottleneck into an efficient,
+parallelized streaming operation.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

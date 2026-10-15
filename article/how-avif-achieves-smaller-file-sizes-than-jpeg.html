@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How AVIF Achieves Smaller File Sizes Than JPEG - avif</title>
+    <meta name="description" content="The AV1 Image File Format (AVIF) significantly outperforms legacy JPEG by leveraging modern compression algorithms originally developed for next-generation video streaming. By adopting the AV1 video codec&#39;s intra-frame encoding capabilities, AVIF dramatic">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-avif-achieves-smaller-file-sizes-than-jpeg">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How AVIF Achieves Smaller File Sizes Than JPEG - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-avif-achieves-smaller-file-sizes-than-jpeg" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The AV1 Image File Format (AVIF) significantly outperforms legacy JPEG by leveraging modern compression algorithms originally developed for next-generation video streaming. By adopting the AV1 video codec&#39;s intra-frame encoding capabilities, AVIF dramatic" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-avif-achieves-smaller-file-sizes-than-jpeg">How AVIF
+Achieves Smaller File Sizes Than JPEG</h1>
+<p>The AV1 Image File Format (AVIF) significantly outperforms legacy
+JPEG by leveraging modern compression algorithms originally developed
+for next-generation video streaming. By adopting the AV1 video codec's
+intra-frame encoding capabilities, AVIF dramatically reduces image file
+sizes—often by 50% or more compared to JPEG—while preserving superior
+visual detail, dynamic range, and color fidelity.</p>
+<h3 id="roots-in-the-av1-video-codec">Roots in the AV1 Video Codec</h3>
+<p>JPEG relies on compression standards established in 1992, designed
+during an era of extreme computational constraints. In contrast, AVIF is
+an image format derived from the AV1 video standard, developed by the
+Alliance for Open Media (AOMedia). Modern video codecs require immense
+compression efficiency to stream 4K and 8K content over constrained
+network bandwidths. AVIF applies these advanced video intra-frame
+(keyframe) compression techniques directly to still images, instantly
+leapfrogging decades of legacy limitations.</p>
+<h3 id="dynamic-block-partitioning">Dynamic Block Partitioning</h3>
+<p>Legacy JPEG splits an image into rigid, non-negotiable grids of 8x8
+pixel blocks, applying compression uniformly across the entire canvas
+regardless of image complexity.</p>
+<p>AVIF replaces this rigid grid with flexible "superblocks" that range
+from 4x4 up to 128x128 pixels. Smooth, low-detail areas like skies or
+clean backgrounds are grouped into large blocks and encoded with minimal
+data. Complex, detailed areas like text, hair, or textures are
+recursively divided into smaller blocks to retain edge precision. This
+variable partitioning eliminates wasted data in simple regions without
+sacrificing sharpness where it matters most.</p>
+<h3 id="advanced-intra-frame-prediction">Advanced Intra-Frame
+Prediction</h3>
+<p>Instead of encoding every pixel from scratch, AVIF analyzes
+surrounding pixels to predict what the current block should look like.
+It features dozens of directional prediction modes, allowing the encoder
+to extrapolate textures, gradients, and angles across neighboring
+blocks. The file only needs to store the mathematical difference
+(residual data) between the prediction and the actual image,
+significantly reducing the amount of data written to disk.</p>
+<h3 id="modern-entropy-coding">Modern Entropy Coding</h3>
+<p>Once pixel data is predicted and transformed, it must be converted
+into a stream of binary bits. While JPEG relies on older Huffman coding
+or basic arithmetic coding, AVIF uses sophisticated modern entropy
+coding based on multi-symbol arithmetic coding. This mathematical
+process packs the final bitstream far more efficiently, eliminating
+statistical redundancies in the data.</p>
+<h3 id="integrated-in-loop-filtering">Integrated In-Loop Filtering</h3>
+<p>High compression in JPEG causes harsh "blockiness" and color banding
+because boundaries between 8x8 blocks become visible. To combat this,
+JPEG requires higher bitrates to maintain quality.</p>
+<p>AVIF incorporates hardware-accelerated in-loop filters,
+including:</p>
+<ul>
+<li><strong>Deblocking filters:</strong> Smooth unnatural seams across
+block boundaries.</li>
+<li><strong>Constrained Directional Enhancement Filter (CDEF):</strong>
+Identifies directional edges and sharpens them while suppressing ringing
+artifacts.</li>
+<li><strong>Loop Restoration filters:</strong> Fine-tune overall image
+textures and reduce noise.</li>
+</ul>
+<p>These filters run during the decoding process, allowing the encoder
+to compress data more aggressively while the decoder reconstructs a
+clean, artifact-free image.</p>
+<h3 id="higher-bit-depth-and-efficient-color-handling">Higher Bit Depth
+and Efficient Color Handling</h3>
+<p>JPEG is fundamentally limited to 8-bit color depth, meaning it only
+has 256 levels per color channel. This frequently leads to visible
+banding in gradients, forcing encoders to use lower compression ratios
+to hide imperfections. AVIF natively supports 10-bit and 12-bit color
+depths (1,024 and 4,096 levels per channel). Higher bit depth not only
+enables High Dynamic Range (HDR) and wider color gamuts (such as DCI-P3
+and BT.2020), but it also allows the compression algorithms to represent
+subtle gradients cleanly at a fraction of the file size.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

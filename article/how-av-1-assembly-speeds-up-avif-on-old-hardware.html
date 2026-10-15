@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How AV1 Assembly Speeds Up AVIF on Old Hardware - avif</title>
+    <meta name="description" content="This article examines how low-level AV1 assembly code optimization revitalizes AVIF image performance on older computer hardware. By utilizing hand-crafted SIMD (Single Instruction, Multiple Data) instructions within software decoders like dav1d, develope">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-av-1-assembly-speeds-up-avif-on-old-hardware">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How AV1 Assembly Speeds Up AVIF on Old Hardware - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-av-1-assembly-speeds-up-avif-on-old-hardware" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article examines how low-level AV1 assembly code optimization revitalizes AVIF image performance on older computer hardware. By utilizing hand-crafted SIMD (Single Instruction, Multiple Data) instructions within software decoders like dav1d, develope" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-av1-assembly-speeds-up-avif-on-old-hardware">How AV1
+Assembly Speeds Up AVIF on Old Hardware</h1>
+<p>This article examines how low-level AV1 assembly code optimization
+revitalizes AVIF image performance on older computer hardware. By
+utilizing hand-crafted SIMD (Single Instruction, Multiple Data)
+instructions within software decoders like dav1d, developers can bypass
+the limitations of generic compiler output. This approach allows legacy
+processors without dedicated AV1 hardware acceleration to decode AVIF
+images rapidly, reducing CPU load, eliminating browser stutter, and
+cutting image rendering times.</p>
+<h3 id="the-challenge-of-avif-on-older-hardware">The Challenge of AVIF
+on Older Hardware</h3>
+<p>AVIF (AV1 Image File Format) is derived from the intra-frame coding
+techniques of the AV1 video standard. While it delivers superior
+compression efficiency compared to legacy formats like JPEG and WebP,
+this efficiency comes at the cost of high computational complexity.</p>
+<p>Modern processors often feature dedicated fixed-function silicon to
+decode AV1 media effortlessly. Older computers, however, must rely
+entirely on software-based decoding executed by the CPU. When decoding
+complex algorithms using default, non-optimized software routines, older
+systems experience high CPU spikes, battery drain, and sluggish page
+rendering when loading media-heavy websites.</p>
+<h3
+id="bypassing-compiler-limitations-with-hand-tuned-assembly">Bypassing
+Compiler Limitations with Hand-Tuned Assembly</h3>
+<p>Compilers convert high-level languages like C or C++ into machine
+code, but they frequently struggle to maximize the efficiency of heavily
+looped, pixel-manipulation tasks. Hand-written assembly code bridges
+this gap.</p>
+<p>Specialized software decoders, most notably VideoLAN's
+<code>dav1d</code>, replaced generic compiler routines with thousands of
+lines of hand-crafted assembly. Human programmers can schedule CPU
+instructions more effectively than automated compilers by anticipating
+register pressure, aligning memory directly, and avoiding pipeline
+stalls that disproportionately degrade the performance of older CPU
+architectures.</p>
+<h3 id="leveraging-legacy-simd-instruction-sets">Leveraging Legacy SIMD
+Instruction Sets</h3>
+<p>Assembly optimization targets specific SIMD extensions that have
+existed on older processors for over a decade. By writing explicit
+assembly routines, developers can force older CPUs to process multiple
+data points in a single clock cycle:</p>
+<ul>
+<li><strong>x86 Systems:</strong> Hand-tuned assembly utilizes
+instruction sets like SSE2, SSSE3, SSE4.1, and AVX2. Instead of
+processing image pixels individually, these vector instructions process
+8, 16, or 32 bytes of pixel data simultaneously.</li>
+<li><strong>ARM Systems:</strong> On older mobile or low-power hardware,
+explicit ARM NEON assembly performs identical parallel data
+processing.</li>
+</ul>
+<p>By ensuring that AV1 algorithms adapt specifically to the highest
+instruction set supported by the host machine, software decoders extract
+the maximum possible throughput from older hardware that lacks modern
+AVX-512 or native AV1 decode blocks.</p>
+<h3 id="critical-av1-pipeline-optimizations">Critical AV1 Pipeline
+Optimizations</h3>
+<p>The assembly optimizations within AV1 decoders focus on the most
+mathematically demanding parts of the AVIF decoding pipeline:</p>
+<ul>
+<li><strong>Inverse Discrete Cosine Transform (IDCT):</strong> Assembly
+accelerates the conversion of frequency-domain coefficients back into
+visible spatial pixels.</li>
+<li><strong>Intra-Prediction:</strong> AVIF relies on complex
+directional spatial filters to predict pixel patterns; assembly routines
+compute these vector-based predictions in parallel.</li>
+<li><strong>Loop Restoration and Deblocking Filters:</strong>
+Post-processing filters, such as the Constrained Directional Enhancement
+Filter (CDEF) and Wiener filters, smooth compression artifacts. Assembly
+implementations vectorize these filter kernels to operate across entire
+pixel blocks simultaneously.</li>
+</ul>
+<h3 id="the-real-world-impact">The Real-World Impact</h3>
+<p>By replacing generic C code with hand-optimized assembly, AV1
+software decoding speed typically increases between 200% and 500% on
+older hardware. For AVIF, this drastically reduces the time a browser
+takes to unpack and display images. Older laptops and desktops
+experience reduced thermal throttling, minimal system latency, and
+smooth web browsing performance, allowing legacy machines to adopt
+next-generation image formats without a perceived loss in speed.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

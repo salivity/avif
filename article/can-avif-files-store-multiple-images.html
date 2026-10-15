@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Can AVIF Files Store Multiple Images? - avif</title>
+    <meta name="description" content="AVIF files can encapsulate multiple images within a single file, including photo bursts, exposure brackets, and auxiliary image data. Because the AVIF specification is built on the ISO Base Media File Format (ISOBMFF) and inherits the structural design of">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/can-avif-files-store-multiple-images">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Can AVIF Files Store Multiple Images? - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/can-avif-files-store-multiple-images" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="AVIF files can encapsulate multiple images within a single file, including photo bursts, exposure brackets, and auxiliary image data. Because the AVIF specification is built on the ISO Base Media File Format (ISOBMFF) and inherits the structural design of" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="can-avif-files-store-multiple-images">Can AVIF Files Store
+Multiple Images?</h1>
+<p>AVIF files can encapsulate multiple images within a single file,
+including photo bursts, exposure brackets, and auxiliary image data.
+Because the AVIF specification is built on the ISO Base Media File
+Format (ISOBMFF) and inherits the structural design of the High
+Efficiency Image File Format (HEIF), it natively supports multi-image
+encapsulation. This capability allows creators and developers to bundle
+related captures, depth maps, and multiple exposures together rather
+than distributing them across separate files.</p>
+<h2 id="the-underlying-container-heif-and-isobmff">The Underlying
+Container: HEIF and ISOBMFF</h2>
+<p>The AV1 Image File Format (AVIF) uses the HEIF container format,
+which separates the storage architecture from the compression codec.
+While the AV1 codec handles image compression, the ISOBMFF-based
+container manages file structure and metadata.</p>
+<p>HEIF defines two distinct methods for handling multiple frames:</p>
+<ol type="1">
+<li><strong>Image Collections (Items):</strong> The file contains
+several independent or related still images stored as distinct
+items.</li>
+<li><strong>Image Sequences (Tracks):</strong> The file contains a
+sequence of images stored as a video-like track, commonly referred to as
+AVIFS when used for animations or continuous frame streams.</li>
+</ol>
+<h2 id="photo-bursts">Photo Bursts</h2>
+<p>AVIF handles photo bursts through image collections or image
+sequences. In an image collection, each frame in the burst is stored as
+an individual image item. One frame is designated as the primary
+item—the photo that displays by default in standard viewers—while the
+remaining shots are linked to the primary image.</p>
+<p>This approach preserves the full resolution and individual metadata
+of every shot in the burst while keeping them contained within a single
+file.</p>
+<h2 id="exposure-bracketing-and-hdr">Exposure Bracketing and HDR</h2>
+<p>Exposure bracketing involves taking multiple consecutive shots of the
+same scene at varying exposure values (underexposed, standard, and
+overexposed) to capture a wide dynamic range.</p>
+<p>AVIF is well suited for exposure brackets for two main reasons:</p>
+<ul>
+<li><strong>Item Association:</strong> Each bracketed exposure can be
+encapsulated as a separate item, allowing post-processing software to
+extract individual raw or compressed frames from one container.</li>
+<li><strong>Auxiliary Items and Gain Maps:</strong> AVIF supports
+auxiliary image items, which are non-display images used to complement a
+primary image. This allows a standard SDR (Standard Dynamic Range) image
+to be packaged alongside an HDR gain map or exposure layer, enabling
+devices to render high-contrast scenes dynamically based on display
+capabilities.</li>
+</ul>
+<h2 id="auxiliary-data-depth-maps-and-alpha-channels">Auxiliary Data:
+Depth Maps and Alpha Channels</h2>
+<p>Beyond bursts and exposure series, AVIF can encapsulate secondary
+image data associated with a primary shot:</p>
+<ul>
+<li><strong>Alpha Channels:</strong> Used to store transparency masks
+independently from color data.</li>
+<li><strong>Depth Maps:</strong> Used in computational photography to
+store 3D depth information for portrait mode effects, refocusing, or
+stereo imaging.</li>
+</ul>
+<h2 id="software-support-and-implementation-considerations">Software
+Support and Implementation Considerations</h2>
+<p>Although the AVIF specification fully supports multi-image
+encapsulation, real-world software implementation depends on the
+decoder:</p>
+<ul>
+<li><strong>Web Browsers:</strong> Modern browsers fully support
+single-image AVIF and animated AVIF sequences (AVIFS). However,
+specialized features like selective extraction of burst frames or
+bracketed item collections require specialized application-level
+support.</li>
+<li><strong>Photo Viewers and Editors:</strong> Advanced imaging
+software that supports HEIF containers can often parse the individual
+items inside an AVIF file, but widespread adoption for burst and
+bracketed AVIF files is still developing compared to traditional RAW or
+JPEG stacks.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

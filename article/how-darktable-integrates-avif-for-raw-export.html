@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Darktable Integrates AVIF for Raw Export - avif</title>
+    <meta name="description" content="This article examines how the open-source photography workflow application Darktable implements open-source AVIF libraries to compress and export non-destructive raw photographic edits. It details the underlying software architecture, the handoff between">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-darktable-integrates-avif-for-raw-export">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How Darktable Integrates AVIF for Raw Export - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-darktable-integrates-avif-for-raw-export" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article examines how the open-source photography workflow application Darktable implements open-source AVIF libraries to compress and export non-destructive raw photographic edits. It details the underlying software architecture, the handoff between" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-darktable-integrates-avif-for-raw-export">How Darktable
+Integrates AVIF for Raw Export</h1>
+<p>This article examines how the open-source photography workflow
+application Darktable implements open-source AVIF libraries to compress
+and export non-destructive raw photographic edits. It details the
+underlying software architecture, the handoff between Darktable’s 32-bit
+floating-point pixel pipeline and encoders like <code>libavif</code>,
+and how high bit-depth color management is maintained throughout the
+export process to maximize image fidelity while reducing storage
+footprints.</p>
+<h3 id="the-core-integration-libavif-and-encoder-backends">The Core
+Integration: libavif and Encoder Backends</h3>
+<p>Darktable does not natively construct AVIF containers or encode AV1
+streams using custom, internal code. Instead, its export architecture
+relies on <code>libavif</code>, a widely adopted open-source C library
+developed by the Alliance for Open Media (AOMedia). During compilation
+via CMake, Darktable detects the presence of <code>libavif</code> on the
+host system. If present, Darktable builds its AVIF image-input/output
+(imageio) module, exposing AVIF as an export target in the lighttable
+view.</p>
+<p><code>libavif</code> functions as a wrapper and multiplexer, handling
+the ISO Base Media File Format (ISOBMFF) container creation. For the
+actual frame compression, <code>libavif</code> links to an underlying
+AV1 encoder installed on the system, most commonly:</p>
+<ul>
+<li><strong>libaom:</strong> The reference open-source encoder, offering
+high compression efficiency at the expense of slower processing
+times.</li>
+<li><strong>rav1e:</strong> A memory-safe, Rust-based AV1 encoder
+optimized for speed and safety.</li>
+<li><strong>SVT-AV1:</strong> A multi-threaded, highly optimized
+production encoder developed by Intel and the AOMedia consortium.</li>
+</ul>
+<p>Darktable passes user-defined configuration parameters directly to
+<code>libavif</code>, which instructs the active underlying codec on how
+to handle the raster data.</p>
+<h3 id="from-32-bit-float-to-avif-encoding">From 32-Bit Float to AVIF
+Encoding</h3>
+<p>Darktable’s non-destructive processing pipeline computes pixel
+transformations in a 32-bit floating-point linear color space. When a
+user triggers an export, the software translates these raw processing
+adjustments into a finalized raster image through a defined
+sequence:</p>
+<ol type="1">
+<li><strong>Pipeline Processing:</strong> Raw demosaicing, lens
+corrections, exposure compensation, and color grading modules are
+calculated sequentially in memory.</li>
+<li><strong>Color Space Conversion and Gamut Mapping:</strong> Darktable
+utilizes LittleCMS (LCMS2) to transform the internal working profile
+(typically linear Rec. 2020) into the user's selected export profile
+(such as standard sRGB, Display P3, or wider gamut spaces).</li>
+<li><strong>Quantization:</strong> <code>libavif</code> supports 8-bit,
+10-bit, and 12-bit color depths. Darktable quantizes its 32-bit
+floating-point pixel buffers into 8-bit or 10-bit/12-bit integer formats
+depending on the export quality and bit-depth settings chosen by the
+user. Retaining 10-bit or 12-bit precision prevents banding and tonal
+posterization in high-dynamic-range scenes.</li>
+<li><strong>Metadata and ICC Embedding:</strong> Darktable writes EXIF,
+XMP, and the exported ICC profile directly into the AVIF file structure
+via <code>libavif</code>'s metadata packaging hooks, preserving edit
+attribution and hardware color-matching instructions.</li>
+</ol>
+<h3 id="export-controls-and-encoder-parameters">Export Controls and
+Encoder Parameters</h3>
+<p>Within the export module, Darktable translates UI parameters into
+low-level instructions passed to <code>libavif</code>:</p>
+<ul>
+<li><strong>Quality vs. Compression Ratio:</strong> The user-facing
+quality slider maps to the encoder's Constant Rate Factor (CRF) or
+quantization index (<span class="math inline">\(Q\)</span>-value). A
+setting of 100 instructs the library to configure true lossless mode,
+while lower values allocate quantizer steps based on psychoacoustic and
+visual metrics.</li>
+<li><strong>Speed/CPU Usage Preset:</strong> Darktable exposes a speed
+preset setting that controls the underlying codec’s algorithmic
+trade-offs (e.g., motion estimation search windows, partition
+evaluations, and transform tree complexity). Higher speed presets reduce
+export latency at the cost of slight file-size overhead.</li>
+<li><strong>Tiling and Multithreading:</strong> High-resolution digital
+camera raw files (e.g., 45 to 60+ megapixels) generate heavy memory
+demands. Darktable configures <code>libavif</code> to use multi-threaded
+encoding and frame tiling, allowing multiple CPU cores to simultaneously
+compress different regions of the frame.</li>
+</ul>
+<p>By leveraging <code>libavif</code> and modular AV1 backends,
+Darktable bridges high-end raw photo processing with modern container
+formats, providing photographers with HDR-capable, small-footprint image
+files that retain the fidelity of their raw edits.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

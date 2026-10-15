@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10-Bit AVIF HDR Display Driver Optimizations - avif</title>
+    <meta name="description" content="This article explores the primary display driver optimizations designed to route 10-bit AVIF image buffers directly to HDR-capable display panels. Delivering high-fidelity HDR content without introducing latency or visual artifacts requires specialized dr">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/10-bit-avif-hdr-display-driver-optimizations">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="10-Bit AVIF HDR Display Driver Optimizations - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/10-bit-avif-hdr-display-driver-optimizations" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explores the primary display driver optimizations designed to route 10-bit AVIF image buffers directly to HDR-capable display panels. Delivering high-fidelity HDR content without introducing latency or visual artifacts requires specialized dr" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="10-bit-avif-hdr-display-driver-optimizations">10-Bit AVIF HDR
+Display Driver Optimizations</h1>
+<p>This article explores the primary display driver optimizations
+designed to route 10-bit AVIF image buffers directly to HDR-capable
+display panels. Delivering high-fidelity HDR content without introducing
+latency or visual artifacts requires specialized driver paths that
+bypass traditional desktop compositing. By leveraging hardware overlay
+promotion, zero-copy decode pipelines, native format mapping, and
+hardware-accelerated color space conversion, modern GPU drivers ensure
+10-bit AVIF images are presented with optimal performance and dynamic
+range.</p>
+<h3 id="direct-scanout-and-hardware-overlays">Direct Scanout and
+Hardware Overlays</h3>
+<p>Traditional desktop rendering pipes images through a system
+compositor, which often converts surfaces into an intermediate pixel
+format (such as 8-bit RGBA) before sending the final frame to the
+display. To prevent this truncation and avoid the associated performance
+penalty, modern display drivers employ direct scanout or hardware
+overlay promotion.</p>
+<p>Under frameworks such as Microsoft DirectFlip (via the Desktop Window
+Manager) or Linux’s DRM/KMS overlay planes, the driver detects an
+eligible 10-bit surface. If the image view is unobstructed, the driver
+assigns the AVIF buffer directly to a dedicated hardware plane. The
+display engine then scans the buffer directly into the display
+controller’s timing generator, bypassing the compositor entirely. This
+preserves the full 10-bit precision and prevents quantization artifacts
+like color banding.</p>
+<h3 id="zero-copy-pipeline-from-decoder-to-display">Zero-Copy Pipeline
+from Decoder to Display</h3>
+<p>AVIF relies on the AV1 video codec standard for image compression,
+frequently utilizing the 10-bit YUV 4:2:0 or YUV 4:4:4 sampling formats.
+Modern GPUs feature dedicated fixed-function decoders (such as NVIDIA
+NVDEC, AMD VCN, and Intel Quick Sync Video) capable of decoding 10-bit
+AV1 natively into video memory surfaces, such as <code>P010</code> or
+<code>Y410</code>.</p>
+<p>Display driver optimizations link this hardware decoder directly to
+the display engine:</p>
+<ul>
+<li><strong>Unified Surface Allocation:</strong> The driver allocates
+the destination buffer in video RAM (VRAM) with memory tiling compatible
+with both the video decoder and the display scanout engine.</li>
+<li><strong>Shared DMA Engine:</strong> Frame decoding writes directly
+into a texture allocation that the display hardware can sample without
+an intermediate CPU copy or GPU blit operation.</li>
+<li><strong>Synchronization Barriers:</strong> Light-weight hardware
+sync objects (like explicit synchronization primitives in Vulkan or
+DirectX 12) signal the display engine the moment the decode pass
+finishes, minimizing buffer presentation latency.</li>
+</ul>
+<h3 id="native-format-conversion-and-eotf-processing">Native Format
+Conversion and EOTF Processing</h3>
+<p>HDR panels require specific Electro-Optical Transfer Functions
+(EOTFs), such as Perceptual Quantizer (SMPTE ST 2084 / PQ) or Hybrid
+Log-Gamma (HLG), defined across the wide color gamut of ITU-R BT.2020.
+10-bit AVIF files carry this metadata embedded within the file
+structure.</p>
+<p>Rather than forcing the CPU or 3D shader core to convert pixel
+values, modern drivers program the display engine’s internal
+color-management blocks:</p>
+<ul>
+<li><strong>Matrix Transformation:</strong> The display controller uses
+fixed-function hardware to execute the YUV-to-RGB color space matrix
+conversion at line-rate.</li>
+<li><strong>Look-Up Tables (LUTs):</strong> Driver-managed hardware 1D
+and 3D LUTs handle gamma, PQ curve mapping, and gamut remapping directly
+in hardware.</li>
+<li><strong>Tone Mapping Bypassing:</strong> When a display supports the
+source luminance levels natively, the driver disables software tone
+mapping, feeding raw HDR values directly to the panel’s native timing
+pipeline.</li>
+</ul>
+<h3 id="dynamic-metadata-passthrough">Dynamic Metadata Passthrough</h3>
+<p>For displays supporting dynamic HDR standards, passing accurate
+mastering display color volume (MDCV) and content light level (CLL)
+metadata is crucial. Display drivers inspect the AVIF container for
+static or dynamic HDR metadata blocks (e.g., SMPTE ST 2086 metadata) and
+populate the HDMI InfoFrames or DisplayPort Secondary Data Packets. This
+hands-off approach ensures the display panel receives unmanipulated
+metadata to govern its local dimming zones, peak brightness targets, and
+color coordinates accurately.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

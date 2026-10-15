@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF vs JPEG XL Progressive Decoding Differences - avif</title>
+    <meta name="description" content="Progressive decoding allows an image to display a low-quality preview almost immediately while the remaining data streams in, significantly improving perceived load times on the web. While both AVIF and JPEG XL are next-generation image formats designed t">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-vs-jpeg-xl-progressive-decoding-differences">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF vs JPEG XL Progressive Decoding Differences - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-vs-jpeg-xl-progressive-decoding-differences" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Progressive decoding allows an image to display a low-quality preview almost immediately while the remaining data streams in, significantly improving perceived load times on the web. While both AVIF and JPEG XL are next-generation image formats designed t" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-vs-jpeg-xl-progressive-decoding-differences">AVIF vs JPEG
+XL Progressive Decoding Differences</h1>
+<p>Progressive decoding allows an image to display a low-quality preview
+almost immediately while the remaining data streams in, significantly
+improving perceived load times on the web. While both AVIF and JPEG XL
+are next-generation image formats designed to replace legacy formats,
+they approach progressive decoding fundamentally differently. JPEG XL
+natively integrates progressive decoding as a core architectural feature
+with virtually no file size penalty, whereas AVIF relies on
+video-derived layered encoding that introduces substantial data overhead
+and lacks broad implementation.</p>
+<h3 id="native-architecture-vs-video-derived-layering">Native
+Architecture vs. Video-Derived Layering</h3>
+<p>JPEG XL was engineered from the ground up for still images. Its
+progressive mode uses an advanced variable-block discrete cosine
+transform (VarDCT) alongside modular modes. It delivers a fast "DC"
+image—a smooth, blurry preview that looks similar to a low-resolution
+thumbnail—using merely 10% to 15% of the total file data. The file
+continues to load high-frequency details incrementally until full
+fidelity is reached.</p>
+<p>In contrast, AVIF is derived from the AV1 video codec and
+encapsulated within the ISOBMFF container. AV1 lacks a native
+frequency-progressive scan mode for still images. To simulate
+progressive decoding, AVIF must use layered coding (spatial
+scalability), packaging multiple independent or dependent sub-images at
+different resolutions into a single file.</p>
+<h3 id="file-size-and-compression-efficiency-overhead">File Size and
+Compression Efficiency Overhead</h3>
+<p>One of the most critical differences is the compression penalty
+associated with progressive capabilities:</p>
+<ul>
+<li><strong>JPEG XL:</strong> Enabling progressive decoding adds almost
+zero overhead to the total file size—typically between 0% and 3%. Users
+do not have to compromise on bandwidth efficiency to gain responsive
+rendering.</li>
+<li><strong>AVIF:</strong> Using spatial scalability or layered frames
+to achieve multi-step progressive rendering drastically increases the
+total file size, often by 20% to 50% or more. Because this overhead
+negates AVIF’s primary benefit—extreme compression—most encoders disable
+progressive features entirely.</li>
+</ul>
+<h3 id="granularity-and-visual-quality-of-passes">Granularity and Visual
+Quality of Passes</h3>
+<p>The progression steps in JPEG XL are highly granular and visually
+coherent. JPEG XL supports up to several distinct quality passes,
+including a minimal-overhead 1:1 scale preview, saliency-based passes
+(loading important features like faces first), and high-frequency
+refinement. The intermediate stages look natural and avoid severe block
+artifacts.</p>
+<p>AVIF’s layered approach is coarse. An AVIF file generally tops out at
+two or three distinct layers due to container constraints and data
+costs. Intermediate layers often display noticeable block compression or
+sudden resolution jumps rather than a continuous, smooth sharpening
+effect.</p>
+<h3 id="browser-and-tooling-implementation">Browser and Tooling
+Implementation</h3>
+<p>Progressive rendering requires both format support and decoder
+implementation in software:</p>
+<ul>
+<li><strong>JPEG XL:</strong> The official reference implementation
+(<code>libjxl</code>) includes full streaming and progressive decoding
+by default. Decoders can pause at any point in the stream and render the
+best possible version of the image with the bytes available.</li>
+<li><strong>AVIF:</strong> Progressive decoding is virtually
+non-existent in real-world deployments. Most AVIF web decoders and
+browser engines treat AVIF files as baseline single-frame renders,
+requiring the entire frame payload before rendering pixels to the
+screen.</li>
+</ul>
+<h3 id="summary">Summary</h3>
+<p>For applications requiring progressive rendering, JPEG XL is
+objectively superior. It delivers lightweight, responsive, and seamless
+multi-stage previews without sacrificing file size. AVIF is
+fundamentally optimized for single-pass delivery of static frames,
+making its progressive decoding capabilities technically complex,
+bandwidth-heavy, and practically unsupported for mainstream web use.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

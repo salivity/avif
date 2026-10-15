@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Best AVIF Settings for Code Screenshots - avif</title>
+    <meta name="description" content="Capturing computer screenshots of code demands distinct encoder configurations because standard AV1 presets prioritize natural photographic content, often causing blurry monospace typography and color bleeding across syntax highlighting. This guide detail">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/best-avif-settings-for-code-screenshots">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Best AVIF Settings for Code Screenshots - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/best-avif-settings-for-code-screenshots" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Capturing computer screenshots of code demands distinct encoder configurations because standard AV1 presets prioritize natural photographic content, often causing blurry monospace typography and color bleeding across syntax highlighting. This guide detail" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="best-avif-settings-for-code-screenshots">Best AVIF Settings for
+Code Screenshots</h1>
+<p>Capturing computer screenshots of code demands distinct encoder
+configurations because standard AV1 presets prioritize natural
+photographic content, often causing blurry monospace typography and
+color bleeding across syntax highlighting. This guide details the
+essential AVIF encoder tuning options—primarily full chroma subsampling,
+screen-content tuning, quantizer controls, and edge-preservation
+settings—necessary to produce lightweight, pixel-perfect images of
+terminal and IDE windows.</p>
+<h3 id="1-enforce-yuv-444-chroma-subsampling">1. Enforce YUV 4:4:4
+Chroma Subsampling</h3>
+<p>By default, image and video encoders use YUV 4:2:0 subsampling, which
+halves color resolution horizontally and vertically to save bandwidth.
+For code screenshots with multi-colored text on dark or light
+backgrounds, 4:2:0 results in severe color bleeding, fringing around
+characters, and unreadable punctuation.</p>
+<ul>
+<li><strong>Target setting:</strong> Set the pixel format to
+<code>yuv444p</code> or 4:4:4.</li>
+<li><strong>Impact:</strong> Preserves full-resolution color data for
+every individual pixel, ensuring syntax tokens (such as red keywords or
+cyan variables) remain crisp against the background.</li>
+</ul>
+<h3 id="2-set-the-encoder-tuning-flag-to-screen-or-ssim">2. Set the
+Encoder Tuning Flag to Screen or SSIM</h3>
+<p>Most AV1 encoders (such as <code>libaom</code>, <code>SVT-AV1</code>,
+and <code>rav1e</code>) default to perceptual metrics like VMAF or
+visual psychovisual models that blur high-frequency noise. Because code
+consists entirely of high-frequency sharp edges, standard perceptual
+tuning degrades text legibility.</p>
+<ul>
+<li><strong>libaom (<code>avifenc</code>):</strong> Use
+<code>--tune ssim</code>. While libaom does not have a dedicated screen
+mode in the image encoder frontend, SSIM penalizes edge deformation more
+strictly than the default subjective metric.</li>
+<li><strong>SVT-AV1:</strong> Set <code>--tune 0</code> (Visual
+quality/MQ) or enable screen content tools if utilizing an SVT-AV1
+pipeline.</li>
+<li><strong>Screen Content Tools:</strong> Ensure intra-block copy (IBC)
+and palette mode are enabled if exposed by the encoder. These tools are
+built into AV1 specifically to identify repeating screen patterns, such
+as monospace character fonts and uniform background colors.</li>
+</ul>
+<h3 id="3-use-10-bit-color-depth">3. Use 10-Bit Color Depth</h3>
+<p>Even when your source screenshot is 8-bit sRGB, encoding the output
+as 10-bit (<code>yuv444p10le</code>) significantly improves the
+compression efficiency of the AV1 format.</p>
+<ul>
+<li><strong>Why it matters:</strong> The internal math of the AV1
+transforms operates with less rounding error at 10-bit depth. This
+reduces gradient banding in IDE themes and prevents block compression
+artifacts near the boundaries of high-contrast text without increasing
+file size.</li>
+</ul>
+<h3 id="4-optimize-quantization-crf--cq-levels">4. Optimize Quantization
+(CRF / CQ Levels)</h3>
+<p>Screenshots of code contain large areas of flat color mixed with
+isolated high-contrast pixels. Avoid aggressive compression that
+triggers discrete cosine transform (DCT) ringing artifacts around
+character glyphs.</p>
+<ul>
+<li><strong>Constant Quality (CRF/Q):</strong> Target a quantizer scale
+between <strong>15 and 25</strong> (on a 0–63 scale, where 0 is
+lossless). A quality setting of roughly <code>Q=75</code> to
+<code>Q=85</code> in tools like <code>avifenc</code> maintains clean
+font edges.</li>
+<li><strong>Min/Max Quantizers:</strong> Keep the minimum and maximum
+quantizers close together (or lock them using a single CQ value) to
+prevent the encoder from smoothing out lines of code in complex
+sections.</li>
+</ul>
+<h3 id="5-disable-filtering-and-adaptive-smoothing">5. Disable Filtering
+and Adaptive Smoothing</h3>
+<p>Video-oriented AV1 features attempt to soften grain and sharp lines
+to make motion appear smoother. For static code captures, these
+mechanisms must be suppressed:</p>
+<ul>
+<li><strong>Loop Restoration and Deblocking:</strong> In photographic
+images, in-loop deblocking filters hide tile seams. On pixelated text,
+overzealous filtering blurs thin stems on characters like
+<code>i</code>, <code>l</code>, and punctuation marks like
+<code>;</code>. Keep deblocking filter strengths low or at default
+zero-offsets.</li>
+<li><strong>Sharpness:</strong> If using encoders with an explicit
+sharpness control (such as <code>libaom</code>'s
+<code>--sharpness</code> parameter), increase it to a value between
+<code>1</code> and <code>4</code> to prevent edge transitions from
+flattening.</li>
+</ul>
+<h3 id="practical-implementation">Practical Implementation</h3>
+<p>Using the reference tool <code>avifenc</code> (libaom-based), the
+optimal command for a code screenshot is:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">avifenc</span> <span class="at">--min</span> 15 <span class="at">--max</span> 25 <span class="at">-d</span> 10 <span class="at">-y</span> 444 <span class="at">--tune</span> ssim <span class="at">-s</span> 4 screenshot.png code_optimized.avif</span></code></pre></div>
+<p>Using <code>ffmpeg</code> with <code>libaom-av1</code>:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ffmpeg</span> <span class="at">-i</span> screenshot.png <span class="at">-c:v</span> libaom-av1 <span class="at">-crf</span> 20 <span class="at">-b:v</span> 0 <span class="at">-pix_fmt</span> yuv444p10le <span class="at">-cpu-used</span> 4 <span class="at">-aom-params</span> tune=ssim:enable-rect-partitions=1 code_optimized.avif</span></code></pre></div>
+<p>These parameters balance encoding time, keep file sizes far below
+comparable PNGs, and guarantee legible, artifact-free code
+rendering.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

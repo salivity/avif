@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Understanding AVIF Operating Point Parameters - avif</title>
+    <meta name="description" content="This article explains the role and importance of the operating point parameter found within the AVIF (AV1 Image File Format) sequence header. It covers how this parameter defines decoding capabilities, manages layered or scalable bitstreams, and ensures s">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/understanding-avif-operating-point-parameters">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Understanding AVIF Operating Point Parameters - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/understanding-avif-operating-point-parameters" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explains the role and importance of the operating point parameter found within the AVIF (AV1 Image File Format) sequence header. It covers how this parameter defines decoding capabilities, manages layered or scalable bitstreams, and ensures s" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="understanding-avif-operating-point-parameters">Understanding
+AVIF Operating Point Parameters</h1>
+<p>This article explains the role and importance of the operating point
+parameter found within the AVIF (AV1 Image File Format) sequence header.
+It covers how this parameter defines decoding capabilities, manages
+layered or scalable bitstreams, and ensures seamless hardware and
+software compatibility when rendering still images and image
+sequences.</p>
+<h3 id="what-is-an-operating-point">What Is an Operating Point?</h3>
+<p>In the AV1 video codec—which forms the core image encoding standard
+for AVIF—an operating point defines a specific decode target within a
+bitstream. An AV1 bitstream can contain multiple scalability layers
+(such as varying spatial resolutions or frame rates) packaged into a
+single stream. The operating point specifies a combination of these
+layers along with the necessary decoding tier, profile, and level
+required to render the targeted output.</p>
+<p>Within an AVIF sequence header, the operating point indicates to the
+decoder precisely which subset of the bitstream must be processed to
+display the primary image or image sequence.</p>
+<h3
+id="decoupling-complex-bitstreams-with-scalability-identifiers">Decoupling
+Complex Bitstreams with Scalability Identifiers</h3>
+<p>The sequence header contains an operating point syntax element (often
+represented via <code>operating_point_idc</code>). This bitmask
+explicitly dictates which spatial and temporal layers are intended for
+extraction and decoding.</p>
+<p>For advanced AVIF use cases—such as progressive rendering,
+multi-resolution previews, or animated sequences—the bitstream may
+contain base and enhancement layers. The operating point parameter
+allows an AVIF decoder to immediately identify whether it needs to
+decode the entire bitstream or only a lower-complexity base layer,
+saving computational resources and battery life on constrained
+devices.</p>
+<h3 id="profile-level-and-tier-enforcement">Profile, Level, and Tier
+Enforcement</h3>
+<p>Each operating point declared in the sequence header is tied to
+specific compliance metrics:</p>
+<ul>
+<li><strong>Profile:</strong> Dictates bit depth (8, 10, or 12-bit) and
+color subsampling formats (4:2:0, 4:2:2, 4:4:4, or monochrome).</li>
+<li><strong>Level:</strong> Establishes performance limitations,
+including maximum pixel rates, frame dimensions, and tile
+configurations.</li>
+<li><strong>Tier:</strong> Defines bitrate ceilings (Main or High Tier)
+for decoders.</li>
+</ul>
+<p>By inspecting the operating point parameter, an AVIF parser can
+instantly determine if the underlying hardware decoder supports the
+requirements of the image before allocating resources or attempting
+playback.</p>
+<h3 id="role-in-the-av1-item-configuration-property-av1c">Role in the
+AV1 Item Configuration Property (<code>av1C</code>)</h3>
+<p>In an AVIF file, image data is encapsulated within the ISOBMFF (ISO
+Base Media File Format) container. The AV1 Item Configuration Box
+(<code>av1C</code>) reflects critical configuration fields from the
+underlying AV1 sequence header, including the initial operating point
+index.</p>
+<p>This container-level signaling ensures that web browsers, image
+viewers, and operating systems do not need to parse the raw AV1 Open
+Bitstream Units (OBUs) to evaluate compatibility. The parser reads the
+operating point, checks decoder capability, and routes the bitstream
+directly to the appropriate hardware or software decoding pipeline.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

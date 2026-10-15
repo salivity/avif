@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What Is AV1 tune=vmaf and How It Affects AVIF - avif</title>
+    <meta name="description" content="The tune=vmaf setting in AV1 encoders optimizes compression decisions specifically to maximize the Video Multi-Method Assessment Fusion (VMAF) metric rather than standard mathematical models like PSNR. Because the AVIF image format uses AV1 intra-frame co">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/what-is-av-1-tune-vmaf-and-how-it-affects-avif">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="What Is AV1 tune=vmaf and How It Affects AVIF - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/what-is-av-1-tune-vmaf-and-how-it-affects-avif" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The tune=vmaf setting in AV1 encoders optimizes compression decisions specifically to maximize the Video Multi-Method Assessment Fusion (VMAF) metric rather than standard mathematical models like PSNR. Because the AVIF image format uses AV1 intra-frame co" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="what-is-av1-tunevmaf-and-how-it-affects-avif">What Is AV1
+tune=vmaf and How It Affects AVIF</h1>
+<p>The <code>tune=vmaf</code> setting in AV1 encoders optimizes
+compression decisions specifically to maximize the Video Multi-Method
+Assessment Fusion (VMAF) metric rather than standard mathematical models
+like PSNR. Because the AVIF image format uses AV1 intra-frame coding,
+applying this tuning directly alters the visual balance of static images
+by shifting how detail, sharpness, and compression artifacts are
+prioritized across different frequencies and textures.</p>
+<h2 id="understanding-the-tunevmaf-setting">Understanding the tune=vmaf
+Setting</h2>
+<p>When encoding with AV1 libraries like <code>libaom</code> or
+<code>SVT-AV1</code>, the encoder uses Rate-Distortion Optimization
+(RDO) to determine how to compress image blocks within a given bitrate
+budget. By default, encoders balance mathematical fidelity and visual
+perception using metrics like Peak Signal-to-Noise Ratio (PSNR) or
+structural similarity (SSIM).</p>
+<p>The <code>tune=vmaf</code> option alters the internal cost functions
+of the encoder. VMAF—developed by Netflix—combines multiple quality
+metrics (such as Visual Information Fidelity and Detail Loss Metric)
+alongside machine learning to approximate how the human visual system
+perceives quality. When <code>tune=vmaf</code> is enabled, the encoder
+chooses transform sizes, quantization levels, and prediction modes that
+directly target a higher VMAF score.</p>
+<h2 id="how-tunevmaf-influences-avif-visual-balance">How tune=vmaf
+Influences AVIF Visual Balance</h2>
+<p>Because an AVIF file is essentially an AV1 keyframe wrapped in an
+HEIF container, any encoder-level optimization alters the resulting
+still image. Tuning for VMAF impacts the visual characteristics of AVIF
+images in several distinct ways:</p>
+<h3 id="1-edge-preservation-and-sharpness">1. Edge Preservation and
+Sharpness</h3>
+<p>Standard mathematical metrics often favor slight blurring because
+blur distributes error evenly, keeping PSNR high. In contrast, VMAF
+heavily penalizes the loss of sharp structural boundaries. Under
+<code>tune=vmaf</code>, AVIF encoders allocate more bits to prominent
+edges and high-contrast transitions. This creates images that appear
+sharper and clearer at lower bitrates compared to untuned or PSNR-tuned
+encodes.</p>
+<h3 id="2-texture-retention-vs-smoothing">2. Texture Retention vs.
+Smoothing</h3>
+<p>VMAF incorporates detail loss evaluation, meaning
+<code>tune=vmaf</code> attempts to prevent flat, blocky patches in
+textured areas like foliage, fabric, and skin. However, since VMAF is
+fundamentally designed for moving video where temporal masking hides
+small spatial errors, static AVIF images tuned with VMAF can sometimes
+exhibit uneven texture distribution. The encoder may over-allocate data
+to keep one distinct texture sharp while aggressively smoothing an
+adjacent, subtler gradient.</p>
+<h3 id="3-metric-gaming-and-visual-artifacts">3. Metric Gaming and
+Visual Artifacts</h3>
+<p>Tuning strictly for an automated metric introduces the risk of
+"metric gaming." The encoder optimizes for what satisfies the algorithm
+rather than true human vision. In AVIF encoding, <code>tune=vmaf</code>
+can produce specific visual trade-offs:</p>
+<ul>
+<li><strong>Ringing Artifacts:</strong> To preserve edge contrast and
+score well on detail metrics, the encoder may produce faint halos around
+sharp edges.</li>
+<li><strong>Chroma Smearing:</strong> Because standard VMAF focuses
+heavily on the luma (brightness) channel, color details in AVIF images
+can be disproportionately compressed, leading to desaturated or smeared
+colors in complex patterns.</li>
+<li><strong>Banding in Gradients:</strong> Smooth areas like skies may
+suffer from subtle color banding as bits are aggressively stolen from
+low-variance blocks to boost high-frequency scores elsewhere.</li>
+</ul>
+<h2 id="when-to-use-tunevmaf-for-avif">When to Use tune=vmaf for
+AVIF</h2>
+<p><code>tune=vmaf</code> is most effective when encoding AVIF assets at
+low-to-medium bitrates where preserving perceived sharpness and contrast
+is more important than absolute fidelity. It prevents the soft,
+washed-out look typical of aggressive standard compression.</p>
+<p>For photographic AVIF images at high quality levels, tuning for VMAF
+is generally less desirable than tuning for SSIM, modern perceptual
+metrics (like SSIMULACRA2), or using default psychovisual tunings. At
+high bitrates, VMAF-specific decisions can introduce unnatural sharpness
+halos and color trade-offs that become noticeable upon close inspection
+of a still photograph.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

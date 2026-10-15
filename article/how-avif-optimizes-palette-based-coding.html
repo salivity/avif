@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How AVIF Optimizes Palette-Based Coding - avif</title>
+    <meta name="description" content="AVIF leverages the advanced compression toolset of the AV1 video codec to deliver superior compression for graphic-heavy imagery. When processing images with limited distinct color counts—such as user interface elements, screenshots, diagrams, and pixel a">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-avif-optimizes-palette-based-coding">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How AVIF Optimizes Palette-Based Coding - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-avif-optimizes-palette-based-coding" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="AVIF leverages the advanced compression toolset of the AV1 video codec to deliver superior compression for graphic-heavy imagery. When processing images with limited distinct color counts—such as user interface elements, screenshots, diagrams, and pixel a" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-avif-optimizes-palette-based-coding">How AVIF Optimizes
+Palette-Based Coding</h1>
+<p>AVIF leverages the advanced compression toolset of the AV1 video
+codec to deliver superior compression for graphic-heavy imagery. When
+processing images with limited distinct color counts—such as user
+interface elements, screenshots, diagrams, and pixel art—AVIF employs a
+specialized palette prediction mode. This article explains the technical
+mechanics behind AVIF’s palette-based coding, detailing how it detects
+low-color blocks, replaces complex transform operations with color
+lookup tables, and achieves compact file sizes while eliminating visual
+artifacts.</p>
+<h3 id="the-mechanism-of-palette-mode-in-av1avif">The Mechanism of
+Palette Mode in AV1/AVIF</h3>
+<p>Standard image compression pipelines process pixel blocks through
+intra-prediction, forward transforms (like DCT or ADST), and
+quantization of residual frequencies. While effective for
+continuous-tone photography, this approach introduces ringing artifacts
+and high bitrate overhead around sharp, high-contrast edges typical of
+flat graphics.</p>
+<p>AVIF bypasses this standard pipeline using the AV1 intra-prediction
+"palette mode." Instead of predicting continuous gradient values across
+a block, the encoder identifies blocks that contain only a few unique
+colors and encodes them using an indexed color representation.</p>
+<h3 id="dynamic-block-level-detection">Dynamic Block-Level
+Detection</h3>
+<p>AVIF’s palette coding operates dynamically on coding blocks ranging
+in size from 8x8 up to 64x64 pixels. The encoder evaluates whether
+applying a local palette yields a lower rate-distortion (RD) cost than
+standard directional intra-prediction:</p>
+<ul>
+<li><strong>Color Cardinality Limits:</strong> AVIF supports palette
+sizes typically ranging from 2 up to 8 distinct colors per block.</li>
+<li><strong>Plane Separation:</strong> The encoder can apply palette
+mode independently to the luma (Y) channel and chroma (UV) channels, or
+link them in a joint palette representation, maximizing flexibility
+across monochrome, grayscale, and full-color layouts.</li>
+</ul>
+<h3 id="palette-construction-and-signaling">Palette Construction and
+Signaling</h3>
+<p>Once the encoder decides to use palette mode for a block, it performs
+two main tasks:</p>
+<ol type="1">
+<li><strong>Base Palette Transmission:</strong> The encoder determines
+the representative colors (the palette entries) for the block. To save
+bits, the values in the palette can be predicted from neighboring
+reconstructed palette colors using differential pulse-code modulation
+(DPCM), transmitting only small delta values.</li>
+<li><strong>Color Sorting:</strong> The entries within the palette are
+sorted numerically. Sorting eliminates redundancy in indexing and
+establishes a deterministic order that simplifies subsequent entropy
+coding steps.</li>
+</ol>
+<h3 id="index-map-and-entropy-coding">Index Map and Entropy Coding</h3>
+<p>After establishing the palette, each pixel in the block is mapped to
+a zero-based index corresponding to its assigned color. The resulting
+two-dimensional grid of indices is then compressed using AV1’s advanced
+arithmetic entropy coder:</p>
+<ul>
+<li><strong>Neighborhood Context Modeling:</strong> The probability of a
+pixel adopting a particular index is heavily influenced by the indices
+of its top and left neighbors. The entropy coder dynamically updates its
+probability models based on these spatial adjacencies.</li>
+<li><strong>Run-Length Efficiency:</strong> Because graphics frequently
+feature flat, unbroken regions of single colors, index transitions occur
+infrequently. The context-adaptive engine efficiently compresses long
+runs of identical indices with minimal bit consumption.</li>
+</ul>
+<h3 id="elimination-of-compression-artifacts">Elimination of Compression
+Artifacts</h3>
+<p>Traditional lossy transforms approximate sharp edges by summing
+various sinusoidal frequencies, often resulting in "mosquito noise" and
+edge blurring. By directly mapping pixels to discrete palette entries,
+AVIF ensures that boundaries between distinct color regions remain
+perfectly sharp. For images with sparse palettes, AVIF functions
+essentially as a near-lossless or high-fidelity indexed encoder,
+providing significantly higher visual fidelity and smaller byte
+footprints compared to legacy formats like PNG and GIF.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

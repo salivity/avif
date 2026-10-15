@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Backwards Compatibility on Unsupported Devices - avif</title>
+    <meta name="description" content="AVIF (AV1 Image File Format) provides superior compression efficiency compared to legacy formats, but not all client browsers and operating systems support it natively. To ensure backwards compatibility on unsupported devices, web architectures rely on cl">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-backwards-compatibility-on-unsupported-devices">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Backwards Compatibility on Unsupported Devices - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-backwards-compatibility-on-unsupported-devices" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="AVIF (AV1 Image File Format) provides superior compression efficiency compared to legacy formats, but not all client browsers and operating systems support it natively. To ensure backwards compatibility on unsupported devices, web architectures rely on cl" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-backwards-compatibility-on-unsupported-devices">AVIF
+Backwards Compatibility on Unsupported Devices</h1>
+<p>AVIF (AV1 Image File Format) provides superior compression efficiency
+compared to legacy formats, but not all client browsers and operating
+systems support it natively. To ensure backwards compatibility on
+unsupported devices, web architectures rely on client-side markup
+fallbacks, server-side content negotiation, dynamic content delivery
+network (CDN) transformations, and client-side decoding scripts. These
+mechanisms allow modern devices to receive optimized AVIF files while
+seamlessly serving standard JPEG, PNG, or WebP images to older clients
+without broken assets.</p>
+<h3 id="the-html-picture-element">The HTML <code>&lt;picture&gt;</code>
+Element</h3>
+<p>The standard client-side method for AVIF backwards compatibility is
+the HTML5 <code>&lt;picture&gt;</code> element. This approach lets the
+browser evaluate its own format support before requesting an image
+file:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode html"><code class="sourceCode html"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">picture</span><span class="dt">&gt;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">source</span><span class="ot"> srcset</span><span class="op">=</span><span class="st">&quot;image.avif&quot;</span><span class="ot"> type</span><span class="op">=</span><span class="st">&quot;image/avif&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">source</span><span class="ot"> srcset</span><span class="op">=</span><span class="st">&quot;image.webp&quot;</span><span class="ot"> type</span><span class="op">=</span><span class="st">&quot;image/webp&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">img</span><span class="ot"> src</span><span class="op">=</span><span class="st">&quot;image.jpg&quot;</span><span class="ot"> alt</span><span class="op">=</span><span class="st">&quot;Description of the image&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">picture</span><span class="dt">&gt;</span></span></code></pre></div>
+<p>Browsers parse <code>&lt;source&gt;</code> tags sequentially from top
+to bottom. If a browser recognizes <code>image/avif</code>, it downloads
+<code>image.avif</code> and ignores the rest. If it does not support
+AVIF, it skips to the next source. Unsupported legacy browsers ignore
+the <code>&lt;picture&gt;</code> and <code>&lt;source&gt;</code> tags
+entirely and render the standard <code>&lt;img&gt;</code> fallback tag,
+ensuring universal compatibility.</p>
+<h3 id="server-side-content-negotiation">Server-Side Content
+Negotiation</h3>
+<p>Web servers can deliver AVIF transparently under the same URL using
+HTTP content negotiation via the <code>Accept</code> request header.</p>
+<ol type="1">
+<li>When a client requests a resource, it sends an <code>Accept</code>
+header listing its supported MIME types (e.g.,
+<code>Accept: image/avif,image/webp,image/apng,image/*,*/*</code>).</li>
+<li>If <code>image/avif</code> is present in the header, the web server
+responds with the AVIF version of the file.</li>
+<li>If <code>image/avif</code> is absent, the server responds with a
+fallback format such as JPEG or WebP.</li>
+<li>The server must append <code>Vary: Accept</code> to the HTTP
+response headers to ensure intermediary caches and CDNs do not
+mistakenly serve cached AVIF images to unsupported clients.</li>
+</ol>
+<h3 id="cdn-and-edge-image-optimization">CDN and Edge Image
+Optimization</h3>
+<p>Modern content delivery networks (such as Cloudflare, Fastly, or
+dedicated image services like Cloudinary and Imgix) automate backwards
+compatibility at the network edge.</p>
+<p>These services inspect the incoming request's <code>Accept</code>
+header and user-agent string. When an image request arrives, the CDN
+dynamically converts the source file into AVIF if the client supports
+it. If the device does not support AVIF, the CDN generates or delivers a
+WebP or JPEG fallback automatically. This eliminates the need to
+manually export and manage multiple image formats within the website
+codebase.</p>
+<h3 id="javascript-and-webassembly-polyfills">JavaScript and WebAssembly
+Polyfills</h3>
+<p>In environments where markup cannot be altered and server-side logic
+is unavailable, JavaScript and WebAssembly (Wasm) decoders serve as a
+programmatic fallback.</p>
+<p>Libraries such as <code>avif.js</code> intercept image elements or
+fetch requests for AVIF files. If native AVIF decoding is missing, the
+script decodes the AVIF binary data using a compiled AV1 decoder (like
+<code>libdav1d</code> or <code>libgav1</code>) in WebAssembly, then
+paints the resulting pixels onto an HTML <code>&lt;canvas&gt;</code>
+element or converts them into a raw blob URL for display.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

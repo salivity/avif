@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Role of Auxiliary Items in the AVIF iloc Table - avif</title>
+    <meta name="description" content="In the AV1 Image File Format (AVIF), the Item Location Box (iloc) acts as the central index detailing exactly where each data payload resides within the container. Secondary auxiliary items—such as alpha channels, depth maps, and HDR gain maps—are stored">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/role-of-auxiliary-items-in-the-avif-iloc-table">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Role of Auxiliary Items in the AVIF iloc Table - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/role-of-auxiliary-items-in-the-avif-iloc-table" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="In the AV1 Image File Format (AVIF), the Item Location Box (iloc) acts as the central index detailing exactly where each data payload resides within the container. Secondary auxiliary items—such as alpha channels, depth maps, and HDR gain maps—are stored" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="role-of-auxiliary-items-in-the-avif-iloc-table">Role of
+Auxiliary Items in the AVIF iloc Table</h1>
+<p>In the AV1 Image File Format (AVIF), the Item Location Box
+(<code>iloc</code>) acts as the central index detailing exactly where
+each data payload resides within the container. Secondary auxiliary
+items—such as alpha channels, depth maps, and HDR gain maps—are stored
+as discrete items separate from the primary color image. The
+<code>iloc</code> table defines the physical byte offsets and lengths
+for these auxiliary payloads, enabling decoders to identify, locate, and
+access auxiliary data independently without parsing the entire file.</p>
+<h3 id="structural-indexing-in-isobmff">Structural Indexing in
+ISOBMFF</h3>
+<p>AVIF is built on the ISO Base Media File Format (ISOBMFF) and HEIF
+specifications, which treat image components as independent items
+identified by a unique <code>item_ID</code>. The primary image item
+contains the visual color payload (typically YUV or RGB), while
+secondary auxiliary items contain monochrome AV1 bitstreams representing
+auxiliary data.</p>
+<p>The <code>iloc</code> box maps each <code>item_ID</code> to its
+storage location within the file, whether the data exists inside a Media
+Data Box (<code>mdat</code>), an Item Data Box (<code>idat</code>), or
+an external reference. For auxiliary items, the <code>iloc</code> box
+records:</p>
+<ul>
+<li><strong>Base Offset:</strong> The base memory or file position for
+the item's data.</li>
+<li><strong>Extent Count:</strong> The number of separate fragments
+making up the item.</li>
+<li><strong>Extent Offset and Length:</strong> The precise start
+position and byte length of each payload fragment.</li>
+</ul>
+<h3 id="enabling-non-destructive-extensions">Enabling Non-Destructive
+Extensions</h3>
+<p>Auxiliary items are linked to the primary image using the Item
+Reference Box (<code>iref</code>) with a reference type such as
+<code>auxl</code>. While the <code>iref</code> box defines the
+<em>semantic relationship</em> between the auxiliary item and the master
+image, the <code>iloc</code> table provides the <em>physical access
+mechanism</em>.</p>
+<p>Because the <code>iloc</code> table assigns separate storage extents
+to auxiliary items:</p>
+<ul>
+<li><strong>Alpha Channels:</strong> Transparency data is encoded as an
+independent monochrome AV1 image with its own <code>item_ID</code> and
+<code>iloc</code> entry, preventing the need to encode an uncompressed
+4-channel image.</li>
+<li><strong>Gain Maps and Tone Mapping:</strong> HDR gain maps can be
+embedded alongside standard dynamic range (SDR) base images, allowing
+the file to remain backwards-compatible.</li>
+<li><strong>Depth Maps:</strong> Spatial and stereoscopic data can be
+packaged into the same file without altering the primary color
+stream.</li>
+</ul>
+<h3 id="selective-and-progressive-retrieval">Selective and Progressive
+Retrieval</h3>
+<p>A primary benefit of indexing auxiliary items within the
+<code>iloc</code> table is random and conditional access. Network-based
+decoders can read the file header, parse the <code>iloc</code> box, and
+execute targeted byte-range requests.</p>
+<p>If a client device does not support or require a secondary auxiliary
+feature—such as a rendering engine that ignores depth maps or a display
+that does not render HDR—the parser can skip the byte ranges allocated
+to those auxiliary items in the <code>iloc</code> table. Conversely,
+when transparency or HDR is required, the decoder uses the explicit
+offsets to fetch only the required auxiliary streams.</p>
+<h3 id="facilitating-multi-threaded-decoding">Facilitating
+Multi-Threaded Decoding</h3>
+<p>Because the <code>iloc</code> table provides independent offset and
+length pairs for the primary image and its auxiliary items prior to
+decoding, software can dispatch payloads to separate decode pipelines in
+parallel. A system can decode the primary AV1 color bitstream on one
+thread while concurrently decoding the alpha or gain map bitstream on
+another, merging the reconstructed planes in memory prior to
+display.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Tiling: Resolution Limits and Parallel Processing - avif</title>
+    <meta name="description" content="AVIF (AV1 Image File Format) utilizes tiling to split large images into a grid of independently manageable segments, bypassing hardware resolution caps and unlocking multi-threaded parallel processing. By dividing the canvas into autonomous rectangular bl">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-tiling-resolution-limits-and-parallel-processing">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Tiling: Resolution Limits and Parallel Processing - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-tiling-resolution-limits-and-parallel-processing" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="AVIF (AV1 Image File Format) utilizes tiling to split large images into a grid of independently manageable segments, bypassing hardware resolution caps and unlocking multi-threaded parallel processing. By dividing the canvas into autonomous rectangular bl" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-tiling-resolution-limits-and-parallel-processing">AVIF
+Tiling: Resolution Limits and Parallel Processing</h1>
+<p>AVIF (AV1 Image File Format) utilizes tiling to split large images
+into a grid of independently manageable segments, bypassing hardware
+resolution caps and unlocking multi-threaded parallel processing. By
+dividing the canvas into autonomous rectangular blocks, AVIF allows
+encoders and decoders to distribute workloads across multiple processor
+cores simultaneously. This article explains the technical mechanics
+behind AVIF tiling, how it bypasses baseline AV1 format limitations for
+ultra-high-resolution media, and how it dramatically accelerates
+rendering performance on modern hardware.</p>
+<h2 id="overcoming-hardware-and-level-resolution-limits">Overcoming
+Hardware and Level Resolution Limits</h2>
+<p>The underlying AV1 video codec natively defines operational "Levels,"
+which specify maximum frame dimensions and processing capacities. For
+example, standard baseline implementations of AV1 decoders frequently
+cap single-frame decoding at 4K (3840×2160) or 8K (7680×4320)
+resolutions to guarantee hardware compatibility and prevent memory
+exhaustion on mobile or low-power devices.</p>
+<p>AVIF overcomes these hardware and specification constraints through
+image grids. Rather than storing an ultra-high-resolution image as a
+single, monolithic frame, the image is segmented into an array of
+smaller, distinct sub-images or tiles. Each tile conforms to standard
+AV1 Level constraints and profile dimensions.</p>
+<p>When a viewer loads the image, the decoding system processes these
+individual standard-sized components and reconstructs them into a
+seamless canvas via the ISO Base Media File Format (ISOBMFF) container
+specifications. This approach enables AVIF to support massive
+multi-gigapixel images on hardware decoders that would otherwise crash
+or reject images exceeding standard 4K or 8K limits.</p>
+<h2 id="enabling-multi-threaded-parallel-processing">Enabling
+Multi-Threaded Parallel Processing</h2>
+<p>In standard predictive image encoding, decoding a specific pixel
+block depends on the reconstructed data of its adjacent neighbors
+(spatial intra-prediction). This serial dependency restricts decoding to
+a single execution thread, creating a performance bottleneck for large
+images.</p>
+<p>AVIF tiling resolves this dependency by enforcing strict operational
+boundaries:</p>
+<ul>
+<li><strong>Independent Boundary Processing:</strong> Spatial
+intra-prediction and context modeling do not cross tile borders. Each
+tile contains all the contextual data required to decode its own
+pixels.</li>
+<li><strong>Concurrent Thread Allocation:</strong> Because tiles have no
+horizontal or vertical decoding dependencies on one another, an encoder
+or decoder can assign each tile to an individual CPU or GPU thread.</li>
+<li><strong>Uniform Grid Division:</strong> The frame is split into
+uniform rows and columns of tiles. A 4-core or 8-core CPU can process 4
+or 8 tiles concurrently, scaling throughput almost linearly with the
+number of available compute cores.</li>
+</ul>
+<p>This parallelism drastically reduces encoding times for content
+delivery pipelines and cuts Time to First Render (TTFR) on client
+browsers.</p>
+<h2
+id="viewport-optimized-rendering-and-memory-efficiency">Viewport-Optimized
+Rendering and Memory Efficiency</h2>
+<p>Beyond pure processing speed, tiling alters how image data is managed
+in system memory. High-resolution web imagery, maps, and interactive
+panoramas often exceed the display area of the user's screen.</p>
+<p>Because tiles operate independently, decoders can implement Region of
+Interest (ROI) and viewport-aware rendering. The client application
+reads the container metadata, identifies which specific tiles fall
+within the active display viewport, and decodes only those visible
+tiles. Unseen areas outside the viewport are deferred or ignored
+entirely. This eliminates the need to decode an entire massive image
+into an uncompressed RAM buffer, resulting in lower peak memory usage
+and smoother interactions during panning and zooming operations.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

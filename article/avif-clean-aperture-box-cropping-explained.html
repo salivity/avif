@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Clean Aperture Box Cropping Explained - avif</title>
+    <meta name="description" content="The AVIF image format relies on the Clean Aperture box (clap) to define display-level cropping without altering or re-encoding the underlying compressed AV1 bitstream. Derived from the ISO Base Media File Format (ISOBMFF) and constrained by the Multi-Imag">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-clean-aperture-box-cropping-explained">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Clean Aperture Box Cropping Explained - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-clean-aperture-box-cropping-explained" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The AVIF image format relies on the Clean Aperture box (clap) to define display-level cropping without altering or re-encoding the underlying compressed AV1 bitstream. Derived from the ISO Base Media File Format (ISOBMFF) and constrained by the Multi-Imag" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-clean-aperture-box-cropping-explained">AVIF Clean Aperture
+Box Cropping Explained</h1>
+<p>The AVIF image format relies on the Clean Aperture box
+(<code>clap</code>) to define display-level cropping without altering or
+re-encoding the underlying compressed AV1 bitstream. Derived from the
+ISO Base Media File Format (ISOBMFF) and constrained by the Multi-Image
+Application Format (MIAF), the <code>clap</code> box provides rational
+mathematical values that designate the visible rectangular area of an
+image. This article details the structure of the clean aperture box, its
+mathematical calculation model, and how compliant AVIF decoders
+interpret it to crop images for display.</p>
+<h3 id="the-role-of-the-clap-box-in-avif">The Role of the
+<code>clap</code> Box in AVIF</h3>
+<p>AVIF separates the encoded pixel canvas from the final rendered
+output. When an image is encoded with padding, edge artifacts, or an
+aspect ratio different from the target display, the encoder includes a
+<code>clap</code> property box within the image item properties
+(<code>iprp</code>).</p>
+<p>Because it is an item property rather than a bitstream alteration,
+applying a crop via a <code>clap</code> box is entirely lossless and
+reversible. Decoders decode the full AV1 frame first, then apply the
+<code>clap</code> boundaries to determine the final presentation
+canvas.</p>
+<h3 id="structure-and-fields-of-the-clap-property">Structure and Fields
+of the <code>clap</code> Property</h3>
+<p>The <code>clap</code> box uses fractional arithmetic rather than
+fixed integer pixels to prevent rounding errors across varying
+subsampling schemes. It contains four fractional parameters, each
+represented as a numerator (<code>N</code>) and a denominator
+(<code>D</code>):</p>
+<ol type="1">
+<li><strong><code>cleanApertureWidth</code>
+(<code>cleanApertureWidthN</code> /
+<code>cleanApertureWidthD</code>)</strong>: The exact width of the
+cropped viewing area.</li>
+<li><strong><code>cleanApertureHeight</code>
+(<code>cleanApertureHeightN</code> /
+<code>cleanApertureHeightD</code>)</strong>: The exact height of the
+cropped viewing area.</li>
+<li><strong><code>horizOff</code> (<code>horizOffN</code> /
+<code>horizOffD</code>)</strong>: The horizontal offset of the center of
+the crop rectangle relative to the center of the coded image
+canvas.</li>
+<li><strong><code>vertOff</code> (<code>vertOffN</code> /
+<code>vertOffD</code>)</strong>: The vertical offset of the center of
+the crop rectangle relative to the center of the coded image
+canvas.</li>
+</ol>
+<p>All values are signed 32-bit integers for numerators and unsigned
+32-bit integers for denominators.</p>
+<h3 id="calculating-the-display-rectangle">Calculating the Display
+Rectangle</h3>
+<p>To derive the pixel coordinates of the visible area from the coded
+dimensions (<span class="math inline">\(W_c\)</span> and <span
+class="math inline">\(H_c\)</span>), decoders compute the position of
+the cropping rectangle relative to the image center:</p>
+<ol type="1">
+<li><p><strong>Center Calculation</strong>: <span
+class="math display">\[\text{Center}_x = \frac{W_c}{2} +
+\frac{\text{horizOffN}}{\text{horizOffD}}\]</span> <span
+class="math display">\[\text{Center}_y = \frac{H_c}{2} +
+\frac{\text{vertOffN}}{\text{vertOffD}}\]</span></p></li>
+<li><p><strong>Boundary Derivation</strong>: <span
+class="math display">\[\text{Left} = \text{Center}_x -
+\frac{\text{cleanApertureWidthN}}{2 \times
+\text{cleanApertureWidthD}}\]</span> <span
+class="math display">\[\text{Top} = \text{Center}_y -
+\frac{\text{cleanApertureHeightN}}{2 \times
+\text{cleanApertureHeightD}}\]</span> <span
+class="math display">\[\text{Right} = \text{Left} +
+\frac{\text{cleanApertureWidthN}}{\text{cleanApertureWidthD}}\]</span>
+<span class="math display">\[\text{Bottom} = \text{Top} +
+\frac{\text{cleanApertureHeightN}}{\text{cleanApertureHeightD}}\]</span></p></li>
+</ol>
+<h3 id="miaf-alignment-and-constraints">MIAF Alignment and
+Constraints</h3>
+<p>The AVIF specification mandates adherence to MIAF (ISO/IEC 23000-22)
+constraints regarding <code>clap</code> usage:</p>
+<ul>
+<li><strong>Pixel Alignment</strong>: The calculated <code>Left</code>,
+<code>Top</code>, <code>Right</code>, and <code>Bottom</code> values
+must resolve to exact integer coordinates. Non-integer resulting bounds
+are considered invalid.</li>
+<li><strong>Canvas Boundaries</strong>: The resulting rectangle must
+reside entirely within the boundaries of the coded pixel array (<span
+class="math inline">\(0 \le \text{Left} &lt; \text{Right} \le
+W_c\)</span> and <span class="math inline">\(0 \le \text{Top} &lt;
+\text{Bottom} \le H_c\)</span>).</li>
+<li><strong>Chroma Subsampling Requirements</strong>: When chroma
+subsampling (such as 4:2:0 or 4:2:2) is used, the crop origins and
+dimensions must align with the chroma grid to prevent subsampling
+boundary mismatches.</li>
+</ul>
+<p>If a <code>clap</code> box violates any of these constraints or
+yields an empty display area, compliant AVIF decoders must ignore the
+<code>clap</code> box and render the full coded canvas.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

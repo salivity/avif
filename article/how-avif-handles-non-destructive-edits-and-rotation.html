@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How AVIF Handles Non-Destructive Edits and Rotation - avif</title>
+    <meta name="description" content="The AV1 Image File Format (AVIF) enables non-destructive edits—such as rotation, mirroring, and cropping—by storing transformation instructions as metadata properties within its container rather than modifying the underlying compressed AV1 pixel data. Thi">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-avif-handles-non-destructive-edits-and-rotation">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How AVIF Handles Non-Destructive Edits and Rotation - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-avif-handles-non-destructive-edits-and-rotation" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The AV1 Image File Format (AVIF) enables non-destructive edits—such as rotation, mirroring, and cropping—by storing transformation instructions as metadata properties within its container rather than modifying the underlying compressed AV1 pixel data. Thi" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-avif-handles-non-destructive-edits-and-rotation">How AVIF
+Handles Non-Destructive Edits and Rotation</h1>
+<p>The AV1 Image File Format (AVIF) enables non-destructive edits—such
+as rotation, mirroring, and cropping—by storing transformation
+instructions as metadata properties within its container rather than
+modifying the underlying compressed AV1 pixel data. This article
+explains the underlying container architecture, the specific property
+boxes used for transformations, and the performance and quality
+advantages of this approach.</p>
+<h3 id="the-container-architecture-isobmff">The Container Architecture:
+ISOBMFF</h3>
+<p>AVIF uses the ISO Base Media File Format (ISOBMFF), standardizing it
+under the High Efficiency Image File Format (HEIF) specification
+(ISO/IEC 23000-12). In this framework, the raw image data (the AV1
+bitstream) is separated from how that data is presented.</p>
+<p>When an AVIF file is created or modified, edits are attached as
+descriptive item properties in the file's <code>iprp</code> (Item
+Properties) box. Because the encoded AV1 pixel stream remains untouched,
+users can repeatedly apply, modify, or remove edits without causing
+generation loss or recompression artifacts.</p>
+<h3 id="handling-image-rotation-the-irot-box">Handling Image Rotation:
+The <code>irot</code> Box</h3>
+<p>Instead of decompressing the AV1 bitstream, rotating the pixel grid,
+and re-encoding it, AVIF handles rotation through an <code>irot</code>
+(Image Rotation) property box.</p>
+<ul>
+<li><strong>How It Works:</strong> The <code>irot</code> property
+contains a 2-bit integer that signals the display engine to rotate the
+image before rendering.</li>
+<li><strong>Values:</strong>
+<ul>
+<li><code>0</code>: 0 degrees</li>
+<li><code>1</code>: 90 degrees counter-clockwise</li>
+<li><code>2</code>: 180 degrees</li>
+<li><code>3</code>: 270 degrees counter-clockwise</li>
+</ul></li>
+<li><strong>Decoupling from EXIF:</strong> While AVIF can encapsulate
+legacy EXIF metadata (which also contains an orientation tag), decoders
+that support the ISOBMFF specification prioritize the <code>irot</code>
+box for rendering to ensure consistent behavior across different web
+browsers and viewers.</li>
+</ul>
+<h3 id="handling-mirroring-the-imir-box">Handling Mirroring: The
+<code>imir</code> Box</h3>
+<p>Flipping an image is similarly handled through an <code>imir</code>
+(Image Mirror) property box.</p>
+<ul>
+<li><strong>How It Works:</strong> The property designates an axis of
+reflection.</li>
+<li><strong>Values:</strong> It specifies whether the mirror operation
+should occur along the vertical axis (left-to-right flip) or horizontal
+axis (top-to-bottom flip).</li>
+<li><strong>Combination:</strong> When paired with the <code>irot</code>
+property, decoders apply the properties sequentially based on the order
+defined in the file, allowing any combination of orientation and
+reflection.</li>
+</ul>
+<h3 id="handling-cropping-the-clap-box">Handling Cropping: The
+<code>clap</code> Box</h3>
+<p>AVIF manages non-destructive cropping using the <code>clap</code>
+(Clean Aperture) property box.</p>
+<ul>
+<li><strong>How It Works:</strong> Instead of discarding pixels outside
+the desired crop area, <code>clap</code> specifies four fractional
+values: clean aperture width, clean aperture height, horizontal offset,
+and vertical offset.</li>
+<li><strong>Rendering:</strong> When the decoder parses the file, it
+renders only the rectangular area defined by the clean aperture
+parameters, ignoring the outlying compressed pixels. The full original
+frame remains intact within the file.</li>
+</ul>
+<h3 id="advantages-of-non-destructive-container-edits">Advantages of
+Non-Destructive Container Edits</h3>
+<ol type="1">
+<li><strong>Zero Generational Loss:</strong> Traditional lossy image
+formats lose quality each time an edit requires re-encoding. AVIF
+preserves the original compression quality indefinitely.</li>
+<li><strong>Instant Execution:</strong> Modifying a byte in a header
+property takes milliseconds and minimal computing power compared to
+decompressing and re-encoding complex AV1 video frames.</li>
+<li><strong>Reversibility:</strong> Because the original pixel payload
+remains unchanged, any software with write access to the ISOBMFF
+metadata can revert transformations to restore the original
+capture.</li>
+</ol></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

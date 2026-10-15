@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Fallback Strategies Using HTML Picture Tags - avif</title>
+    <meta name="description" content="AVIF offers superior compression and visual fidelity compared to older image formats, but its varying browser support requires developers to implement reliable fallback solutions. By utilizing the HTML &lt;picture&gt; element, web developers can safely deliver">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-fallback-strategies-using-html-picture-tags">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Fallback Strategies Using HTML Picture Tags - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-fallback-strategies-using-html-picture-tags" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="AVIF offers superior compression and visual fidelity compared to older image formats, but its varying browser support requires developers to implement reliable fallback solutions. By utilizing the HTML &lt;picture&gt; element, web developers can safely deliver" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-fallback-strategies-using-html-picture-tags">AVIF Fallback
+Strategies Using HTML Picture Tags</h1>
+<p>AVIF offers superior compression and visual fidelity compared to
+older image formats, but its varying browser support requires developers
+to implement reliable fallback solutions. By utilizing the HTML
+<code>&lt;picture&gt;</code> element, web developers can safely deliver
+AVIF to modern browsers while gracefully degrading to WebP, JPEG, or PNG
+for unsupported environments. This article outlines the essential
+fallback strategies, source ordering principles, and best practices
+needed to serve AVIF files effectively without sacrificing website
+performance or user experience.</p>
+<h3 id="the-format-cascade-strategy">The Format Cascade Strategy</h3>
+<p>The HTML <code>&lt;picture&gt;</code> element evaluates child
+<code>&lt;source&gt;</code> tags sequentially from top to bottom and
+selects the first format supported by the browser. To maximize
+performance, list the most modern, highly compressed formats first,
+cascading down to universally supported legacy formats:</p>
+<ol type="1">
+<li><strong>AVIF (<code>image/avif</code>):</strong> Primary choice for
+cutting-edge compression.</li>
+<li><strong>WebP (<code>image/webp</code>):</strong> Secondary modern
+fallback with near-universal modern browser support.</li>
+<li><strong>JPEG or PNG:</strong> Final legacy fallback declared inside
+the default <code>&lt;img&gt;</code> tag.</li>
+</ol>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode html"><code class="sourceCode html"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">picture</span><span class="dt">&gt;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">source</span><span class="ot"> srcset</span><span class="op">=</span><span class="st">&quot;image.avif&quot;</span><span class="ot"> type</span><span class="op">=</span><span class="st">&quot;image/avif&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">source</span><span class="ot"> srcset</span><span class="op">=</span><span class="st">&quot;image.webp&quot;</span><span class="ot"> type</span><span class="op">=</span><span class="st">&quot;image/webp&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">img</span><span class="ot"> src</span><span class="op">=</span><span class="st">&quot;image.jpg&quot;</span><span class="ot"> alt</span><span class="op">=</span><span class="st">&quot;Description of the image&quot;</span><span class="ot"> width</span><span class="op">=</span><span class="st">&quot;800&quot;</span><span class="ot"> height</span><span class="op">=</span><span class="st">&quot;600&quot;</span><span class="ot"> loading</span><span class="op">=</span><span class="st">&quot;lazy&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">picture</span><span class="dt">&gt;</span></span></code></pre></div>
+<h3 id="essential-role-of-the-fallback-img-element">Essential Role of
+the Fallback <code>&lt;img&gt;</code> Element</h3>
+<p>The <code>&lt;picture&gt;</code> tag acts merely as a wrapper that
+feeds data to an embedded <code>&lt;img&gt;</code> tag; it does not
+render an image on its own. The <code>&lt;img&gt;</code> element at the
+end of the stack must reference a legacy format such as JPEG or PNG.
+This guarantees compatibility with older browsers that do not support
+the <code>&lt;picture&gt;</code> element at all, such as Internet
+Explorer 11.</p>
+<p>Additionally, the <code>&lt;img&gt;</code> element must house
+accessibility attributes (<code>alt</code>), native lazy loading
+(<code>loading="lazy"</code>), and dimension attributes
+(<code>width</code> and <code>height</code>). Defining width and height
+on the <code>&lt;img&gt;</code> tag prevents Cumulative Layout Shift
+(CLS) by establishing an aspect ratio box before the image asset
+finishes downloading.</p>
+<h3 id="combining-format-fallbacks-with-responsive-images">Combining
+Format Fallbacks with Responsive Images</h3>
+<p>A robust fallback strategy must also account for responsive design
+and variable screen pixel densities. Developers should include
+<code>srcset</code> and <code>sizes</code> attributes within each
+<code>&lt;source&gt;</code> element to ensure that both format detection
+and resolution switching function seamlessly together:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode html"><code class="sourceCode html"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">picture</span><span class="dt">&gt;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">source</span><span class="ot"> </span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ot">    type</span><span class="op">=</span><span class="st">&quot;image/avif&quot;</span><span class="ot"> </span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="ot">    srcset</span><span class="op">=</span><span class="st">&quot;photo-small.avif 400w, photo-medium.avif 800w, photo-large.avif 1200w&quot;</span><span class="ot"> </span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="ot">    sizes</span><span class="op">=</span><span class="st">&quot;(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 800px&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">source</span><span class="ot"> </span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="ot">    type</span><span class="op">=</span><span class="st">&quot;image/webp&quot;</span><span class="ot"> </span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="ot">    srcset</span><span class="op">=</span><span class="st">&quot;photo-small.webp 400w, photo-medium.webp 800w, photo-large.webp 1200w&quot;</span><span class="ot"> </span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="ot">    sizes</span><span class="op">=</span><span class="st">&quot;(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 800px&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&lt;</span><span class="kw">img</span><span class="ot"> </span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="ot">    src</span><span class="op">=</span><span class="st">&quot;photo-medium.jpg&quot;</span><span class="ot"> </span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="ot">    srcset</span><span class="op">=</span><span class="st">&quot;photo-small.jpg 400w, photo-medium.jpg 800w, photo-large.jpg 1200w&quot;</span><span class="ot"> </span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="ot">    sizes</span><span class="op">=</span><span class="st">&quot;(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 800px&quot;</span><span class="ot"> </span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="ot">    alt</span><span class="op">=</span><span class="st">&quot;Landscape view&quot;</span><span class="ot"> </span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="ot">    width</span><span class="op">=</span><span class="st">&quot;800&quot;</span><span class="ot"> </span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="ot">    height</span><span class="op">=</span><span class="st">&quot;600&quot;</span><span class="ot"> </span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="ot">    loading</span><span class="op">=</span><span class="st">&quot;lazy&quot;</span><span class="dt">&gt;</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;/</span><span class="kw">picture</span><span class="dt">&gt;</span></span></code></pre></div>
+<h3 id="server-configuration-and-mime-type-verification">Server
+Configuration and MIME Type Verification</h3>
+<p>HTML fallback strategies fail if the web server cannot serve AVIF
+files with the correct headers. Ensure that the web server (such as
+Nginx, Apache, or a CDN) is configured to return the
+<code>image/avif</code> MIME type in the <code>Content-Type</code>
+response header. If a browser encounters an unsupported or generic MIME
+type like <code>application/octet-stream</code>, it will reject the
+<code>&lt;source&gt;</code> tag and immediately trigger the next
+fallback, negating the benefits of generating AVIF assets.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

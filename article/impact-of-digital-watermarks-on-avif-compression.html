@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Impact of Digital Watermarks on AVIF Compression - avif</title>
+    <meta name="description" content="This article explores how the integration of digital watermarks affects the compression efficiency of the AV1 Image File Format (AVIF). By analyzing both visible and invisible watermarking techniques alongside AVIF’s underlying AV1 intra-frame coding arch">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/impact-of-digital-watermarks-on-avif-compression">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Impact of Digital Watermarks on AVIF Compression - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/impact-of-digital-watermarks-on-avif-compression" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explores how the integration of digital watermarks affects the compression efficiency of the AV1 Image File Format (AVIF). By analyzing both visible and invisible watermarking techniques alongside AVIF’s underlying AV1 intra-frame coding arch" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="impact-of-digital-watermarks-on-avif-compression">Impact of
+Digital Watermarks on AVIF Compression</h1>
+<p>This article explores how the integration of digital watermarks
+affects the compression efficiency of the AV1 Image File Format (AVIF).
+By analyzing both visible and invisible watermarking techniques
+alongside AVIF’s underlying AV1 intra-frame coding architecture, this
+guide details how watermarks influence rate-distortion performance, file
+sizes, and visual artifact management.</p>
+<h3 id="the-avif-architecture-and-watermarking-interactions">The AVIF
+Architecture and Watermarking Interactions</h3>
+<p>AVIF relies on intra-frame encoding tools derived from the AV1 video
+standard, including advanced directional prediction, variable transform
+block sizes, and sophisticated in-loop filtering (such as the
+Constrained Directional Enhancement Filter and Loop Restoration). These
+algorithms are designed to exploit spatial redundancy by predicting
+pixel blocks from neighboring data and discarding imperceptible
+high-frequency information.</p>
+<p>When a watermark is integrated into an image, it modifies the
+original pixel distribution. This disruption directly challenges AVIF’s
+prediction and transform mechanisms, altering the encoder's
+rate-distortion optimization (RDO) calculations and requiring additional
+bits to encode the modified data.</p>
+<h3 id="impact-of-visible-watermarks">Impact of Visible Watermarks</h3>
+<p>Visible watermarks, such as logos, timestamps, or semi-transparent
+overlays, introduce sharp edges, text contours, and unnatural color
+gradients into an image.</p>
+<ul>
+<li><strong>Prediction Disruptions:</strong> AV1’s directional
+intra-prediction works best on continuous tones and predictable
+textures. High-contrast watermark boundaries force the encoder to split
+coding tree units into smaller sub-blocks (e.g., down to 4x4 blocks),
+increasing header and signaling overhead.</li>
+<li><strong>Transform Domain Costs:</strong> Sharp transitions produce
+significant high-frequency coefficients in Discrete Cosine Transforms
+(DCT) and Asymmetric Discrete Sine Transforms (ADST). To preserve the
+legibility of the watermark without severe ringing artifacts, the
+encoder must allocate more bits, leading to a 5% to 15% increase in
+total file size compared to the unmarked image at the same visual
+quality target.</li>
+<li><strong>Alpha Channel Overhead:</strong> If a visible watermark is
+implemented as an auxiliary alpha layer within the AVIF container rather
+than being rasterized directly into the primary image plane, the overall
+file size increases further because the alpha plane requires its own
+discrete encoding pass.</li>
+</ul>
+<h3 id="impact-of-invisible-watermarks">Impact of Invisible
+Watermarks</h3>
+<p>Invisible (steganographic or forensic) watermarks are embedded subtly
+into either the spatial domain (e.g., least significant bits) or the
+frequency domain (modifying transform coefficients). These
+implementations create distinct challenges for AVIF's aggressive
+compression engine:</p>
+<ul>
+<li><strong>Signal Erasure via Quantization:</strong> Lossy AVIF
+compression aggressively quantizes high-frequency coefficients. Subtle
+watermark signals embedded in higher frequencies are routinely discarded
+as noise.</li>
+<li><strong>Filter Interference:</strong> AVIF’s in-loop deblocking and
+restoration filters are optimized to smooth out small discrepancies and
+ringing. Consequently, these filters often treat invisible watermarks as
+compression artifacts, effectively filtering them out unless the
+watermark is embedded with higher energy.</li>
+<li><strong>Efficiency Penalties for Robustness:</strong> To make an
+invisible watermark survive AVIF compression, developers must embed the
+watermark into low-to-mid frequency bands with greater signal strength.
+This directly competes with the primary visual data, degrading
+compression efficiency. The encoder must use a lower quantization
+parameter (QP) to preserve the watermark, resulting in noticeably larger
+file sizes—often requiring 10% to 30% more data to achieve the same
+perceived visual fidelity while retaining watermark integrity.</li>
+</ul>
+<h3 id="mitigation-and-optimization-strategies">Mitigation and
+Optimization Strategies</h3>
+<p>To minimize the negative impact of digital watermarks on AVIF
+compression efficiency, specific encoding adjustments can be
+applied:</p>
+<ol type="1">
+<li><strong>Frequency-Aware Watermarking:</strong> Embedding
+imperceptible watermarks specifically within the mid-frequency discrete
+cosine coefficients allows the watermark to survive quantization without
+requiring excessively low QP values.</li>
+<li><strong>Selective In-Loop Filter Tuning:</strong> Disabling or
+reducing the aggressiveness of the Loop Restoration filter in AVIF can
+help retain watermark signals at lower bitrates, though this must be
+balanced against the potential appearance of standard compression
+artifacts.</li>
+<li><strong>Pre-Blended Overlays:</strong> For visible watermarks,
+softening sharp edges through anti-aliasing and matching watermark
+opacity to underlying image textures reduces the generation of excessive
+high-frequency coefficients, allowing AVIF's intra-prediction to handle
+the overlay with minimal bit allocation penalties.</li>
+</ol></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

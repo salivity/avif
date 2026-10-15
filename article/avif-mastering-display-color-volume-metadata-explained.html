@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Mastering Display Color Volume Metadata Explained - avif</title>
+    <meta name="description" content="The AV1 Image File Format (AVIF) communicates mastering display color volume by encapsulating SMPTE ST 2086 metadata inside dedicated ISO Base Media File Format (ISOBMFF) boxes. This metadata defines the color primaries, white point, and luminance boundar">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-mastering-display-color-volume-metadata-explained">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Mastering Display Color Volume Metadata Explained - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-mastering-display-color-volume-metadata-explained" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The AV1 Image File Format (AVIF) communicates mastering display color volume by encapsulating SMPTE ST 2086 metadata inside dedicated ISO Base Media File Format (ISOBMFF) boxes. This metadata defines the color primaries, white point, and luminance boundar" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-mastering-display-color-volume-metadata-explained">AVIF
+Mastering Display Color Volume Metadata Explained</h1>
+<p>The AV1 Image File Format (AVIF) communicates mastering display color
+volume by encapsulating SMPTE ST 2086 metadata inside dedicated ISO Base
+Media File Format (ISOBMFF) boxes. This metadata defines the color
+primaries, white point, and luminance boundaries of the monitor used to
+grade the content, enabling target displays to execute precise tone
+mapping and gamut mapping for High Dynamic Range (HDR) images.</p>
+<h3 id="the-isobmff-architecture-and-the-mdcv-box">The ISOBMFF
+Architecture and the <code>mdcv</code> Box</h3>
+<p>AVIF inherits its structural framework from the ISOBMFF and HEIF
+(ISO/IEC 23008-12) standards. Rather than storing display metadata
+inside the raw AV1 bitstream (OBU), AVIF prioritizes communicating color
+volume at the container level through item properties.</p>
+<p>The specific property used for this purpose is the Mastering Display
+Colour Volume box, identified by the four-character code
+<code>mdcv</code>. Standardized in ISO/IEC 14496-12, the
+<code>mdcv</code> box translates the SMPTE ST 2086 static metadata
+standard directly into structured binary fields.</p>
+<h3 id="structure-and-payload-of-the-mdcv-box">Structure and Payload of
+the <code>mdcv</code> Box</h3>
+<p>The <code>mdcv</code> box contains ten primary numerical values
+encoded in big-endian format. These values detail the physical
+capabilities of the mastering display:</p>
+<ol type="1">
+<li><strong>Display Primaries (<code>display_primaries</code>):</strong>
+Three pairs of 16-bit unsigned integers representing the normalized
+chromaticity coordinates (<span class="math inline">\(x\)</span> and
+<span class="math inline">\(y\)</span>) for the green, blue, and red
+color primaries in the CIE 1931 color space. The coordinates are scaled
+by a factor of 50,000 to maintain precision without floating-point
+numbers.</li>
+<li><strong>White Point (<code>white_point</code>):</strong> A pair of
+16-bit unsigned integers representing the normalized <span
+class="math inline">\(x\)</span> and <span
+class="math inline">\(y\)</span> chromaticity coordinates of the
+mastering display's white point (typically D65), also scaled by
+50,000.</li>
+<li><strong>Maximum Mastering Luminance
+(<code>max_display_mastering_luminance</code>):</strong> A 32-bit
+unsigned integer representing the nominal peak luminance capability of
+the mastering monitor, expressed in units of 0.0001 candelas per square
+meter (<span class="math inline">\(\text{cd/m}^2\)</span> or nits). For
+example, a 1,000-nit mastering display is represented by a value of
+10,000,000.</li>
+<li><strong>Minimum Mastering Luminance
+(<code>min_display_mastering_luminance</code>):</strong> A 32-bit
+unsigned integer defining the black level of the display, also expressed
+in units of 0.0001 nits. For example, a black level of 0.005 nits is
+stored as 50.</li>
+</ol>
+<h3 id="box-association-via-iprp-ipco-and-ipma">Box Association via
+<code>iprp</code>, <code>ipco</code>, and <code>ipma</code></h3>
+<p>To link the <code>mdcv</code> property to the image payload, AVIF
+relies on standard ISOBMFF property relationship mechanisms within the
+Meta Box (<code>meta</code>):</p>
+<ul>
+<li><strong>Item Property Container Box (<code>ipco</code>):</strong>
+The <code>mdcv</code> box resides inside the <code>ipco</code> box,
+which acts as a general index of all available properties (such as
+transformations, color profiles, and dimensions).</li>
+<li><strong>Item Property Association Box (<code>ipma</code>):</strong>
+The <code>ipma</code> box creates a link between the ID of the primary
+image item and the 1-based index of the <code>mdcv</code> box in the
+<code>ipco</code>.</li>
+</ul>
+<p>Through this link, a parser detects that the image data should be
+interpreted according to the mastering constraints defined in that
+specific <code>mdcv</code> instance.</p>
+<h3 id="complementary-metadata-boxes">Complementary Metadata Boxes</h3>
+<p>The <code>mdcv</code> box does not operate in isolation; it works
+alongside two other critical ISOBMFF boxes to deliver a complete color
+representation:</p>
+<ul>
+<li><strong>Colour Information Box (<code>colr</code>):</strong> Carries
+the Colour Primaries, Transfer Characteristics (such as ITU-R BT.2100
+Perceptual Quantizer / PQ, or Hybrid Log-Gamma / HLG), and Matrix
+Coefficients using an <code>nclx</code> profile.</li>
+<li><strong>Content Light Level Information Box
+(<code>clli</code>):</strong> Transports CTA-861.3 parameters,
+specifically the Maximum Content Light Level
+(<code>max_content_light_level</code> or MaxCLL) and Maximum
+Frame-Average Light Level (<code>max_pic_average_light_level</code> or
+MaxFALL), defining the actual light levels present in the encoded pixels
+rather than the physical display limits.</li>
+</ul>
+<h3 id="role-in-decoding-and-tone-mapping">Role in Decoding and Tone
+Mapping</h3>
+<p>When an AVIF-compliant renderer opens an HDR image, the decoder
+parses the <code>meta</code> box before fully decompressing the AV1
+payload. By retrieving the <code>mdcv</code> parameters, the rendering
+engine learns whether the source image exceeds the target display’s
+native color gamut (such as DCI-P3 or Rec. 2020) or peak luminance.</p>
+<p>If the target display peaks at 600 nits, but the <code>mdcv</code>
+box identifies that the image was authored on a 4,000-nit display, the
+rendering engine applies an appropriate tone-mapping curve (such as
+roll-off compression). This prevents highlight clipping and preserves
+shadow detail, ensuring that the final output mirrors the creative
+intent established on the mastering display.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

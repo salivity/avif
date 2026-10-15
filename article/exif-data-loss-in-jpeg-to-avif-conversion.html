@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EXIF Data Loss in JPEG to AVIF Conversion - avif</title>
+    <meta name="description" content="Converting legacy JPEG images to the modern AVIF format significantly improves compression efficiency, but the process introduces distinct risks of metadata degradation and loss. Because JPEG and AVIF handle metadata storage through fundamentally differen">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/exif-data-loss-in-jpeg-to-avif-conversion">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="EXIF Data Loss in JPEG to AVIF Conversion - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/exif-data-loss-in-jpeg-to-avif-conversion" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Converting legacy JPEG images to the modern AVIF format significantly improves compression efficiency, but the process introduces distinct risks of metadata degradation and loss. Because JPEG and AVIF handle metadata storage through fundamentally differen" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="exif-data-loss-in-jpeg-to-avif-conversion">EXIF Data Loss in
+JPEG to AVIF Conversion</h1>
+<p>Converting legacy JPEG images to the modern AVIF format significantly
+improves compression efficiency, but the process introduces distinct
+risks of metadata degradation and loss. Because JPEG and AVIF handle
+metadata storage through fundamentally different container
+architectures, moving EXIF data between them often leads to broken
+offset pointers, truncated multi-segment blocks, stripping of
+proprietary camera data, and conflicting image transformation tags.
+Understanding where these pipeline failures occur is essential for
+preventing archival and technical data loss during image migration.</p>
+<h3 id="structural-differences-between-app1-and-isobmff">Structural
+Differences Between APP1 and ISOBMFF</h3>
+<p>JPEG stores metadata inside discrete segments bounded by markers,
+with EXIF residing primarily inside <code>APP1</code> markers limited to
+64 kilobytes per segment. In contrast, AVIF relies on the ISO Base Media
+File Format (ISOBMFF), which organizes all image data and metadata
+inside a hierarchical system of "boxes" (such as <code>meta</code>,
+<code>iloc</code>, and <code>iinf</code>).</p>
+<p>When an encoder extracts an EXIF block from a JPEG's
+<code>APP1</code> marker, it must reconcile the JPEG-specific
+header—usually an ASCII "Exif" string followed by two zero bytes
+(<code>Exif\0\0</code>)—with the ISOBMFF specification. The ISOBMFF
+standard requires a 4-byte offset indicating the start of the TIFF
+header. Incompetent or naive converters often fail to strip the JPEG
+prelude or write the incorrect 4-byte offset. As a result, subsequent
+decoders cannot locate the TIFF header, causing the entire EXIF payload
+to be treated as corrupt and discarded.</p>
+<h3 id="makernote-pointer-corruption">MakerNote Pointer Corruption</h3>
+<p>The most severe data degradation occurs within the EXIF
+<code>MakerNote</code> tag (Tag ID <code>0x927c</code>). Camera
+manufacturers (such as Sony, Canon, and Nikon) write proprietary
+hardware, lens, and shooting data inside this tag. Unlike standard EXIF
+tags, <code>MakerNote</code> structures frequently rely on absolute byte
+offsets calculated from the very beginning of the original JPEG file or
+the start of the initial TIFF header.</p>
+<p>When an AVIF converter extracts the EXIF payload:</p>
+<ul>
+<li>Padding bytes are often stripped or normalized.</li>
+<li>The starting offset changes relative to the new container.</li>
+<li>Endianness markers may be mishandled if the container parses and
+reconstructs the EXIF tree instead of copying the raw binary.</li>
+</ul>
+<p>Once these byte positions shift, internal pointers within the
+<code>MakerNote</code> point to invalid memory addresses. While the EXIF
+block might technically exist inside the AVIF file, specialized tools
+and raw processors can no longer parse the manufacturer-specific
+parameters.</p>
+<h3 id="multi-segment-and-extended-metadata-truncation">Multi-Segment
+and Extended Metadata Truncation</h3>
+<p>Because a single JPEG marker segment cannot exceed 65,535 bytes,
+cameras and editing software split large metadata payloads across
+multiple markers. For example, Extended XMP or large preview thumbnails
+embedded within EXIF are distributed across sequential <code>APP1</code>
+or <code>APP2</code> markers.</p>
+<p>Many standard JPEG-to-AVIF converters only read the primary
+<code>APP1</code> marker. During conversion, any secondary or chained
+metadata segments are frequently dropped. This results in the complete
+destruction of:</p>
+<ul>
+<li>Embedded non-standard camera calibration data.</li>
+<li>Full-resolution embedded JPEG preview thumbnails.</li>
+<li>Extended edit histories and rights-management schemas.</li>
+</ul>
+<h3 id="orientation-and-transformation-conflicts">Orientation and
+Transformation Conflicts</h3>
+<p>Legacy JPEGs rely on the standard EXIF <code>Orientation</code> tag
+(Tag ID <code>0x0112</code>) to instruct decoders how to rotate or
+mirror the image matrix for display. AVIF, however, natively handles
+geometric transformations directly within the ISOBMFF container via the
+Image Rotation (<code>irot</code>) and Image Mirror (<code>imir</code>)
+boxes.</p>
+<p>During conversion, two common failure states cause data and visual
+anomalies:</p>
+<ol type="1">
+<li><strong>Double Rotation:</strong> The encoder applies the rotation
+to the AVIF bitstream and adds an <code>irot</code> box, but leaves the
+legacy EXIF <code>Orientation</code> tag unchanged. Decoders that read
+both formats apply the transform twice.</li>
+<li><strong>Metadata Stripping:</strong> The encoder strips the EXIF
+<code>Orientation</code> tag to prevent playback errors, but in doing
+so, permanently destroys the historical record of the camera's original
+physical sensor orientation.</li>
+</ol>
+<h3 id="color-profile-and-nclx-discrepancies">Color Profile and NCLX
+Discrepancies</h3>
+<p>JPEGs define color spaces using an embedded ICC profile inside
+<code>APP2</code> markers or via EXIF tags like <code>ColorSpace</code>.
+AVIF prioritizes native container signaling via the <code>colr</code>
+box using NCLX (Non-Constant Luminance) identifiers for color primaries,
+transfer characteristics, and matrix coefficients.</p>
+<p>If a conversion tool encounters a legacy EXIF tag defining an
+uncalibrated color profile or a legacy Adobe RGB space, it may map the
+pixel values to a standard sRGB NCLX box without preserving the embedded
+ICC profile. Once the ICC profile is stripped in favor of coarse NCLX
+parameters, wide-gamut data is permanently clipped, leading to visual
+fidelity loss that cannot be reversed.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

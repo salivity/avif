@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF CMYK Support for Commercial Printing - avif</title>
+    <meta name="description" content="The AV1 Image File Format (AVIF) does not natively support the CMYK color model, making it fundamentally incompatible with commercial print workflows that require native color separations. Because AVIF is derived from the AV1 video compression standard de">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-cmyk-support-for-commercial-printing">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF CMYK Support for Commercial Printing - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-cmyk-support-for-commercial-printing" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The AV1 Image File Format (AVIF) does not natively support the CMYK color model, making it fundamentally incompatible with commercial print workflows that require native color separations. Because AVIF is derived from the AV1 video compression standard de" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-cmyk-support-for-commercial-printing">AVIF CMYK Support for
+Commercial Printing</h1>
+<p>The AV1 Image File Format (AVIF) does not natively support the CMYK
+color model, making it fundamentally incompatible with commercial print
+workflows that require native color separations. Because AVIF is derived
+from the AV1 video compression standard designed exclusively for digital
+displays, it is engineered around additive color spaces such as RGB and
+YUV. Storing, editing, or outputting true prepress CMYK data via AVIF
+requires lossy color space conversions, which compromise separation
+integrity, plate generation, and color accuracy on the press.</p>
+<h3 id="the-technical-limitation-of-the-av1-architecture">The Technical
+Limitation of the AV1 Architecture</h3>
+<p>AVIF packages compressed image frames inside the ISO Base Media File
+Format (ISOBMFF). The compression core relies on the AV1 video codec,
+which supports 8-bit, 10-bit, and 12-bit color depths using chroma
+subsampling schemes such as 4:0:0 (monochrome), 4:2:0, 4:2:2, and 4:4:4.
+However, these formats strictly handle additive color representations
+(RGB mapped via identity matrices or converted to YCbCr).</p>
+<p>Commercial printing relies on a subtractive four-channel color model:
+Cyan, Magenta, Yellow, and Key (Black). Because the AV1 bitstream
+specification does not include syntax or channel configurations for
+four-color subtractive pixel arrays, there is no standardized way for an
+AVIF encoder to write—or an AVIF decoder to parse—discrete CMYK pixel
+channels.</p>
+<h3 id="breakdown-of-color-separation-data">Breakdown of Color
+Separation Data</h3>
+<p>In prepress environments, commercial printing demands precise control
+over ink separation parameters, including:</p>
+<ul>
+<li><strong>Black Generation (UCR and GCR):</strong> Under Color Removal
+(UCR) and Gray Component Replacement (GCR) determine how much black ink
+replaces combinations of cyan, magenta, and yellow.</li>
+<li><strong>Pure Black Preservation:</strong> Critical elements like
+fine typography and vector lines must remain exclusively on the K
+(black) plate (0C, 0M, 0Y, 100K) to avoid registration blurring.</li>
+<li><strong>Spot Colors and Varnishes:</strong> Specialized plates for
+Pantone colors, metallic inks, or structural varnishes rely on dedicated
+image channels.</li>
+</ul>
+<p>Because AVIF cannot store these separate ink channels natively, any
+prepress CMYK asset must first be converted to an RGB or YUV color space
+to be encoded as an AVIF file. This conversion irreversibly flattens the
+four channels into three, discarding UCR/GCR data, destroying pure black
+channels, and reinterpreting the color values according to an additive
+display profile. When this file is later sent to a commercial Raster
+Image Processor (RIP) for printing, the RIP must convert it back to
+CMYK, resulting in registration issues, muddy blacks, and inaccurate
+color reproduction.</p>
+<h3 id="icc-profile-limitations-within-the-container">ICC Profile
+Limitations Within the Container</h3>
+<p>While the ISOBMFF container used by AVIF allows for embedded ICC
+profiles alongside image payloads, this mechanism cannot compensate for
+the codec's architectural constraints. An ICC profile can describe the
+intended color response of a CMYK press, but standard AVIF decoders
+expect the underlying pixel data to map to RGB/YUV coordinates. Standard
+image rendering engines and prepress software will either fail to
+interpret a CMYK profile paired with an RGB/YUV stream or produce
+catastrophic rendering errors.</p>
+<h3 id="the-role-of-avif-in-prepress-workflows">The Role of AVIF in
+Prepress Workflows</h3>
+<p>AVIF was engineered specifically for the modern web to deliver
+maximum compression efficiency and high-fidelity rendering on consumer
+displays. It excels in delivering Wide Color Gamut (WCG) and High
+Dynamic Range (HDR) content using spaces like Rec. 2020 or DCI-P3 over
+digital networks.</p>
+<p>For commercial printing, AVIF is unsuitable as an interchange or
+master format. Prepress production continues to rely strictly on
+established formats such as TIFF, PSD, and standards-compliant PDF files
+(such as PDF/X-1a, PDF/X-4, and PDF/X-6), which inherently support
+discrete multi-channel architectures, spot colors, and non-destructive
+CMYK plate separations.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Encoding Presets: File Size vs Quality Trade-Offs - avif</title>
+    <meta name="description" content="AVIF encoding presets dictate the balance between computational effort, compression efficiency, and visual fidelity. Lower or slower presets enable the encoder to analyze the image thoroughly, producing the smallest possible file sizes while preserving fi">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-encoding-presets-file-size-vs-quality-trade-offs">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Encoding Presets: File Size vs Quality Trade-Offs - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-encoding-presets-file-size-vs-quality-trade-offs" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="AVIF encoding presets dictate the balance between computational effort, compression efficiency, and visual fidelity. Lower or slower presets enable the encoder to analyze the image thoroughly, producing the smallest possible file sizes while preserving fi" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-encoding-presets-file-size-vs-quality-trade-offs">AVIF
+Encoding Presets: File Size vs Quality Trade-Offs</h1>
+<p>AVIF encoding presets dictate the balance between computational
+effort, compression efficiency, and visual fidelity. Lower or slower
+presets enable the encoder to analyze the image thoroughly, producing
+the smallest possible file sizes while preserving fine details, but at
+the cost of prolonged processing times. Conversely, faster presets
+reduce CPU usage and encoding latency by skipping complex optimization
+algorithms, which either increases file size or degrades image quality.
+Understanding this relationship is critical for choosing the right
+configuration for static assets, dynamic workflows, and
+bandwidth-constrained delivery.</p>
+<h2 id="how-avif-encoders-use-presets">How AVIF Encoders Use
+Presets</h2>
+<p>AVIF is derived from the AV1 video codec, primarily utilizing
+encoders such as <code>libaom</code>, <code>rav1e</code>, or
+<code>SVT-AV1</code>. In these engines, presets are typically denoted
+numerically—such as <code>cpu-used</code> (ranging from 0 to 8 or 9 in
+<code>libaom</code>) or <code>speed</code>/<code>preset</code> values in
+SVT-AV1.</p>
+<p>A preset determines how many algorithmic tools the encoder activates
+during compression, specifically:</p>
+<ul>
+<li><strong>Block Partitioning:</strong> Deciding whether to divide an
+image into large blocks or microscopic segments (from 128x128 down to
+4x4 pixels) to match complex visual patterns.</li>
+<li><strong>Directional Intra-Prediction:</strong> Evaluating multiple
+spatial prediction angles to approximate pixel values before storing
+residual data.</li>
+<li><strong>Transform Types:</strong> Choosing between discrete cosine
+transforms (DCT) and asymmetric discrete sine transforms (ADST) to
+capture different texture types.</li>
+<li><strong>Rate-Distortion Optimization (RDO):</strong> Testing
+multiple encoding permutations to mathematically determine the best
+quality-per-bit ratio.</li>
+</ul>
+<h2 id="the-trade-off-file-size-vs-processing-time">The Trade-Off: File
+Size vs. Processing Time</h2>
+<p>The primary effect of adjusting presets lies in the compression
+density achieved per unit of time.</p>
+<h3 id="slower-presets-eg-cpu-used-03">Slower Presets (e.g.,
+<code>cpu-used 0–3</code>)</h3>
+<ul>
+<li><strong>Compression Efficiency:</strong> Slower presets perform
+exhaustive searches across all partitioning shapes and transform modes.
+This allows the encoder to eliminate redundancy almost entirely,
+yielding the lowest possible file size for a given quality level.</li>
+<li><strong>Compute Penalty:</strong> The processing time increases
+exponentially. Moving from a mid-tier preset down to preset 0 can
+increase encoding duration by hundreds or thousands of percent, often
+yielding diminishing returns of only 1% to 5% additional size
+reduction.</li>
+</ul>
+<h3 id="balanced-presets-eg-cpu-used-46">Balanced Presets (e.g.,
+<code>cpu-used 4–6</code>)</h3>
+<ul>
+<li><strong>Compression Efficiency:</strong> These presets use
+heuristics to prune improbable partitioning combinations. File sizes
+remain within 5% to 10% of the slowest presets while cutting processing
+times drastically.</li>
+<li><strong>Compute Benefit:</strong> These levels provide the most
+practical throughput for automated pipelines and production builds,
+striking an optimal balance between server costs and bandwidth
+savings.</li>
+</ul>
+<h3 id="faster-presets-eg-cpu-used-79">Faster Presets (e.g.,
+<code>cpu-used 7–9</code>)</h3>
+<ul>
+<li><strong>Compression Efficiency:</strong> Fast presets disable deep
+iterative testing, opting for larger, uniform block sizes and standard
+transform types. To reach the same target visual quality, the encoder
+must spend significantly more bits, producing files that are often 15%
+to 30% larger.</li>
+<li><strong>Compute Benefit:</strong> Encoding latency drops to
+milliseconds per image, making these presets suitable for on-the-fly
+transformations and live generation.</li>
+</ul>
+<h2 id="impact-on-visual-fidelity">Impact on Visual Fidelity</h2>
+<p>The relationship between presets and fidelity depends heavily on
+whether encoding is performed using a fixed target quality (Constant
+Rate Factor / CRF) or a constrained file size (target bitrate).</p>
+<h3 id="in-constant-quality-mode-crf">In Constant Quality Mode
+(CRF)</h3>
+<p>When an encoder is set to a fixed CRF value, it attempts to maintain
+a uniform visual threshold. At faster presets, the encoder's reduced
+mathematical precision causes it to miscalculate complexity, leading to
+subtle banding in smooth gradients or blurring in high-frequency
+textures (such as hair or foliage). To compensate and maintain fidelity,
+the encoder is forced to output a larger file. Slower presets maintain
+sharper edges, smoother gradients, and consistent micro-textures at
+smaller footprints.</p>
+<h3 id="in-constrained-size-mode-target-bitrate">In Constrained Size
+Mode (Target Bitrate)</h3>
+<p>If the file size is strictly capped, changing the preset directly
+alters visible fidelity. A fast preset forced into a small file size
+produces noticeable artifacts, including blocking, color bleeding, and
+ringing around high-contrast edges. A slow preset operating under the
+exact same size constraint allocates bits intelligently, keeping
+artifacts imperceptible to the human eye.</p>
+<h2 id="recommended-preset-implementations">Recommended Preset
+Implementations</h2>
+<ul>
+<li><strong>Static Web Optimization (Pre-builds):</strong> Use slower
+settings (such as <code>cpu-used 4</code> in <code>libaom</code> or
+preset 4/5 in <code>SVT-AV1</code>). Because the image is compressed
+once and served millions of times, the extra compute time pays permanent
+bandwidth dividends.</li>
+<li><strong>Dynamic / Just-in-Time APIs:</strong> Use fast-to-medium
+settings (such as <code>cpu-used 6–8</code>). This prevents excessive
+server load and ensures fast response times for end-users, accepting
+slightly larger file sizes in exchange for speed.</li>
+<li><strong>Archival Storage:</strong> Avoid preset 0 due to extreme
+processing overhead without proportional quality gains; preset 2 or 3
+provides near-maximum AVIF compression efficiency for long-term storage
+needs.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

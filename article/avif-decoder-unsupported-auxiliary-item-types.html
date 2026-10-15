@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Decoder Unsupported Auxiliary Item Types - avif</title>
+    <meta name="description" content="When an AVIF decoder encounters an auxiliary item type that it does not recognize or support, it must safely ignore the auxiliary data and continue decoding the primary image. Because the AVIF specification builds upon the ISO Base Media File Format (ISOB">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-decoder-unsupported-auxiliary-item-types">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Decoder Unsupported Auxiliary Item Types - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-decoder-unsupported-auxiliary-item-types" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="When an AVIF decoder encounters an auxiliary item type that it does not recognize or support, it must safely ignore the auxiliary data and continue decoding the primary image. Because the AVIF specification builds upon the ISO Base Media File Format (ISOB" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-decoder-unsupported-auxiliary-item-types">AVIF Decoder
+Unsupported Auxiliary Item Types</h1>
+<p>When an AVIF decoder encounters an auxiliary item type that it does
+not recognize or support, it must safely ignore the auxiliary data and
+continue decoding the primary image. Because the AVIF specification
+builds upon the ISO Base Media File Format (ISOBMFF) and HEIF
+architectures, auxiliary items are designed as non-essential,
+supplementary tracks or image items. Consequently, a failure to parse an
+unsupported auxiliary type does not trigger a fatal decode error;
+instead, the system falls back to displaying the base image alone,
+ensuring consistent backward compatibility and graceful degradation
+across diverse viewing environments.</p>
+<h3 id="the-role-of-auxiliary-items-in-avif">The Role of Auxiliary Items
+in AVIF</h3>
+<p>In an AVIF file, an auxiliary item is linked to a primary image item
+using an <code>auxl</code> (auxiliary) reference type. The exact nature
+of this auxiliary data is declared via an auxiliary type property (such
+as <code>auxC</code>), which contains a Uniform Resource Identifier
+(URI) or Uniform Resource Name (URN) identifying its purpose.</p>
+<p>Common examples of auxiliary item types include:</p>
+<ul>
+<li><strong>Alpha Channels:</strong> Transparency masks (typically
+identified by the URN
+<code>urn:mpeg:mpegB:cicp:systems:auxiliary:alpha</code>).</li>
+<li><strong>Depth Maps:</strong> Spatial depth information used for
+computational photography or 3D effects.</li>
+<li><strong>Gain Maps:</strong> Luminance enhancement layers used to
+render High Dynamic Range (HDR) content on compatible displays while
+retaining a Standard Dynamic Range (SDR) base layer.</li>
+</ul>
+<h3
+id="specification-requirements-mandatory-ignoring-of-unknown-types">Specification
+Requirements: Mandatory Ignoring of Unknown Types</h3>
+<p>According to the HEIF (ISO/IEC 23008-12) standard, from which AVIF
+inherits its structural logic, decoders must not fail when encountering
+unrecognized item properties or auxiliary item types. If a decoder reads
+an <code>auxC</code> property containing an unknown URN, the decoder is
+explicitly required to disregard that auxiliary item.</p>
+<p>The primary image item remains structurally independent. Its
+dimensions, color data, and compression parameters are self-contained
+within its own item properties (such as <code>ispe</code>,
+<code>colr</code>, and <code>av1C</code>). Because the auxiliary item
+references the primary item rather than the other way around, discarding
+the auxiliary stream leaves the primary image intact and completely
+decodable.</p>
+<h3 id="real-world-decoding-behavior">Real-World Decoding Behavior</h3>
+<p>When an auxiliary item is discarded due to a lack of decoder support,
+the visible outcome depends entirely on what information the auxiliary
+item contained:</p>
+<ul>
+<li><strong>Transparency Loss:</strong> If a decoder does not support
+the alpha channel auxiliary type, the primary image will be displayed
+without transparency, effectively treating the background as fully
+opaque.</li>
+<li><strong>HDR Fallback:</strong> If an auxiliary gain map is
+unsupported, the decoder simply outputs the base SDR image, ignoring the
+dynamic range expansion data.</li>
+<li><strong>Feature Omission:</strong> Depth maps or
+application-specific auxiliary layers are silently dropped, preventing
+secondary features (like portrait-mode blur or stereoscopic rendering)
+from functioning while still presenting the main visual.</li>
+</ul>
+<p>Conforming AVIF decoders isolate primary image streams from auxiliary
+processing pipelines, guaranteeing that unsupported supplementary data
+never leads to file corruption errors, blank outputs, or decode
+crashes.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

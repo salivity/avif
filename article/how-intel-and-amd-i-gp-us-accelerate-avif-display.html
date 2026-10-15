@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Intel and AMD iGPUs Accelerate AVIF Display - avif</title>
+    <meta name="description" content="Modern Intel and AMD integrated graphics processing units (iGPUs) accelerate AVIF (AV1 Image File Format) display by utilizing dedicated fixed-function AV1 hardware decoders embedded directly on the silicon. Because AVIF wraps still-image data within the">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-intel-and-amd-i-gp-us-accelerate-avif-display">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How Intel and AMD iGPUs Accelerate AVIF Display - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-intel-and-amd-i-gp-us-accelerate-avif-display" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Modern Intel and AMD integrated graphics processing units (iGPUs) accelerate AVIF (AV1 Image File Format) display by utilizing dedicated fixed-function AV1 hardware decoders embedded directly on the silicon. Because AVIF wraps still-image data within the" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-intel-and-amd-igpus-accelerate-avif-display">How Intel and
+AMD iGPUs Accelerate AVIF Display</h1>
+<p>Modern Intel and AMD integrated graphics processing units (iGPUs)
+accelerate AVIF (AV1 Image File Format) display by utilizing dedicated
+fixed-function AV1 hardware decoders embedded directly on the silicon.
+Because AVIF wraps still-image data within the compression format used
+by the AV1 video codec, compatible iGPUs treat AVIF files as
+single-frame AV1 streams. Offloading the computationally intensive tasks
+of decompression, color space transformation, and pixel rendering from
+the CPU to the iGPU significantly reduces system latency, lowers power
+consumption, and ensures instantaneous image display in modern browsers
+and operating systems.</p>
+<h3 id="the-foundation-avif-and-the-av1-codec">The Foundation: AVIF and
+the AV1 Codec</h3>
+<p>AVIF is derived from the HEIF container format and compresses visual
+data using AV1 intra-frames (keyframes). While AV1 offers superior
+compression compared to legacy formats like JPEG and WebP,
+software-based AV1 decompression requires substantial CPU resources.
+Hardware acceleration bridges this gap by routing image decompression
+directly through the silicon blocks designed for video playback,
+allowing the operating system to decode AVIF images with minimal
+computational overhead.</p>
+<h3 id="intel-architecture-quick-sync-and-the-xe-engine">Intel
+Architecture: Quick Sync and the Xe Engine</h3>
+<p>Intel introduced native hardware decoding for AV1 with its 11th Gen
+Core processors (Tiger Lake), featuring the Intel Iris Xe architecture
+(Xe-LP), and continues this support through subsequent architectures,
+including Alder Lake, Raptor Lake, and Intel Core Ultra (Meteor Lake
+with Xe-LPG).</p>
+<ul>
+<li><strong>Fixed-Function Decoders:</strong> Intel's media block, part
+of Intel Quick Sync Video, incorporates a dedicated multi-format
+hardware decoder capable of processing AV1 profiles at up to 4K, 8K, and
+10-bit/12-bit color depths.</li>
+<li><strong>Zero-Copy Pipeline:</strong> When a web browser encounters
+an AVIF image, it submits the bitstream via APIs such as DirectX Video
+Acceleration (DXVA) on Windows or Video Acceleration API (VA-API) on
+Linux. The Intel iGPU decodes the compressed frame directly into video
+memory (VRAM), bypassing system RAM and eliminating unnecessary CPU
+memory-copy operations.</li>
+</ul>
+<h3 id="amd-architecture-video-core-next-vcn">AMD Architecture: Video
+Core Next (VCN)</h3>
+<p>AMD introduced hardware-level AV1 decoding in its integrated APU
+lineup starting with the Ryzen 6000 series (Rembrandt), powered by the
+RDNA 2 architecture, and expanded it across RDNA 3 and RDNA 3.5 (Ryzen
+7000, 8000, and AI 300 series).</p>
+<ul>
+<li><strong>VCN 3.0 and Newer:</strong> AMD integrates the Video Core
+Next (VCN) hardware block to manage video operations. VCN 3.0 and
+subsequent iterations include dedicated fixed-function logic for AV1
+decode.</li>
+<li><strong>Hardware Intra-Prediction:</strong> The VCN engine natively
+executes entropy decoding, inverse discrete cosine transforms (IDCT),
+and loop filtering—the three most demanding stages of AVIF
+rendering—directly in hardware without waking up high-power compute
+units.</li>
+</ul>
+<h3 id="color-processing-and-direct-composition">Color Processing and
+Direct Composition</h3>
+<p>Beyond basic decoding, modern Intel and AMD iGPUs streamline the
+final display stages of AVIF:</p>
+<ol type="1">
+<li><strong>High Dynamic Range (HDR) and Wide Color Gamut
+(WCG):</strong> AVIF natively supports 10-bit and 12-bit color spaces
+(such as BT.2020) and modern transfer characteristics like HDR10 and
+HLG. Integrated GPUs perform the necessary color space conversions and
+tone-mapping natively in hardware before sending the output to the
+display.</li>
+<li><strong>Desktop Compositor Integration:</strong> Once decoded, the
+raw pixel buffer is handed directly to the desktop window manager (such
+as Desktop Window Manager on Windows or Wayland/X11 compositors on
+Linux). This direct integration prevents frame-buffer stalling when
+viewing content-heavy webpages packed with multiple high-resolution AVIF
+assets.</li>
+</ol></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

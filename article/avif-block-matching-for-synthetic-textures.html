@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Block-Matching for Synthetic Textures - avif</title>
+    <meta name="description" content="Synthetic textures like digital wallpapers, vector art, and user interface graphics often contain sharp transitions, identical repeating patterns, and flat color fields that challenge traditional image formats. By inheriting the advanced Screen Content To">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-block-matching-for-synthetic-textures">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Block-Matching for Synthetic Textures - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-block-matching-for-synthetic-textures" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Synthetic textures like digital wallpapers, vector art, and user interface graphics often contain sharp transitions, identical repeating patterns, and flat color fields that challenge traditional image formats. By inheriting the advanced Screen Content To" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-block-matching-for-synthetic-textures">AVIF Block-Matching
+for Synthetic Textures</h1>
+<p>Synthetic textures like digital wallpapers, vector art, and user
+interface graphics often contain sharp transitions, identical repeating
+patterns, and flat color fields that challenge traditional image
+formats. By inheriting the advanced Screen Content Tools of the AV1
+video codec, the AVIF format utilizes intra-frame block-matching
+techniques—most notably Intra Block Copy (IBC)—to dramatically improve
+compression efficiency for these computer-generated assets. This
+approach allows AVIF to preserve razor-sharp edges and intricate details
+while substantially lowering file sizes compared to conventional
+transform-based codecs like JPEG or WebP.</p>
+<h2 id="the-challenge-of-compressing-synthetic-graphics">The Challenge
+of Compressing Synthetic Graphics</h2>
+<p>Natural photographs are dominated by smooth, continuous-tone
+variations and natural sensor noise, which compress well using Discrete
+Cosine Transforms (DCT). Synthetic textures, such as abstract desktop
+wallpapers and digital patterns, behave fundamentally differently. They
+frequently feature pixel-perfect geometric shapes, strict color
+palettes, sharp text, and high-frequency boundaries.</p>
+<p>When processed through standard transform coding, these
+high-frequency boundaries often produce visible ringing artifacts,
+blurring, and color bleed. Furthermore, traditional spatial prediction
+methods only predict pixel values based on immediately adjacent pixels
+(horizontal, vertical, or directional angles), failing to capture
+repeating visual elements located farther away across the canvas.</p>
+<h2 id="how-avif-block-matching-operates">How AVIF Block-Matching
+Operates</h2>
+<p>AVIF solves this limitation using Intra Block Copy (IBC), a dedicated
+block-matching tool originally designed for screen content coding.
+Instead of predicting a block exclusively from its neighboring pixels,
+IBC searches previously reconstructed areas within the same image.</p>
+<p>When the encoder identifies a synthetic pattern or geometric
+structure that appears elsewhere on the canvas, it records a 2D
+displacement vector (often referred to as a block vector) rather than
+calculating complex frequency transforms for the entire pixel block. The
+decoder then copies the referenced block directly from the existing
+reconstruction buffer, applying only minimal residual data to correct
+minor discrepancies.</p>
+<h2 id="key-benefits-for-desktop-wallpapers-and-digital-textures">Key
+Benefits for Desktop Wallpapers and Digital Textures</h2>
+<ul>
+<li><strong>Exploitation of Structural Redundancy:</strong> Geometric
+wallpapers, tiled backgrounds, and abstract digital art often reuse
+specific motifs, iconography, or gradients. IBC treats these recurrences
+as direct copies, expending virtually zero bitrate on the identical
+iterations.</li>
+<li><strong>Preservation of Sharp Edges:</strong> Standard spatial
+smoothing filters and lossy transforms tend to soften crisp digital
+lines. Block-matching avoids spatial degradation by copying original,
+sharp reconstructions across the frame without introducing
+transform-related blur.</li>
+<li><strong>Synergy with Palette Mode:</strong> AVIF pairs
+block-matching with a palette prediction mode. For illustrations or
+minimalist wallpapers with limited localized color counts, the encoder
+maps pixels directly to an indexed palette, completely bypassing
+transform coding and preventing color smearing.</li>
+<li><strong>Substantial Bandwidth Reduction:</strong> By replacing heavy
+transform coefficients with lightweight displacement vectors, synthetic
+wallpapers can achieve 40% to 70% smaller file sizes than traditional
+JPEG or PNG equivalents without perceptible loss in visual
+crispness.</li>
+</ul>
+<p>Through these block-matching mechanisms, AVIF processes
+computer-generated and synthetic media with an awareness of non-local
+structural patterns, making it one of the most effective modern image
+formats for rendering high-resolution wallpapers and complex digital
+designs.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

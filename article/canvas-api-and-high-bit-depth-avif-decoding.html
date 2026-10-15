@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas API and High-Bit-Depth AVIF Decoding - avif</title>
+    <meta name="description" content="This article examines the technical pipeline connecting high-bit-depth AVIF images to the HTML5 Canvas API. It details how browsers decode 10-bit and 12-bit AVIF pixel data, how the default 8-bit canvas context handles this data via truncation or tone map">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/canvas-api-and-high-bit-depth-avif-decoding">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Canvas API and High-Bit-Depth AVIF Decoding - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/canvas-api-and-high-bit-depth-avif-decoding" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article examines the technical pipeline connecting high-bit-depth AVIF images to the HTML5 Canvas API. It details how browsers decode 10-bit and 12-bit AVIF pixel data, how the default 8-bit canvas context handles this data via truncation or tone map" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="canvas-api-and-high-bit-depth-avif-decoding">Canvas API and
+High-Bit-Depth AVIF Decoding</h1>
+<p>This article examines the technical pipeline connecting
+high-bit-depth AVIF images to the HTML5 Canvas API. It details how
+browsers decode 10-bit and 12-bit AVIF pixel data, how the default 8-bit
+canvas context handles this data via truncation or tone mapping, and how
+modern Canvas color management features—such as extended color spaces
+and 16-bit floating-point backing stores—enable the preservation of wide
+color gamuts and high dynamic range precision during rendering and pixel
+manipulation.</p>
+<h2 id="avif-decoding-and-pixel-formats">AVIF Decoding and Pixel
+Formats</h2>
+<p>AVIF supports 8-bit, 10-bit, and 12-bit color depths across various
+chroma subsampling configurations (4:2:0, 4:2:2, and 4:4:4). When a
+browser's decoding engine (typically utilizing an AV1 decoder such as
+<code>dav1d</code> wrapped in <code>libavif</code>) decodes a 10-bit or
+12-bit AVIF, it produces an uncompressed buffer of high-precision pixel
+data.</p>
+<p>In its raw state, this decoded buffer stores luminance and
+chrominance samples as 16-bit unsigned integers per channel within
+system memory. In addition to high bit depth, the decoder parses
+embedded color metadata, including Color Primaries, Transfer
+Characteristics, and Matrix Coefficients (CP/TC/MC), along with any
+embedded ICC profiles.</p>
+<h2 id="default-2d-canvas-behavior-8-bit-truncation">Default 2D Canvas
+Behavior (8-Bit Truncation)</h2>
+<p>By default, an HTML5 <code>&lt;canvas&gt;</code> 2D rendering context
+initializes with an 8-bit sRGB backing store (<code>uint8</code> per
+color channel). When a decoded high-bit-depth AVIF image is drawn onto
+this default context using
+<code>CanvasRenderingContext2D.drawImage()</code>, the browser performs
+automatic format conversion:</p>
+<ol type="1">
+<li><strong>Chroma Upsampling and Color Matrix Transformation:</strong>
+The decoder's YUV data is converted to RGB.</li>
+<li><strong>Color Space and Dynamic Range Conversion:</strong> If the
+AVIF utilizes a wide color gamut (e.g., Display P3 or Rec. 2020) or an
+HDR transfer function (such as Perceptual Quantizer or Hybrid
+Log-Gamma), the engine maps these values into standard sRGB. High
+Dynamic Range (HDR) values exceeding standard peak brightness are
+clipped or tone-mapped down to Standard Dynamic Range (SDR).</li>
+<li><strong>Quantization:</strong> The 10-bit (0–1023) or 12-bit
+(0–4095) integer values are scaled and rounded down to an 8-bit (0–255)
+integer range.</li>
+</ol>
+<p>Consequently, extracting pixels via <code>ctx.getImageData()</code>
+from a default canvas returns a <code>Uint8ClampedArray</code>,
+discarding the additional bit depth and resulting in potential color
+banding or clipping.</p>
+<h2 id="preserving-precision-with-modern-canvas-features">Preserving
+Precision with Modern Canvas Features</h2>
+<p>To retain the precision and dynamic range of 10-bit and 12-bit AVIF
+images, the Canvas 2D context must be explicitly configured to use a
+high-bit-depth storage format.</p>
+<h3 id="floating-point-backing-stores">Floating-Point Backing
+Stores</h3>
+<p>Modern web engines support configuration options when creating a
+context:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> canvas <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">getElementById</span>(<span class="st">&quot;canvas&quot;</span>)<span class="op">;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> ctx <span class="op">=</span> canvas<span class="op">.</span><span class="fu">getContext</span>(<span class="st">&quot;2d&quot;</span><span class="op">,</span> {</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">colorSpace</span><span class="op">:</span> <span class="st">&quot;display-p3&quot;</span><span class="op">,</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">pixelFormat</span><span class="op">:</span> <span class="st">&quot;float16&quot;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span></code></pre></div>
+<p>Configuring the canvas with <code>pixelFormat: "float16"</code> (or
+browser implementations supporting extended bit depths) changes the
+underlying pixel backing store from an 8-bit fixed-point buffer to a
+half-precision 16-bit floating-point buffer (<code>RGBA16F</code>).</p>
+<p>When an AVIF decoded buffer is transferred into a
+<code>float16</code> context:</p>
+<ul>
+<li>Quantization is avoided, as the 10-bit or 12-bit integer values
+easily fit into the significand of a 16-bit floating-point
+representation.</li>
+<li>Wide color primaries (such as Display P3) are preserved if
+explicitly specified in the context attributes.</li>
+<li>Extended dynamic range headroom is maintained rather than
+clipped.</li>
+</ul>
+<h3 id="direct-pixel-access-via-extended-imagedata">Direct Pixel Access
+via Extended ImageData</h3>
+<p>When querying pixel data from a high-bit-depth canvas, the standard
+<code>getImageData()</code> call can be instructed to maintain
+floating-point precision:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> imageData <span class="op">=</span> ctx<span class="op">.</span><span class="fu">getImageData</span>(<span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> canvas<span class="op">.</span><span class="at">width</span><span class="op">,</span> canvas<span class="op">.</span><span class="at">height</span><span class="op">,</span> {</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">storageFormat</span><span class="op">:</span> <span class="st">&quot;float32&quot;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span></code></pre></div>
+<p>This returns a <code>Float32Array</code> within the
+<code>ImageData</code> object, where normalized color components
+typically range from <code>0.0</code> to <code>1.0</code> for SDR, and
+can exceed <code>1.0</code> for HDR values present in the source
+AVIF.</p>
+<h2 id="imagebitmap-and-hardware-acceleration-webgl--webgpu">ImageBitmap
+and Hardware Acceleration (WebGL / WebGPU)</h2>
+<p>To bypass the main thread and avoid unnecessary color conversions
+entirely, applications can load AVIF images via
+<code>createImageBitmap()</code>:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> response <span class="op">=</span> <span class="cf">await</span> <span class="fu">fetch</span>(<span class="st">&quot;image-10bit.avif&quot;</span>)<span class="op">;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> blob <span class="op">=</span> <span class="cf">await</span> response<span class="op">.</span><span class="fu">blob</span>()<span class="op">;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> bitmap <span class="op">=</span> <span class="cf">await</span> <span class="fu">createImageBitmap</span>(blob<span class="op">,</span> {</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">colorSpaceConversion</span><span class="op">:</span> <span class="st">&quot;none&quot;</span><span class="op">,</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">imageOrientation</span><span class="op">:</span> <span class="st">&quot;from-image&quot;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span></code></pre></div>
+<p>Setting <code>colorSpaceConversion: "none"</code> instructs the
+decoder to preserve the original color values without forcing an
+intermediate conversion to sRGB.</p>
+<p>In hardware-accelerated contexts like WebGL2 or WebGPU, the decoded
+<code>ImageBitmap</code> can be uploaded directly to GPU textures
+allocated with high-bit-depth formats, such as <code>RGBA16F</code> or
+<code>RGB10_A2</code>. This pipeline allows compute or fragment shaders
+to perform wide-gamut and HDR calculations using the original 10-bit or
+12-bit AVIF color values without precision loss.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

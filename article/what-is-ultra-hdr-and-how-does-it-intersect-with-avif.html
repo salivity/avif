@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What Is Ultra HDR and How Does It Intersect With AVIF? - avif</title>
+    <meta name="description" content="This article provides an overview of Google’s Ultra HDR image format, explaining its core architecture, standard dynamic range (SDR) backward compatibility, and how it utilizes the modern AVIF container. Readers will learn how gain map technology bridges">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/what-is-ultra-hdr-and-how-does-it-intersect-with-avif">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="What Is Ultra HDR and How Does It Intersect With AVIF? - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/what-is-ultra-hdr-and-how-does-it-intersect-with-avif" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article provides an overview of Google’s Ultra HDR image format, explaining its core architecture, standard dynamic range (SDR) backward compatibility, and how it utilizes the modern AVIF container. Readers will learn how gain map technology bridges" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="what-is-ultra-hdr-and-how-does-it-intersect-with-avif">What Is
+Ultra HDR and How Does It Intersect With AVIF?</h1>
+<p>This article provides an overview of Google’s Ultra HDR image format,
+explaining its core architecture, standard dynamic range (SDR) backward
+compatibility, and how it utilizes the modern AVIF container. Readers
+will learn how gain map technology bridges legacy and modern display
+capabilities, and why encoding Ultra HDR data within AVIF represents a
+significant leap forward in visual quality and file efficiency over
+traditional JPEG implementations.</p>
+<h3 id="what-is-the-ultra-hdr-specification">What Is the Ultra HDR
+Specification?</h3>
+<p>Introduced by Google alongside Android 14, the Ultra HDR image format
+brings high dynamic range photography to standard imaging ecosystems
+without breaking compatibility with legacy hardware and software.</p>
+<p>Traditional HDR formats often face display mismatch issues: rendering
+a native HDR image directly on an SDR screen often leads to blown-out
+highlights, crushed shadows, or incorrect tone-mapping. Ultra HDR solves
+this by using a dual-layer approach built around an HDR gain map.</p>
+<p>An Ultra HDR file consists of three essential components:</p>
+<ol type="1">
+<li><strong>A Base Image:</strong> Typically an 8-bit SDR image that
+standard viewers and legacy applications can display without any
+modifications.</li>
+<li><strong>A Gain Map:</strong> A secondary, lower-resolution grayscale
+or color image that stores the difference in luminance and chrominance
+between the SDR base and the full HDR target.</li>
+<li><strong>Metadata:</strong> Standardized mathematical parameters
+(aligned with ISO 21496-1) that instruct an HDR-capable display engine
+on how to blend the base image and the gain map according to the
+device's specific display brightness limits.</li>
+</ol>
+<p>When opened on an SDR device, the decoder renders only the base
+image. When opened on an HDR display, compatible software reads the gain
+map and metadata, recalculating pixels to brighten highlights and expand
+color gamuts up to the target HDR peak brightness.</p>
+<h3 id="the-role-of-the-avif-container">The Role of the AVIF
+Container</h3>
+<p>AVIF (AV1 Image File Format) is an open, royalty-free image format
+derived from the video codec AV1 and standardized by the Alliance for
+Open Media (AOMedia). It relies on the ISO Base Media File Format
+(ISOBMFF) container structure, which allows it to store complex media
+arrangements, including multiple image items, transparency (alpha
+channels), image sequences, and auxiliary metadata.</p>
+<p>AVIF offers higher compression efficiency compared to legacy codecs
+like JPEG, reducing file sizes by up to 50% or more at comparable
+perceptual quality. Furthermore, AVIF natively supports 10-bit and
+12-bit color depths and modern color spaces such as BT.2020 and DCI-P3,
+significantly reducing compression artifacts, color blocking, and
+banding in smooth gradients.</p>
+<h3 id="how-ultra-hdr-intersects-with-avif">How Ultra HDR Intersects
+with AVIF</h3>
+<p>While Ultra HDR initially launched with JPEG as its primary transport
+mechanism, the specification was engineered to be format-agnostic. The
+intersection of Ultra HDR and AVIF leverages the structural advantages
+of the ISOBMFF container and the compression power of the AV1 codec.</p>
+<h4 id="1-native-item-relationships">1. Native Item Relationships</h4>
+<p>In a legacy JPEG, embedding an Ultra HDR gain map requires storing
+secondary images inside custom application markers (such as MPF or XMP
+blocks), which can cause parsing friction across different decoders. In
+contrast, the AVIF container natively supports primary and auxiliary
+items defined directly within the ISOBMFF standard. The primary SDR
+image and the gain map image are stored as discrete, addressable items,
+linked cleanly via standard item references (<code>auxl</code> or
+tone-mapping properties) and ISO 21496-1 metadata boxes.</p>
+<h4 id="2-superior-gain-map-and-base-compression">2. Superior Gain Map
+and Base Compression</h4>
+<p>Both the base image and the gain map benefit from AV1 compression.
+Because gain maps represent relative luminance offsets across smooth
+gradients, traditional 8-bit JPEG compression can introduce spatial
+blockiness or stair-stepping that becomes visible when amplified on
+high-brightness HDR panels. AVIF allows the gain map itself—as well as
+the base image—to be compressed using 10-bit AV1, virtually eliminating
+banding in specular highlights and glowing areas.</p>
+<h4 id="3-smaller-bandwidth-footprint">3. Smaller Bandwidth
+Footprint</h4>
+<p>A dual-layer HDR image inherently contains more data than a standard
+single-layer image. When using JPEG, adding a gain map increases file
+size substantially. By wrapping Ultra HDR within AVIF, the combined size
+of the base image, gain map, and metadata is frequently smaller than a
+standard single-layer SDR JPEG of the same visual resolution.</p>
+<h3 id="summary">Summary</h3>
+<p>The Ultra HDR specification standardizes how gain maps and
+tone-mapping metadata are packaged to ensure consistent rendering across
+both SDR and HDR displays. While JPEG provided immediate compatibility
+for the format's launch, the AVIF container provides the ideal
+architectural home for Ultra HDR—delivering native multi-item support,
+10-bit precision, and high-efficiency compression needed for modern HDR
+workflows.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

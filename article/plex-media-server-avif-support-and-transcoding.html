@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plex Media Server AVIF Support and Transcoding - avif</title>
+    <meta name="description" content="This article provides an overview of how Plex Media Server manages AVIF (AV1 Image File Format) photo libraries, detailing the processes of library indexing, on-the-fly transcoding, thumbnail generation, and client-side playback. It outlines how the serve">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/plex-media-server-avif-support-and-transcoding">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Plex Media Server AVIF Support and Transcoding - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/plex-media-server-avif-support-and-transcoding" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article provides an overview of how Plex Media Server manages AVIF (AV1 Image File Format) photo libraries, detailing the processes of library indexing, on-the-fly transcoding, thumbnail generation, and client-side playback. It outlines how the serve" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="plex-media-server-avif-support-and-transcoding">Plex Media
+Server AVIF Support and Transcoding</h1>
+<p>This article provides an overview of how Plex Media Server manages
+AVIF (AV1 Image File Format) photo libraries, detailing the processes of
+library indexing, on-the-fly transcoding, thumbnail generation, and
+client-side playback. It outlines how the server processes AVIF files
+depending on client compatibility, the computational requirements
+involved, and current direct-play capabilities across various
+devices.</p>
+<h3 id="library-ingestion-and-metadata-processing">Library Ingestion and
+Metadata Processing</h3>
+<p>When an AVIF photographic album is added to a Plex Media Server photo
+library, the server's scanner examines the files using underlying
+multimedia frameworks—primarily modernized builds of FFmpeg and
+ImageMagick. If the server build includes AVIF container and AV1 codec
+support, it parses the metadata, including EXIF data, color profiles
+(ICC), and dimensions. If Plex is running on an older build lacking
+native <code>libavif</code> integration, AVIF files may be skipped, fail
+to generate metadata, or appear as generic file errors.</p>
+<h3 id="thumbnail-generation-and-caching">Thumbnail Generation and
+Caching</h3>
+<p>Plex does not serve raw, full-resolution AVIF files to browse screens
+due to performance constraints. During the initial indexing of an album,
+Plex creates multiple cached resolutions (thumbnails, medium previews,
+and full views). The server decodes the AVIF source and re-encodes these
+cached variants, typically into standard JPEG or WebP formats, ensuring
+that navigation within the album remains fast and compatible with all
+Plex clients regardless of their native AVIF support.</p>
+<h3 id="transcoding-and-direct-display">Transcoding and Direct
+Display</h3>
+<p>Plex Media Server determines whether to transcode or direct-display
+an AVIF image based on the specific client application requesting the
+file:</p>
+<ul>
+<li><strong>Direct Display:</strong> If the client supports AVIF
+natively—such as modern Chromium, Firefox, or Safari-based Plex Web
+sessions, or updated mobile operating systems—Plex can serve the image
+file directly without modification, preserving its high compression
+efficiency and high-dynamic-range (HDR) data.</li>
+<li><strong>Transcoding on the Fly:</strong> When an album is accessed
+through a client without native AVIF decoding (such as older Smart TV
+apps, older streaming sticks, or legacy media boxes), the Plex Media
+Server transcodes the AVIF file on demand. The server decodes the AV1
+image frame and converts it into a standard format—most commonly
+JPEG—before transmitting it to the display device.</li>
+</ul>
+<h3 id="system-performance-and-resource-usage">System Performance and
+Resource Usage</h3>
+<p>AVIF utilizes complex compression algorithms derived from the AV1
+video codec. As a result, decoding full-resolution photographic
+files—especially 24- to 48-megapixel camera imports—requires
+significantly more CPU overhead than legacy formats like JPEG.</p>
+<p>During the initial ingestion of large AVIF albums, servers without
+hardware-assisted decoding may experience sustained CPU utilization
+spikes as the server decompresses and re-renders previews. Once cached,
+regular browsing uses minimal resources, but on-the-fly transcoding for
+unsupported devices can introduce a slight delay when opening
+full-resolution images compared to traditional formats.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

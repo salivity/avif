@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Storing Portrait Mode Depth Data in AVIF - avif</title>
+    <meta name="description" content="Computational photography systems rely on depth maps to simulate optical shallow depth of field, adjust focal points after capture, and apply relighting effects. The AVIF (AV1 Image File Format) specification provides a standardized, highly compressed con">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/storing-portrait-mode-depth-data-in-avif">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Storing Portrait Mode Depth Data in AVIF - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/storing-portrait-mode-depth-data-in-avif" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Computational photography systems rely on depth maps to simulate optical shallow depth of field, adjust focal points after capture, and apply relighting effects. The AVIF (AV1 Image File Format) specification provides a standardized, highly compressed con" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="storing-portrait-mode-depth-data-in-avif">Storing Portrait Mode
+Depth Data in AVIF</h1>
+<p>Computational photography systems rely on depth maps to simulate
+optical shallow depth of field, adjust focal points after capture, and
+apply relighting effects. The AVIF (AV1 Image File Format) specification
+provides a standardized, highly compressed container to store this depth
+data alongside the primary color image. This article explains how
+computational photography pipelines generate depth maps, how the
+underlying container architecture links auxiliary items to primary
+imagery, and how AV1 compression encodes spatial depth for post-capture
+processing.</p>
+<h2 id="the-isobmff-container-and-auxiliary-images">The ISOBMFF
+Container and Auxiliary Images</h2>
+<p>AVIF is derived from the High Efficiency Image File Format (HEIF),
+which is built on top of the ISO Base Media File Format (ISOBMFF).
+Rather than flattening depth information into custom, proprietary
+metadata fields—such as base64-encoded JPEGs embedded in XMP tags—AVIF
+natively supports multi-item architectures.</p>
+<p>Within an AVIF file, the primary image and the depth map exist as
+distinct image items stored in the same file container. The primary
+color image (typically a full-color YUV 4:2:0 or 4:4:4 image) is
+designated as the primary item (<code>pitm</code>). The depth map is
+saved as a separate item marked as an auxiliary image item.</p>
+<p>The relationship between these two items is established using an item
+reference box (<code>iref</code>) with a reference type of
+<code>auxl</code> (auxiliary). This reference explicitly links the depth
+data item to the primary image item, signaling to decoders that the
+secondary item is not intended for standalone display, but instead
+modifies or supplements the primary image.</p>
+<h2 id="auxiliary-type-identification">Auxiliary Type
+Identification</h2>
+<p>To allow image processing software to interpret the auxiliary data
+correctly, the file includes an Auxiliary Type Property box
+(<code>auxC</code>). This property contains a Uniform Resource Name
+(URN) that defines the exact nature of the data.</p>
+<p>For depth maps, standard identifier strings indicate whether the data
+represents metric depth (absolute distance in meters) or disparity
+(inverse distance, common in stereo-camera systems). Standard
+identifiers include standardized MPEG depth URNs (such as
+<code>urn:mpeg:heif:2015:auxid:depth</code>) or platform-specific
+definitions. Decoders read this URN to determine whether values need
+inversion, scaling, or special handling to accurately recreate the
+virtual camera's focal plane.</p>
+<h2 id="monochrome-av1-compression-for-depth-maps">Monochrome AV1
+Compression for Depth Maps</h2>
+<p>Depth data generated by stereo vision, dual-pixel sensors, or LiDAR
+sensors is fundamentally a single-channel 2D spatial array. AVIF
+leverages the AV1 video codec's native monochrome profile to encode this
+array with high efficiency:</p>
+<ul>
+<li><strong>Single-Channel Encoding:</strong> The depth map is encoded
+purely as a luma (Y) channel, discarding unnecessary chroma planes to
+save space.</li>
+<li><strong>Bit Depth:</strong> While standard color images are often
+8-bit, depth maps often benefit from 10-bit or 12-bit monochrome AV1
+encoding. This higher bit depth prevents contouring and banding in
+smooth gradients, which is critical for realistic bokeh
+transitions.</li>
+<li><strong>Lossy vs. Lossless Compression:</strong> Algorithms usually
+compress depth maps using lossy AV1 encoding tuned to preserve sharp
+object boundaries (edges) while aggressively compressing smooth
+background regions where precision loss does not noticeably impact blur
+quality.</li>
+<li><strong>Resolution Independence:</strong> The depth item does not
+need to match the resolution of the primary image. Computational
+algorithms often downsample the depth map to half or quarter resolution
+to minimize file size, relying on post-processing edge-aware upsampling
+(such as bilateral filtering) to match the primary image at render
+time.</li>
+</ul>
+<h2 id="storing-calibration-and-range-metadata">Storing Calibration and
+Range Metadata</h2>
+<p>Raw depth pixels represent values within a normalized range
+(typically 0 to 255 for 8-bit, or 0 to 1023 for 10-bit). To convert
+these integer values into physical distances for bokeh calculation, the
+AVIF file includes auxiliary metadata embedded in EXIF, XMP, or custom
+item properties:</p>
+<ol type="1">
+<li><strong>Near and Far Planes:</strong> Metadata specifies the
+physical distance corresponding to the minimum (0) and maximum pixel
+values, allowing downstream software to map values to real-world
+meters.</li>
+<li><strong>Disparity vs. Depth Flags:</strong> The metadata clarifies
+whether a higher value corresponds to a point closer to the camera
+(disparity) or farther away (linear depth).</li>
+<li><strong>Camera Intrinsics:</strong> Parameters like focal length,
+principal point, and lens distortion coefficients can be embedded to
+allow synthetic aperture rendering that accurately reflects realistic
+optical flaws.</li>
+</ol>
+<h2 id="backward-compatibility-and-rendering">Backward Compatibility and
+Rendering</h2>
+<p>When an application without computational photography capabilities
+opens an AVIF file, the decoder queries the <code>pitm</code> box and
+extracts only the primary color image, ignoring auxiliary items. Systems
+equipped with portrait-processing engines detect the <code>auxl</code>
+relationship, decode the monochrome AV1 stream into memory as a separate
+texture buffer, and feed both the primary image and the depth buffer
+into shaders responsible for depth-of-field blur, synthetic lighting, or
+3D parallax effects.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Conversion in CI/CD: Common Pitfalls - avif</title>
+    <meta name="description" content="Automating AVIF conversion within Continuous Integration and Continuous Deployment (CI/CD) pipelines can drastically reduce image payloads and improve web performance metrics. However, because AVIF encoding is computationally intensive and structurally di">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-conversion-in-ci-cd-common-pitfalls">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Conversion in CI/CD: Common Pitfalls - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-conversion-in-ci-cd-common-pitfalls" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Automating AVIF conversion within Continuous Integration and Continuous Deployment (CI/CD) pipelines can drastically reduce image payloads and improve web performance metrics. However, because AVIF encoding is computationally intensive and structurally di" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-conversion-in-cicd-common-pitfalls">AVIF Conversion in
+CI/CD: Common Pitfalls</h1>
+<p>Automating AVIF conversion within Continuous Integration and
+Continuous Deployment (CI/CD) pipelines can drastically reduce image
+payloads and improve web performance metrics. However, because AVIF
+encoding is computationally intensive and structurally different from
+legacy formats like JPEG and PNG, teams frequently encounter severe
+operational bottlenecks. This article highlights the most common
+pitfalls when configuring automated AVIF pipelines and outlines how to
+prevent them from degrading your build performance and output
+quality.</p>
+<h2 id="1-uncapped-build-times-due-to-aggressive-cpu-effort-settings">1.
+Uncapped Build Times Due to Aggressive CPU Effort Settings</h2>
+<p>AVIF relies on the AV1 video codec architecture, making encoding
+significantly slower than WebP or MozJPEG. A standard pitfall is
+configuring the encoder (such as <code>libaom</code>,
+<code>rav1e</code>, or <code>svt-av1</code>) with high compression
+effort levels (e.g., <code>effort: 8</code> or
+<code>speed: 0</code>).</p>
+<p>In a CI/CD environment, this creates exponential build times for
+negligible file size gains:</p>
+<ul>
+<li><strong>The Problem:</strong> Moving from an effort level of 4 to 8
+often yields only a 2–5% reduction in file size while multiplying CPU
+encoding time by a factor of 10 or more.</li>
+<li><strong>The Fix:</strong> Cap your encoder preset or effort level to
+a middle tier (typically <code>speed: 4</code> to <code>6</code> in
+<code>libaom-avif</code> or equivalent). Reserve the most aggressive
+compression settings only for major release builds or off-pipeline
+background workers.</li>
+</ul>
+<h2 id="2-inefficient-caching-and-re-encoding-unchanged-assets">2.
+Inefficient Caching and Re-encoding Unchanged Assets</h2>
+<p>Pipelines that lack intelligent asset diffing will attempt to convert
+every repository image on every single pull request or deployment.</p>
+<ul>
+<li><strong>The Problem:</strong> Processing hundreds of static images
+repeatedly drains CI minutes, increases cloud billing costs, and delays
+deployments.</li>
+<li><strong>The Fix:</strong> Implement content-hash caching. Store the
+processed AVIF files in an external cache (such as an S3 bucket or
+native CI runner cache) tied to the SHA-256 hash of the source image and
+the current encoder configuration. Only process images whose source
+hashes do not exist in the cache.</li>
+</ul>
+<h2 id="3-high-concurrency-leading-to-out-of-memory-oom-crashes">3. High
+Concurrency Leading to Out-of-Memory (OOM) Crashes</h2>
+<p>To speed up processing, developers often use parallel runners or map
+utilities like <code>p-limit</code> or GNU <code>parallel</code> using
+the maximum number of available CPU cores.</p>
+<ul>
+<li><strong>The Problem:</strong> AVIF encoding requires substantial
+memory per thread, especially for high-resolution images. Spawning too
+many parallel encoding jobs on constrained CI runners (such as GitHub
+Actions or GitLab Runners with 4GB–7GB of RAM) causes the kernel
+Out-Of-Memory killer to abruptly terminate the process.</li>
+<li><strong>The Fix:</strong> Explicitly limit the concurrency based on
+the available RAM of your runner tier rather than simply matching
+virtual CPU cores. As a general rule, reserve at least 1GB to 1.5GB of
+RAM per concurrent conversion worker.</li>
+</ul>
+<h2 id="4-stripping-essential-color-profiles-icc">4. Stripping Essential
+Color Profiles (ICC)</h2>
+<p>Automated optimization scripts often include flags to strip all
+metadata to shave off extra kilobytes.</p>
+<ul>
+<li><strong>The Problem:</strong> Stripping color management data can
+inadvertently discard embedded ICC profiles or color space tags. Because
+AVIF defaults to Rec. 709 or sRGB when unspecified, wide-gamut (Display
+P3) source images will appear washed out, overly saturated, or visually
+altered in modern browsers.</li>
+<li><strong>The Fix:</strong> Configure your pipeline tool (e.g., Sharp,
+ImageMagick, or Squoosh) to retain essential color space metadata or
+normalize all source assets to sRGB prior to AVIF encoding.</li>
+</ul>
+<h2 id="5-failing-to-generate-fallback-formats">5. Failing to Generate
+Fallback Formats</h2>
+<p>While AVIF support across modern browsers is strong, legacy
+environments, older email clients, web crawlers, and third-party
+consumers may not support it.</p>
+<ul>
+<li><strong>The Problem:</strong> Replacing source images entirely with
+<code>.avif</code> extensions breaks compatibility for a subset of
+users.</li>
+<li><strong>The Fix:</strong> Ensure your pipeline creates dual or
+triple outputs (e.g., AVIF alongside WebP and optimized JPEG). Combine
+this with HTML <code>&lt;picture&gt;</code> elements with appropriate
+<code>type</code> attributes, or use an edge CDN configured for dynamic
+content negotiation via the HTTP <code>Accept</code> header.</li>
+</ul>
+<h2 id="6-over-compressing-low-complexity-images">6. Over-Compressing
+Low-Complexity Images</h2>
+<p>AVIF is exceptionally good at preserving details in gradients and
+complex textures without introducing blocky artifacts, but it can
+aggressively smooth out high-frequency noise (like film grain) or
+introduce blur at low quality targets.</p>
+<ul>
+<li><strong>The Problem:</strong> Applying a blanket low-quality setting
+(e.g., <code>quality: 50</code>) across an entire asset directory may
+produce excellent results for photographs but cause blurriness or
+smearing on diagrams, line art, or screenshots with text.</li>
+<li><strong>The Fix:</strong> Segment your image processing rules. Use
+higher quality thresholds or lossy-to-lossless settings for graphics and
+UI assets, while using moderate compression for photographic media.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decoding 8-Bit vs 12-Bit AVIF Images - avif</title>
+    <meta name="description" content="This article examines the technical differences between decoding 8-bit and 12-bit AVIF images, focusing on computational requirements, memory consumption, hardware acceleration limits, and final display pipeline processing. While 8-bit AVIF files are opti">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/decoding-8-bit-vs-12-bit-avif-images">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Decoding 8-Bit vs 12-Bit AVIF Images - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/decoding-8-bit-vs-12-bit-avif-images" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article examines the technical differences between decoding 8-bit and 12-bit AVIF images, focusing on computational requirements, memory consumption, hardware acceleration limits, and final display pipeline processing. While 8-bit AVIF files are opti" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="decoding-8-bit-vs-12-bit-avif-images">Decoding 8-Bit vs 12-Bit
+AVIF Images</h1>
+<p>This article examines the technical differences between decoding
+8-bit and 12-bit AVIF images, focusing on computational requirements,
+memory consumption, hardware acceleration limits, and final display
+pipeline processing. While 8-bit AVIF files are optimized for universal
+web compatibility and low-latency decoding, 12-bit AVIF files provide
+superior dynamic range and color precision at the expense of software
+fallbacks, higher RAM usage, and increased CPU processing overhead.</p>
+<h2 id="color-depth-and-data-precision">Color Depth and Data
+Precision</h2>
+<p>AVIF (AV1 Image File Format) utilizes the compression architecture of
+the AV1 video codec. The primary difference between 8-bit and 12-bit
+AVIF is the numerical precision of the pixel samples:</p>
+<ul>
+<li><strong>8-bit:</strong> Each color channel (Red, Green, Blue, or Y,
+Cb, Cr) has 8 bits of data, yielding 256 discrete values per channel and
+roughly 16.7 million possible colors.</li>
+<li><strong>12-bit:</strong> Each color channel has 12 bits of data,
+providing 4,096 discrete values per channel and approximately 68.7
+billion possible colors.</li>
+</ul>
+<p>During the decoding phase, the decoder must decompress the discrete
+cosine transform (DCT) coefficients and reconstruct sample values at
+this higher bit precision.</p>
+<h2 id="memory-footprint-during-reconstruction">Memory Footprint During
+Reconstruction</h2>
+<p>The required memory buffers expand significantly when decoding 12-bit
+AVIF files:</p>
+<ul>
+<li><strong>8-bit Memory Handling:</strong> A single 8-bit pixel
+component fits neatly into a standard 1-byte unsigned integer
+(<code>uint8</code>). The decoder can store pixel buffers,
+intra-prediction buffers, and intermediate reference frames using a
+compact 1-byte-per-channel memory footprint.</li>
+<li><strong>12-bit Memory Handling:</strong> Because modern computer
+architectures do not have native 12-bit memory registers, decoders must
+align 12-bit samples into 16-bit data types (<code>uint16</code>). This
+immediately doubles the intermediate memory buffer requirements (2 bytes
+per component) compared to an 8-bit image of the exact same
+resolution.</li>
+</ul>
+<h2 id="hardware-acceleration-vs-software-decoding">Hardware
+Acceleration vs. Software Decoding</h2>
+<p>Hardware decoding availability is the most critical operational
+difference between the two formats:</p>
+<ul>
+<li><strong>8-bit AVIF (Main Profile):</strong> Most modern graphics
+processors, mobile chips, and integrated GPUs feature dedicated silicon
+for hardware-accelerated AV1 decoding. These hardware decoders primarily
+support the <strong>AV1 Main Profile</strong>, which covers 8-bit and
+10-bit YUV 4:2:0 formats. When an 8-bit AVIF is rendered, the system
+offloads decoding to the GPU or hardware ASIC, resulting in near-instant
+rendering with minimal battery or CPU usage.</li>
+<li><strong>12-bit AVIF (Professional Profile):</strong> 12-bit color
+requires the <strong>AV1 Professional Profile</strong>. Hardware
+decoders found in modern consumer devices rarely include fixed-function
+hardware for the Professional Profile. Consequently, the operating
+system or browser must fall back to software decoders such as
+<code>dav1d</code> or <code>libgav1</code>. Software decoding shifts the
+computational burden entirely to the CPU, leading to higher latency,
+lower frame rates, and increased power consumption.</li>
+</ul>
+<h2 id="simd-and-computational-complexity">SIMD and Computational
+Complexity</h2>
+<p>When decoding in software, 8-bit and 12-bit paths utilize different
+Single Instruction, Multiple Data (SIMD) instruction sets:</p>
+<ul>
+<li>In <strong>8-bit software pipelines</strong>, AVX2 or ARM NEON
+instructions can process up to 32 samples per 256-bit register
+operation. Loop-filtering, deblocking, and inverse transforms occur
+rapidly because more pixels are calculated per cycle.</li>
+<li>In <strong>12-bit software pipelines</strong>, the need to store
+data in 16-bit integer containers cuts the vector processing throughput
+in half (only 16 samples per 256-bit register operation). In addition,
+intermediate calculations often require 32-bit registers to prevent
+arithmetic overflow, further reducing instructions-per-pixel
+efficiency.</li>
+</ul>
+<h2 id="output-and-rendering-pipeline">Output and Rendering
+Pipeline</h2>
+<p>Once the raw image is decompressed, the decoder must transfer the
+data to the display compositor:</p>
+<ul>
+<li><strong>8-bit Output:</strong> Most standard dynamic range (SDR)
+displays operate natively at 8 bits per channel. The decoded pixel data
+matches the display frame buffer, allowing a direct memory transfer
+without additional conversions.</li>
+<li><strong>12-bit Output:</strong> Very few consumer panels display
+native 12-bit color. If rendered on an HDR display (typically 10-bit),
+the decoded output must undergo downsampling or spatial dithering. If
+rendered on an SDR display, the decoder or rendering pipeline must
+perform tone-mapping and color-space conversion, introducing an extra
+computational step after the core decode operation is complete.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

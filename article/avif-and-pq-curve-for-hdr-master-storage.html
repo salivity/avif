@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF and PQ Curve for HDR Master Storage - avif</title>
+    <meta name="description" content="This article examines how the AV1 Image File Format (AVIF) integrates the SMPTE ST 2084 Perceptual Quantizer (PQ) transfer curve to serve as a robust, lightweight container for high dynamic range (HDR) master storage. It covers the underlying mechanics of">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-and-pq-curve-for-hdr-master-storage">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF and PQ Curve for HDR Master Storage - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-and-pq-curve-for-hdr-master-storage" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article examines how the AV1 Image File Format (AVIF) integrates the SMPTE ST 2084 Perceptual Quantizer (PQ) transfer curve to serve as a robust, lightweight container for high dynamic range (HDR) master storage. It covers the underlying mechanics of" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-and-pq-curve-for-hdr-master-storage">AVIF and PQ Curve for
+HDR Master Storage</h1>
+<p>This article examines how the AV1 Image File Format (AVIF) integrates
+the SMPTE ST 2084 Perceptual Quantizer (PQ) transfer curve to serve as a
+robust, lightweight container for high dynamic range (HDR) master
+storage. It covers the underlying mechanics of PQ signaling, bit-depth
+requirements, color profile encapsulation, and the practical advantages
+AVIF offers over traditional archival formats for high-luminance visual
+assets.</p>
+<h3 id="the-role-of-the-perceptual-quantizer-pq">The Role of the
+Perceptual Quantizer (PQ)</h3>
+<p>The Perceptual Quantizer, standardized as SMPTE ST 2084, is an
+electro-optical transfer function (EOTF) engineered to match the human
+visual system's contrast sensitivity, based on the Barten model. Unlike
+legacy gamma curves that distribute code values exponentially, PQ
+allocates code values perceptually across an absolute luminance range
+from 0.0001 nits to 10,000 nits. Because PQ is an absolute rather than a
+relative transfer function, code values represent definitive target
+brightness levels rather than a percentage of display capabilities.</p>
+<h3 id="bit-depth-and-compression-architecture">Bit Depth and
+Compression Architecture</h3>
+<p>To represent the 10,000-nit range of the PQ curve without causing
+visual artifacts such as banding or posterization, higher bit depths are
+mandatory. AVIF utilizes the AV1 video codec's intra-frame compression
+capabilities within the ISO Base Media File Format (ISOBMFF)
+container:</p>
+<ul>
+<li><strong>10-bit and 12-bit Precision:</strong> AVIF supports the AV1
+Main Profile (up to 10-bit 4:2:0) and Professional Profile (up to 12-bit
+4:2:0, 4:2:2, or 4:4:4). When storing HDR masters, 10-bit is the
+baseline standard, but 12-bit PQ AVIF eliminates banding even in
+demanding gradient transitions and deep shadow regions.</li>
+<li><strong>Lossless and Visually Lossless Compression:</strong> AVIF
+provides high-efficiency intra-frame encoding. For archival and
+mastering purposes, it supports mathematical lossless mode or
+near-lossless compression settings, significantly outperforming legacy
+formats like TIFF or DPX in storage efficiency while preserving
+high-frequency details.</li>
+</ul>
+<h3 id="color-metadata-signaling-via-the-nclx-box">Color Metadata
+Signaling via the NCLX Box</h3>
+<p>AVIF signals the PQ transfer function cleanly through container-level
+metadata using the Colour Information (<code>colr</code>) box with an
+<code>nclx</code> (Colour properties) profile:</p>
+<ul>
+<li><strong>Colour Primaries:</strong> Set to ITU-R BT.2020 (value
+<code>9</code>), which standardizes the wide color gamut necessary to
+accompany the PQ curve.</li>
+<li><strong>Transfer Characteristics:</strong> Explicitly set to SMPTE
+ST 2084 (value <code>16</code>), directing decoders to process luminance
+through the PQ EOTF.</li>
+<li><strong>Matrix Coefficients:</strong> Typically set to BT.2020
+non-constant luminance (value <code>9</code>) for YUV representation, or
+identity (value <code>0</code>) if preserving full-range RGB color
+planes.</li>
+<li><strong>Full Range vs. Limited Range:</strong> AVIF files can
+explicitly flag full range (0–1023 for 10-bit; 0–4095 for 12-bit),
+ensuring the full code spectrum is allocated for mastering.</li>
+</ul>
+<p>AVIF also supports embedded ICC profiles, allowing hybrid workflows
+where custom tone responses or non-standard primaries are required.</p>
+<h3 id="mastering-display-and-content-light-level-metadata">Mastering
+Display and Content Light Level Metadata</h3>
+<p>High dynamic range mastering demands explicit metadata to instruct
+target displays on proper tone-mapping. AVIF accommodates SMPTE ST 2086
+and CTA-861-G metadata:</p>
+<ul>
+<li><strong>Mastering Display Color Volume (MDCV):</strong> Specifies
+the chromaticity coordinates of the mastering monitor’s red, green, and
+blue primaries, white point, and the minimum/maximum mastering
+luminance.</li>
+<li><strong>Content Light Level Information (CLLI):</strong> Carries the
+Maximum Content Light Level (MaxCLL) and Maximum Frame-Average Light
+Level (MaxFALL).</li>
+</ul>
+<p>By integrating this metadata directly alongside the AV1 compressed
+bitstream, AVIF masters convey both the absolute visual data and the
+contextual mastering parameters required for accurate cross-platform
+reproduction.</p>
+<h3 id="practical-benefits-for-hdr-master-storage">Practical Benefits
+for HDR Master Storage</h3>
+<p>Using AVIF with the PQ curve provides distinct structural advantages
+for preservation and production workflows:</p>
+<ul>
+<li><strong>Storage Footprint:</strong> While uncompressed 10-bit or
+12-bit DPX, TIFF, or OpenEXR files require significant storage
+bandwidth, high-fidelity AVIF encodes achieve up to an 80–90% reduction
+in file size with zero perceptible degradation.</li>
+<li><strong>Auxiliary Data Channels:</strong> AVIF supports alpha
+transparency and depth maps at identical bit depths, allowing layered
+master assets to be saved within a single container.</li>
+<li><strong>Web and Production Readiness:</strong> Unlike raw
+intermediate formats, PQ-encoded AVIF files can simultaneously serve as
+modern web-ready delivery assets and master archives, as native decoding
+is standard in modern browsers, operating systems, and image processing
+pipelines.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Storing Infrared and UV Captures in AVIF Files - avif</title>
+    <meta name="description" content="AVIF files can store infrared (IR) and ultraviolet (UV) sensor captures as auxiliary image items. Because AVIF is built upon the ISO Base Media File Format (ISOBMFF) and inherits the structural capabilities of the HEIF (High Efficiency Image File Format)">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/storing-infrared-and-uv-captures-in-avif-files">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Storing Infrared and UV Captures in AVIF Files - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/storing-infrared-and-uv-captures-in-avif-files" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="AVIF files can store infrared (IR) and ultraviolet (UV) sensor captures as auxiliary image items. Because AVIF is built upon the ISO Base Media File Format (ISOBMFF) and inherits the structural capabilities of the HEIF (High Efficiency Image File Format)" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="storing-infrared-and-uv-captures-in-avif-files">Storing Infrared
+and UV Captures in AVIF Files</h1>
+<p>AVIF files can store infrared (IR) and ultraviolet (UV) sensor
+captures as auxiliary image items. Because AVIF is built upon the ISO
+Base Media File Format (ISOBMFF) and inherits the structural
+capabilities of the HEIF (High Efficiency Image File Format) standard,
+it supports extensible auxiliary image channels alongside a primary
+image. This article explains the underlying container mechanics, how
+non-visible light spectrum data is encoded, and the technical
+requirements for implementing IR and UV auxiliary items within an AVIF
+container.</p>
+<h3 id="the-architectural-foundation-heif-and-isobmff">The Architectural
+Foundation: HEIF and ISOBMFF</h3>
+<p>The AV1 Image File Format (AVIF) uses the container architecture
+defined by HEIF (ISO/IEC 23008-12). HEIF establishes a clear distinction
+between the primary image item—typically a standard RGB color image—and
+associated auxiliary image items. Auxiliary image items are
+supplementary images designed to provide additional data for rendering,
+processing, or analysis.</p>
+<p>While auxiliary items are most commonly used for alpha transparency
+channels and depth maps, the underlying specification does not restrict
+their use to these domains. Instead, it provides a generalized framework
+for attaching arbitrary monochromatic or multi-channel visual data to a
+primary display item.</p>
+<h3 id="implementing-non-visible-light-as-auxiliary-items">Implementing
+Non-Visible Light as Auxiliary Items</h3>
+<p>To store an infrared or ultraviolet capture as an auxiliary item, the
+file structure utilizes specific box structures defined in the ISOBMFF
+container:</p>
+<ol type="1">
+<li><strong>Item Declaration (<code>infe</code> box):</strong> The IR or
+UV capture is declared as its own independent item within the Item
+Information Box. It is typically compressed using AV1’s monochrome
+profile at 8-bit, 10-bit, or 12-bit precision, matching the bit-depth of
+the original sensor capture.</li>
+<li><strong>Item Reference (<code>iref</code> box):</strong> The
+auxiliary capture is linked to the primary image using an item reference
+of type <code>auxl</code> (auxiliary list). This establishes that the
+secondary item is not an independent image for standard display, but
+dependent data associated with the primary image.</li>
+<li><strong>Auxiliary Type Property (<code>auxC</code> box):</strong>
+The auxiliary item is assigned an Auxiliary Type Property box, which
+contains a Uniform Resource Identifier (URI). This URI explicitly
+defines the type and purpose of the auxiliary data. While standard URIs
+exist for alpha and depth channels, custom or standardized URNs can
+designate specific wavelengths, such as near-infrared (NIR), short-wave
+infrared (SWIR), or ultraviolet (UV-A/UV-B).</li>
+</ol>
+<h3 id="av1-codec-advantages-for-multispectral-captures">AV1 Codec
+Advantages for Multispectral Captures</h3>
+<p>Using AV1 to encode non-visible auxiliary channels provides distinct
+advantages:</p>
+<ul>
+<li><strong>High Bit-Depth Encoding:</strong> Scientific and
+computational imaging sensors often capture IR and UV data in 10-bit,
+12-bit, or higher linear depths. AV1 supports 10-bit and 12-bit profiles
+natively.</li>
+<li><strong>Efficient Compression:</strong> Sensor captures from
+non-visible spectra can be compressed using lossy or lossless AV1
+intra-frame coding, significantly reducing file sizes compared to
+uncompressed raw or multi-page TIFF formats.</li>
+<li><strong>Spatial Alignment:</strong> Auxiliary items can share the
+same coordinate space as the primary image or specify spatial
+transformations within the container to account for sensor parallax or
+differing sensor resolutions.</li>
+</ul>
+<h3 id="software-compatibility-and-parsing">Software Compatibility and
+Parsing</h3>
+<p>While the AVIF specification fully supports auxiliary items through
+HEIF mechanisms, viewing software must explicitly support the auxiliary
+type URI to interpret the data correctly.</p>
+<p>Standard consumer decoders and web browsers generally ignore
+auxiliary items that do not correspond to alpha transparency channels.
+Consequently, client applications intended to process multispectral,
+forensic, agricultural, or computational photography data must be
+configured to inspect the <code>iref</code> table, extract the
+non-visible <code>auxl</code> item, and read accompanying metadata (such
+as Exif or XMP) to correctly map the radiometric characteristics of the
+IR or UV sensor.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

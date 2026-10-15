@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HDR AVIF Tone Mapping in Modern Web Browsers - avif</title>
+    <meta name="description" content="Tone mapping in modern web browsers allows High Dynamic Range (HDR) AVIF images to display accurately across diverse screens by dynamically compressing their wide color gamuts and extreme luminance levels to fit a target display’s physical capabilities. W">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/hdr-avif-tone-mapping-in-modern-web-browsers">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="HDR AVIF Tone Mapping in Modern Web Browsers - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/hdr-avif-tone-mapping-in-modern-web-browsers" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Tone mapping in modern web browsers allows High Dynamic Range (HDR) AVIF images to display accurately across diverse screens by dynamically compressing their wide color gamuts and extreme luminance levels to fit a target display’s physical capabilities. W" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="hdr-avif-tone-mapping-in-modern-web-browsers">HDR AVIF Tone
+Mapping in Modern Web Browsers</h1>
+<p>Tone mapping in modern web browsers allows High Dynamic Range (HDR)
+AVIF images to display accurately across diverse screens by dynamically
+compressing their wide color gamuts and extreme luminance levels to fit
+a target display’s physical capabilities. When a browser loads an HDR
+AVIF, it parses embedded metadata, evaluates the user's display
+capabilities via the operating system, maps color primaries and
+luminance curves, and composites the final pixels alongside standard
+page elements. This article explains how browsers extract AVIF color
+profiles, perform luminance conversion, and handle hardware rendering to
+avoid clipping or washed-out images.</p>
+<h3 id="1-metadata-extraction-and-color-space-parsing">1. Metadata
+Extraction and Color Space Parsing</h3>
+<p>An HDR AVIF file wraps AV1 compressed bitstreams within an ISO Base
+Media File Format (ISOBMFF) container. Inside this structure, the
+browser's image decoder inspects color signaling—specifically Color
+Independent Code Points (CICP) or an embedded ICC profile.</p>
+<p>CICP metadata defines four critical properties:</p>
+<ul>
+<li><strong>Color Primaries:</strong> Typically BT.2020 for HDR,
+defining the outer boundaries of reproducible color.</li>
+<li><strong>Transfer Characteristics:</strong> Usually Perceptual
+Quantizer (PQ / SMPTE ST 2084) for absolute luminance targeting up to
+10,000 nits, or Hybrid Log-Gamma (HLG / BT.2100) for relative
+luminance.</li>
+<li><strong>Matrix Coefficients:</strong> Dictates how luma and chroma
+channels are derived from RGB components.</li>
+<li><strong>Full vs. Narrow Range:</strong> Indicates whether pixel
+values span the entire 8-, 10-, or 12-bit integer range.</li>
+</ul>
+<p>If present, the browser also checks for Content Light Level
+Information (<code>clli</code>), which specifies Maximum Content Light
+Level (MaxCLL) and Maximum Frame-Average Light Level (MaxFALL),
+providing boundaries for the tone mapper to calculate scaling.</p>
+<h3 id="2-querying-display-capabilities">2. Querying Display
+Capabilities</h3>
+<p>Before tone mapping can occur, the browser queries the host operating
+system’s graphics stack (such as DirectX on Windows, Metal/Quartz on
+macOS, or Wayland/X11 on Linux) to determine the hardware
+environment.</p>
+<p>The browser checks:</p>
+<ul>
+<li>Whether the current screen is SDR or HDR-enabled.</li>
+<li>The display's peak brightness (e.g., 400, 600, or 1000+ nits).</li>
+<li>The display’s native color gamut coverage (e.g., sRGB, DCI-P3, or
+BT.2020).</li>
+<li>The operating system's configured SDR white point level (often
+calibrated between 80 and 240 nits).</li>
+</ul>
+<h3 id="3-luminance-adaptation-and-tone-curves">3. Luminance Adaptation
+and Tone Curves</h3>
+<p>Once both the source metadata and destination capabilities are known,
+the browser executes tone mapping through its graphics pipeline (such as
+Chromium’s Skia engine or Gecko's WebRender).</p>
+<h4 id="rendering-on-an-sdr-display">Rendering on an SDR Display</h4>
+<p>When displayed on an SDR screen, the browser must compress a wide
+range of luminance (often 0–1,000+ nits) into standard dynamic range
+(typically 0–100 or 0–200 nits).</p>
+<ul>
+<li>Linear conversion without tone mapping would clip highlights,
+turning nuanced clouds or light sources into flat white patches.</li>
+<li>The browser transforms the non-linear PQ or HLG values into linear
+light space.</li>
+<li>A tone-mapping curve (such as an S-curve, Reinhard variant, or
+ACES-based algorithm) compresses high-luminance values gradually (known
+as a "soft knee" roll-off). This protects mid-tone contrast while
+maintaining structural detail inside specular highlights.</li>
+<li>The color space is transformed from BT.2020 down to sRGB or Display
+P3 using gamut-mapping techniques to prevent out-of-gamut hue
+shifts.</li>
+</ul>
+<h4 id="rendering-on-an-hdr-display">Rendering on an HDR Display</h4>
+<p>When rendered on an HDR monitor, full compression down to SDR levels
+is unnecessary. However, adaptation is often still required:</p>
+<ul>
+<li>If an AVIF image is mastered to 1,000 nits and the monitor can only
+reach 600 nits, the browser applies highlight roll-off between 600 and
+1,000 nits to avoid hard clipping at the display’s ceiling.</li>
+<li>Mid-tones and shadows map 1:1 to absolute physical brightness levels
+dictated by the PQ curve.</li>
+<li>For HLG sources, the browser applies the HLG Optical-Electro
+Transfer Function (OETF) and scales scene luminance proportionally to
+the screen's peak capability.</li>
+</ul>
+<h3 id="4-compositing-with-sdr-web-content">4. Compositing with SDR Web
+Content</h3>
+<p>Web browsers must render HDR images within an interface that consists
+primarily of standard dynamic range elements, such as standard CSS
+colors, text, and SDR graphics.</p>
+<p>To achieve this:</p>
+<ul>
+<li><strong>macOS (WebKit / Chromium):</strong> Utilizes Extended
+Dynamic Range (EDR). The OS treats SDR white as a baseline value of 1.0.
+HDR AVIF pixels are assigned floating-point multipliers greater than
+1.0, allowing them to render brighter than standard UI elements without
+washing out surrounding text.</li>
+<li><strong>Windows (Chromium / Firefox):</strong> The browser typically
+surfaces HDR content into an scRGB or HDR10 swap chain managed by the
+Desktop Window Manager (DWM). The browser shifts SDR web elements to
+match the user's OS-level "SDR content brightness" slider, giving
+headroom for the HDR AVIF pixels to reach maximum display
+luminance.</li>
+</ul>
+<h3 id="5-hardware-acceleration-and-shader-execution">5. Hardware
+Acceleration and Shader Execution</h3>
+<p>Tone mapping operations do not run on the CPU during continuous
+rendering. Decoded AV1 pixel buffers are uploaded as textures to the
+GPU. Tone curves, color matrix multiplications, and gamut
+clipping/compression are performed via fragment shaders in the browser's
+GPU rasterization pipeline. This ensures that scaling, panning, and
+rendering HDR AVIF assets maintain 60 to 120 frames per second without
+incurring latency or battery drain.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

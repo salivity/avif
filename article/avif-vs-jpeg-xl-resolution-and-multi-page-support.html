@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF vs JPEG XL: Resolution and Multi-Page Support - avif</title>
+    <meta name="description" content="AVIF and JPEG XL are two leading next-generation image formats designed to replace legacy standards like JPEG and PNG. While both offer impressive compression efficiency and modern color features, they differ significantly in their architectural design. T">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-vs-jpeg-xl-resolution-and-multi-page-support">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF vs JPEG XL: Resolution and Multi-Page Support - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-vs-jpeg-xl-resolution-and-multi-page-support" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="AVIF and JPEG XL are two leading next-generation image formats designed to replace legacy standards like JPEG and PNG. While both offer impressive compression efficiency and modern color features, they differ significantly in their architectural design. T" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-vs-jpeg-xl-resolution-and-multi-page-support">AVIF vs JPEG
+XL: Resolution and Multi-Page Support</h1>
+<p>AVIF and JPEG XL are two leading next-generation image formats
+designed to replace legacy standards like JPEG and PNG. While both offer
+impressive compression efficiency and modern color features, they differ
+significantly in their architectural design. This comparison examines
+how AVIF and JPEG XL handle maximum image resolutions and multi-page
+document capabilities, highlighting why one format is better suited for
+extreme dimensions and archival scanning than the other.</p>
+<h2 id="maximum-resolution">Maximum Resolution</h2>
+<p>AVIF is derived from the AV1 video codec, which intrinsically ties
+its baseline capabilities to video resolution limits. A single AVIF
+frame or tile is natively capped at 8192 × 4320 pixels (8K resolution).
+To overcome this, AVIF employs a grid-tiling mechanism where multiple
+smaller frames are assembled to create a single large image, reaching a
+theoretical limit of 65,536 × 65,536 pixels. While functional, rendering
+large tiled AVIF files can increase decoding complexity and cause memory
+overhead on resource-constrained devices.</p>
+<p>JPEG XL was designed specifically for still photography, digital art,
+and large-scale imagery without relying on video standards. It natively
+supports dimensions up to 1,073,741,823 × 1,073,741,824 pixels (over 1
+billion pixels on each side) without requiring tiling workarounds. This
+virtually limitless dimension capacity makes JPEG XL far superior for
+massive print files, panoramic stitching, satellite imaging, and
+ultra-high-resolution medical imagery.</p>
+<h2 id="multi-page-document-support">Multi-Page Document Support</h2>
+<p>AVIF relies on the ISO Base Media File Format (ISOBMFF), derived from
+the HEIF container. This architecture allows an AVIF file to store
+multiple still images, auxiliary images (such as depth maps or alpha
+channels), and image sequences. While this technically enables
+multi-page document storage, software implementation for this specific
+use case is rare. In practice, multi-item AVIF files are almost
+exclusively used for animations or photo bursts, leaving standard
+document readers without consistent support for navigating multi-page
+AVIF files.</p>
+<p>JPEG XL provides native, robust support for multi-frame and layered
+configurations specifically built to replace multi-page formats like
+TIFF and PDF in image-heavy workflows. A single JPEG XL file can contain
+distinct pages, complete with individual metadata, differing frame
+rates, preview thumbnails, and blending modes. Decoders can selectively
+extract or stream individual pages without decompressing the entire
+file, making JPEG XL highly optimized for document management systems,
+book digitizations, and multi-page office scanning.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>When choosing between the two formats for large-format imaging and
+document storage, JPEG XL is the clear winner. While AVIF performs well
+for standard web assets and animated graphics, its video-based origin
+limits its native resolution and complicates document workflows. JPEG
+XL’s native gigapixel-plus scalability and purpose-built frame-layering
+architecture make it the superior choice for high-resolution graphics
+and multi-page document archiving.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

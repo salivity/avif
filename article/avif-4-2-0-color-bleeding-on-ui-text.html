@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF 4:2:0 Color Bleeding on UI Text - avif</title>
+    <meta name="description" content="When exporting user interface (UI) graphics containing text using the AVIF image format, employing 4:2:0 chroma subsampling frequently produces noticeable color bleeding, haloing, and legibility issues. This article examines the technical mechanics behind">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-4-2-0-color-bleeding-on-ui-text">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF 4:2:0 Color Bleeding on UI Text - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-4-2-0-color-bleeding-on-ui-text" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="When exporting user interface (UI) graphics containing text using the AVIF image format, employing 4:2:0 chroma subsampling frequently produces noticeable color bleeding, haloing, and legibility issues. This article examines the technical mechanics behind" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-420-color-bleeding-on-ui-text">AVIF 4:2:0 Color Bleeding on
+UI Text</h1>
+<p>When exporting user interface (UI) graphics containing text using the
+AVIF image format, employing 4:2:0 chroma subsampling frequently
+produces noticeable color bleeding, haloing, and legibility issues. This
+article examines the technical mechanics behind 4:2:0 subsampling, how
+it interacts with high-contrast UI text, the exact visual artifacts it
+generates, and best practices for preventing this degradation in digital
+design.</p>
+<h3 id="the-mechanics-of-420-chroma-subsampling">The Mechanics of 4:2:0
+Chroma Subsampling</h3>
+<p>Chroma subsampling is a compression technique that reduces color
+information in an image while preserving brightness detail, exploiting
+the human visual system's lower sensitivity to color shifts compared to
+luminance variations.</p>
+<p>In an image utilizing 4:2:0 subsampling:</p>
+<ul>
+<li><strong>Luma (<span class="math inline">\(Y\)</span>):</strong>
+Retained at full resolution (1:1 with source pixels).</li>
+<li><strong>Chroma (<span
+class="math inline">\(Cb/Cr\)</span>):</strong> Downsampled by half both
+horizontally and vertically.</li>
+</ul>
+<p>This means that a <span class="math inline">\(2 \times 2\)</span>
+block of four pixels shares a single color value, effectively quartering
+the spatial color resolution. While this compression is nearly
+imperceptible in photographic content with gradual tonal shifts, it
+conflicts fundamentally with synthetic, sharp-edged graphics such as
+rendered text.</p>
+<h3 id="manifestations-of-color-bleeding-on-ui-text">Manifestations of
+Color Bleeding on UI Text</h3>
+<p>Because 4:2:0 drops 75% of the spatial color data, rendering sharp UI
+text onto a contrasting background produces several distinct visual
+defects:</p>
+<h4 id="1-color-spillage-and-smearing">1. Color Spillage and
+Smearing</h4>
+<p>When a high-saturation text element—such as a bright red warning
+label, blue hyperlink, or green badge—sits on a neutral (white, gray, or
+black) background, the downsampled chroma cannot align with the
+full-resolution luminance boundaries. The single color value assigned to
+the <span class="math inline">\(2 \times 2\)</span> grid averages the
+text color with the background color. Consequently, the hue visibly
+spills outside the text boundary, staining the adjacent background
+pixels with an unnatural smudge.</p>
+<h4 id="2-false-halos-and-edge-fringe">2. False Halos and Edge
+Fringe</h4>
+<p>Glyph edges often develop dark, muddy, or chromatic halos. Because
+the subpixel rendering and anti-aliasing rely on precise pixel
+transitions, downsampling the color channels causes the transition
+pixels to be calculated incorrectly during decompression. For example,
+saturated red text on a black background frequently manifests with a
+dark, desaturated halo around the stems and curves of individual
+letters.</p>
+<h4 id="3-loss-of-stroke-integrity-and-fine-detail">3. Loss of Stroke
+Integrity and Fine Detail</h4>
+<p>Fine strokes, serifs, punctuation marks, and crossbars in UI
+typography are often only one or two pixels wide. Under 4:2:0
+subsampling:</p>
+<ul>
+<li>Thin strokes may fail to establish an independent chroma
+coordinate.</li>
+<li>Isolated colored details bleed into the surrounding space, causing
+the text to look faded, patchy, or physically thinner than
+intended.</li>
+<li>Counters (the enclosed spaces in letters like "e", "o", or "a") can
+fill in with blurred color, severely impairing readability at small font
+sizes.</li>
+</ul>
+<h4 id="4-disconnect-between-luma-and-chroma-edges">4. Disconnect
+Between Luma and Chroma Edges</h4>
+<p>While the luminance component of the text remains sharp due to the
+1:1 luma retention, the color boundaries lag behind. This creates an
+optical aberration where the viewer perceives a sharp, gray or darkened
+text silhouette overlaid with an out-of-focus color blotch.</p>
+<h3 id="why-ui-text-is-particularly-vulnerable">Why UI Text Is
+Particularly Vulnerable</h3>
+<p>Natural photographs feature soft transitions, noise, and complex
+textures that disguise subsampling artifacts. In contrast, UI typography
+relies on:</p>
+<ul>
+<li>Extreme contrast ratios between foreground and background.</li>
+<li>Single-pixel grid alignment.</li>
+<li>Sharp, high-frequency vector-to-raster transitions.</li>
+</ul>
+<p>When high-frequency edges encounter low-frequency color grids,
+mathematical reconstruction during AVIF decoding cannot reproduce the
+crisp demarcation necessary for clean text.</p>
+<h3 id="how-to-prevent-color-bleeding">How to Prevent Color
+Bleeding</h3>
+<p>To eliminate subsampling artifacts on UI text in AVIF images:</p>
+<ul>
+<li><strong>Use 4:4:4 Subsampling:</strong> Configure the AVIF encoder
+to use the YUV 4:4:4 pixel format. This maintains chroma data at full
+resolution (1:1), ensuring colors map directly to individual pixels
+without horizontal or vertical downsampling.</li>
+<li><strong>Isolate UI Assets:</strong> Keep text elements in scalable
+vector formats (SVG) or live CSS/HTML typography rather than baking them
+into rasterized AVIF assets.</li>
+<li><strong>Target 4:2:2 as a Compromise:</strong> If file size
+constraints prohibit 4:4:4, 4:2:2 subsampling (which preserves vertical
+chroma resolution and only halves horizontal chroma) reduces bleeding
+artifacts compared to 4:2:0, though 4:4:4 remains the standard for
+pixel-perfect typography.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

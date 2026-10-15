@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Color Pipelines and the Role of the ICC - avif</title>
+    <meta name="description" content="This article explores how the International Color Consortium (ICC) standardizes color reproduction within the AVIF image ecosystem. As digital displays evolve to support wider color gamuts and high dynamic range (HDR), consistent visual rendering across d">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-color-pipelines-and-the-role-of-the-icc">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Color Pipelines and the Role of the ICC - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-color-pipelines-and-the-role-of-the-icc" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explores how the International Color Consortium (ICC) standardizes color reproduction within the AVIF image ecosystem. As digital displays evolve to support wider color gamuts and high dynamic range (HDR), consistent visual rendering across d" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-color-pipelines-and-the-role-of-the-icc">AVIF Color
+Pipelines and the Role of the ICC</h1>
+<p>This article explores how the International Color Consortium (ICC)
+standardizes color reproduction within the AVIF image ecosystem. As
+digital displays evolve to support wider color gamuts and high dynamic
+range (HDR), consistent visual rendering across diverse platforms
+becomes critical. The following sections examine how AVIF integrates ICC
+profiles, the distinction between parametric signaling and embedded
+profiles, and how the ICC’s evolving standards ensure reliable color
+fidelity from capture to display.</p>
+<h3 id="the-challenge-of-modern-image-color-management">The Challenge of
+Modern Image Color Management</h3>
+<p>The AV1 Image File Format (AVIF) provides high compression efficiency
+alongside native support for wide color gamuts (WCG) and HDR content.
+Because modern displays possess radically different color-rendering
+capabilities—ranging from standard sRGB phone screens to ultra-wide
+DCI-P3 and Rec. 2020 professional monitors—an image format must
+explicitly define its color space. Without a standardized pipeline, an
+AVIF file might appear saturated on one screen and washed out on
+another.</p>
+<h3 id="how-icc-profiles-integrate-into-avif">How ICC Profiles Integrate
+into AVIF</h3>
+<p>AVIF relies on specifications derived from the ISO base media file
+format (ISOBMFF) and the Multi-Image Application Format (MIAF). Within
+this structural framework, color properties are defined through
+dedicated metadata boxes:</p>
+<ul>
+<li><strong>Colour Information Box (<code>colr</code>):</strong> AVIF
+files use this container to declare how pixel values translate into
+visible light.</li>
+<li><strong>Profile Attachment:</strong> The <code>colr</code> box
+allows direct embedding of ICC profiles (<code>prof</code> or
+<code>rICC</code> color types).</li>
+</ul>
+<p>The ICC establishes the architecture and data structures for these
+profiles. An ICC profile acts as a lookup mechanism and mathematical
+transform that maps an image’s device-dependent RGB values to a
+device-independent Profile Connection Space (PCS), typically CIELAB or
+CIEXYZ. By embedding a standard ICC profile directly into the AVIF
+wrapper, the content creator embeds an exact characterization of the
+intended color environment.</p>
+<h3 id="balancing-nclx-and-icc-pipelines">Balancing NCLX and ICC
+Pipelines</h3>
+<p>AVIF provides two distinct pathways for color signaling, both
+governed or heavily influenced by international standards:</p>
+<ol type="1">
+<li><strong>NCLX (ISO/IEC 23001-8 / ITU-T H.273):</strong> Uses compact
+numerical codes to specify three parameters: Colour Primaries, Transfer
+Characteristics (gamma or PQ/HLG curves), and Matrix Coefficients.</li>
+<li><strong>ICC Profiles:</strong> Employs a comprehensive data block
+detailing multidimensional lookup tables (LUTs) and tone reproduction
+curves.</li>
+</ol>
+<p>While NCLX is lightweight and ideal for standard video-derived spaces
+like BT.709 or BT.2100, it cannot define custom, non-standard, or highly
+irregular color spaces (such as specific commercial print conditions or
+custom monitor calibrations). The ICC framework provides the necessary
+fallback and precision. When an AVIF file requires specialized color
+rendering, the ICC specification provides the universal schema that
+decoding engines use to resolve color values accurately.</p>
+<h3 id="cross-platform-interoperability">Cross-Platform
+Interoperability</h3>
+<p>Standardization only succeeds when software vendors adopt identical
+interpretation rules. The ICC facilitates cross-platform consistency by
+working directly with web browser vendors, operating system developers,
+and graphics software companies.</p>
+<p>When a browser renders an AVIF image:</p>
+<ol type="1">
+<li>The browser's color management module (CMM)—such as Little CMS,
+Apple ColorSync, or Windows Advanced Color—reads the embedded ICC
+profile.</li>
+<li>The CMM interprets the profile strictly according to ICC
+specifications (ISO 15076-1).</li>
+<li>The CMM transforms the image data from the input color space into
+the display’s specific color profile.</li>
+</ol>
+<p>Because the ICC profile format is an open, globally adopted ISO
+standard, decoders consistently interpret rendering intents (perceptual,
+relative colorimetric, saturation, and absolute colorimetric) across
+Android, iOS, Windows, macOS, and Linux environments.</p>
+<h3 id="future-proofing-with-iccmax">Future-Proofing with iccMAX</h3>
+<p>As AVIF expands further into HDR and wide-gamut applications,
+standard ICC v4 profiles face limitations with dynamic range and
+lighting adaptations. To address this, the ICC introduced <strong>iccMAX
+(ISO 20677)</strong>.</p>
+<p>iccMAX expands beyond standard colorimetric workflows by
+supporting:</p>
+<ul>
+<li>Arbitrary spectral data processing.</li>
+<li>Programmable mathematical transforms for complex HDR tone
+mapping.</li>
+<li>Dynamic viewing condition adaptations.</li>
+</ul>
+<p>Within AVIF color pipelines, iccMAX ensures that as display
+technologies advance beyond traditional fixed-luminance ranges, image
+color architectures remain standardized, unambiguous, and visually
+faithful to the creator’s original intent.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

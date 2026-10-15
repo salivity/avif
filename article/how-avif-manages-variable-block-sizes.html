@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How AVIF Manages Variable Block Sizes - avif</title>
+    <meta name="description" content="The AVIF image format achieves superior compression efficiency by utilizing the AV1 codec’s flexible partitioning system, which dynamically divides an image into blocks ranging from 128x128 down to 4x4 pixels. This article explains the mechanics behind AV">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-avif-manages-variable-block-sizes">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How AVIF Manages Variable Block Sizes - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-avif-manages-variable-block-sizes" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The AVIF image format achieves superior compression efficiency by utilizing the AV1 codec’s flexible partitioning system, which dynamically divides an image into blocks ranging from 128x128 down to 4x4 pixels. This article explains the mechanics behind AV" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-avif-manages-variable-block-sizes">How AVIF Manages Variable
+Block Sizes</h1>
+<p>The AVIF image format achieves superior compression efficiency by
+utilizing the AV1 codec’s flexible partitioning system, which
+dynamically divides an image into blocks ranging from 128x128 down to
+4x4 pixels. This article explains the mechanics behind AVIF's recursive
+block partitioning, the multi-way split structure used to handle
+different visual textures, and how Rate-Distortion Optimization (RDO)
+determines the optimal block layout to balance visual fidelity with
+minimal file size.</p>
+<h3 id="superblocks-as-the-structural-foundation">Superblocks as the
+Structural Foundation</h3>
+<p>AVIF processes an image by first organizing it into a grid of base
+units known as superblocks. In the AV1 architecture underpinning AVIF, a
+superblock defaults to a size of 128x128 pixels (though it can also be
+configured to 64x64 pixels). Rather than forcing uniform processing
+across the entire grid, these superblocks act as the root level of a
+nested hierarchical tree, allowing the encoder to adaptively analyze and
+subdivide local image content.</p>
+<h3 id="recursive-10-way-partition-tree">Recursive 10-Way Partition
+Tree</h3>
+<p>To break a superblock down to smaller components, AVIF uses a
+recursive partitioning tree that supports 10 distinct split modes. While
+older standards like JPEG use fixed 8x8 blocks and basic VP9
+implementations rely on 4-way quadtrees, AVIF allows blocks to be split
+into both square and non-square configurations:</p>
+<ul>
+<li><strong>None:</strong> The block remains intact at its current
+size.</li>
+<li><strong>Horizontal and Vertical Splits:</strong> The block divides
+evenly into two rectangular halves (2:1 or 1:2 aspect ratio).</li>
+<li><strong>Quad Split:</strong> The block divides evenly into four
+smaller quadrants (4-way square split).</li>
+<li><strong>1:4 and 4:1 Splits:</strong> Extreme rectangular partitions
+designed to capture long, continuous horizontal or vertical lines.</li>
+<li><strong>T-Shaped Partitions:</strong> Four asymmetric split modes
+(horizontal-A, horizontal-B, vertical-A, and vertical-B) where one half
+of a block is divided while the other remains intact.</li>
+</ul>
+<p>This recursive process continues downward through intermediate block
+sizes—such as 64x64, 32x32, 16x16, and 8x8—until reaching the smallest
+supported limit of 4x4 pixels.</p>
+<h3 id="rate-distortion-optimization-rdo">Rate-Distortion Optimization
+(RDO)</h3>
+<p>AVIF decides whether to keep a large block or subdivide it down to
+4x4 using Rate-Distortion Optimization (RDO). During encoding, the
+system calculates a cost function balancing two factors: "rate" (the
+number of bits required to encode the block structure, prediction
+vectors, and residual data) and "distortion" (the mathematical error or
+visual variance introduced by compression).</p>
+<p>The encoder evaluates several partition configurations for a given
+area. If a smooth patch can be represented accurately using a single
+128x128 or 64x64 block with very few bits, the encoder preserves the
+larger size. If a region contains sharp edges or fine details, RDO
+determines that spending more bits on multiple smaller blocks down to
+4x4 results in a significant reduction in visual distortion, justifying
+the increased data cost.</p>
+<h3 id="dynamic-allocation-in-practice">Dynamic Allocation in
+Practice</h3>
+<p>Variable block sizing allows AVIF to distribute bits where the human
+eye needs them most:</p>
+<ul>
+<li><strong>Homogeneous Regions (128x128 to 32x32):</strong> Flat
+elements such as clear skies, studio backdrops, and out-of-focus
+backgrounds lack complex high-frequency data. Assigning these areas to
+massive blocks eliminates the signaling overhead of smaller boundaries
+and avoids blocky grid artifacts.</li>
+<li><strong>Complex Textures and Edges (16x16 down to 4x4):</strong>
+High-contrast edges, typography, facial features, and fine foliage
+create high-frequency residual errors. Subdividing these regions into
+tiny blocks isolates the high-frequency changes, preventing ringing
+artifacts and preserving crisp outlines.</li>
+</ul>
+<h3 id="transform-block-integration">Transform Block Integration</h3>
+<p>Once the spatial partition tree is established, AVIF applies
+transform coding to compress the remaining image data. The size of the
+transform block typically matches the partition block size, though
+larger partitions can also host multiple smaller transforms (down to
+4x4). AVIF pairs variable transform sizes with flexible transform
+types—such as Discrete Cosine Transform (DCT) and Asymmetric Discrete
+Sine Transform (ADST)—ensuring that the mathematical representation of
+frequencies perfectly matches the geometric boundaries selected during
+partitioning.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

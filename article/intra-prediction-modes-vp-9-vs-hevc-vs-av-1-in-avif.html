@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intra-Prediction Modes: VP9 vs HEVC vs AV1 in AVIF - avif</title>
+    <meta name="description" content="This article examines the technical differences in intra-prediction techniques between VP9, High Efficiency Video Coding (HEVC), and AOMedia Video 1 (AV1)—the codec powering the AVIF still-image format. It details how the progression from VP9&#39;s basic spat">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/intra-prediction-modes-vp-9-vs-hevc-vs-av-1-in-avif">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Intra-Prediction Modes: VP9 vs HEVC vs AV1 in AVIF - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/intra-prediction-modes-vp-9-vs-hevc-vs-av-1-in-avif" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article examines the technical differences in intra-prediction techniques between VP9, High Efficiency Video Coding (HEVC), and AOMedia Video 1 (AV1)—the codec powering the AVIF still-image format. It details how the progression from VP9&#39;s basic spat" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1
+id="intra-prediction-modes-vp9-vs-hevc-vs-av1-in-avif">Intra-Prediction
+Modes: VP9 vs HEVC vs AV1 in AVIF</h1>
+<p>This article examines the technical differences in intra-prediction
+techniques between VP9, High Efficiency Video Coding (HEVC), and AOMedia
+Video 1 (AV1)—the codec powering the AVIF still-image format. It details
+how the progression from VP9's basic spatial tools and HEVC's 35-mode
+structure to AV1's 56 directional modes, recursive filtering, and
+cross-channel modeling drives AVIF’s superior still-image compression
+efficiency.</p>
+<h2 id="overview-of-intra-prediction-in-image-formats">Overview of
+Intra-Prediction in Image Formats</h2>
+<p>Intra-prediction reconstructs image blocks using previously decoded
+neighboring boundary pixels within the same frame. While VP9 provided
+foundational intra-coding for WebM and HEVC formed the basis for Apple's
+HEIC format, AV1’s intra-prediction toolset defines the performance of
+the AVIF image standard. With each generation, codecs have increased
+angular granularity, added complex non-directional spatial predictors,
+and developed cross-plane correlation tools.</p>
+<h2 id="directional-prediction-granularity">Directional Prediction
+Granularity</h2>
+<p>The primary differentiator between these codecs is the number and
+precision of directional (angular) prediction modes used to trace
+straight edges.</p>
+<ul>
+<li><strong>VP9:</strong> Features eight directional modes alongside two
+non-directional modes, totaling 10 intra-prediction modes. The
+directional angles (D45, D135, D117, D153, D207, and D63) cover only
+coarse spatial trajectories, often failing to accurately align with
+subtle gradients or diagonal edges.</li>
+<li><strong>HEVC:</strong> Expands directional modeling significantly by
+providing 33 angular modes, plus DC and Planar modes, for a total of 35
+modes. This denser angular sampling allows HEVC to capture lines and
+edges far more precisely than VP9, reducing residual energy sent to the
+transform stage.</li>
+<li><strong>AV1 (AVIF):</strong> Employs eight nominal directional
+modes, but introduces an angular delta mechanism. Each nominal angle can
+be fine-tuned with offsets ranging from -3 to +3 in increments of
+roughly 3 degrees. This system yields <strong>56 directional
+modes</strong>, allowing AVIF to align with fine contours and organic
+curves that neither VP9 nor HEVC can match without spending bits on
+high-frequency transform residuals.</li>
+</ul>
+<h2 id="non-directional-and-complex-spatial-tools">Non-Directional and
+Complex Spatial Tools</h2>
+<p>Natural images contain smooth gradients, textures, and diffuse
+lighting that directional prediction cannot cleanly represent.</p>
+<ul>
+<li><strong>VP9:</strong> Utilizes a standard <strong>DC mode</strong>
+(averaging neighboring pixels) and a legacy <strong>TrueMotion (TM)
+mode</strong>, which extrapolates boundary differences across the
+block.</li>
+<li><strong>HEVC:</strong> Replaces legacy approaches with a
+sophisticated <strong>Planar mode</strong> alongside DC mode. Planar
+prediction calculates a bi-linear surface using four corner references,
+virtually eliminating boundary blocking artifacts in smooth gradients
+(like skies or skin tones).</li>
+<li><strong>AV1 (AVIF):</strong> Significantly expands non-directional
+modeling:
+<ul>
+<li><strong>Smooth Modes:</strong> Provides three distinct smooth
+predictors: standard Smooth, Smooth Horizontal (Smooth-H), and Smooth
+Vertical (Smooth-V), which apply directional weights to linear
+interpolations.</li>
+<li><strong>Recursive Filter Intra Prediction:</strong> Defines five
+pre-trained recursive filtering modes that treat neighboring pixels as
+input to a 2D filter, creating complex spatial patterns and
+multi-directional textures within the block.</li>
+<li><strong>Palette Mode:</strong> Treats a block as an indexed color
+map (up to 8 colors per plane), making it exceptionally efficient for
+computer graphics, text, and flat-color illustrations in AVIF
+files.</li>
+</ul></li>
+</ul>
+<h2 id="chroma-from-luma-cfl-prediction">Chroma from Luma (CfL)
+Prediction</h2>
+<p>A fundamental architectural leap in AV1 compared to both VP9 and HEVC
+is cross-component spatial prediction.</p>
+<ul>
+<li><strong>VP9 and HEVC:</strong> Predict chroma components (Cb and Cr)
+largely independent of reconstructed luma data. While HEVC allows chroma
+blocks to inherit the prediction mode selected by the corresponding luma
+block (Derived Mode), the actual predicted pixel values are calculated
+entirely from neighboring <em>chroma</em> boundary pixels.</li>
+<li><strong>AV1 (AVIF):</strong> Implements <strong>Chroma from Luma
+(CfL)</strong>. Because the human visual system is sensitive to luma
+details and color boundaries strictly follow luminance edges, CfL models
+chroma pixels as a linear transformation of the reconstructed luma plane
+(<span class="math inline">\(Chroma = \alpha \times Luma + DC\)</span>).
+This eliminates redundant edge-coding in chroma planes and accounts for
+a significant portion of AVIF's compression advantage over HEIC and
+VP9-based formats.</li>
+</ul>
+<h2 id="block-partitioning-flexibility">Block Partitioning
+Flexibility</h2>
+<p>Intra-prediction capabilities are constrained by the underlying block
+sizes permitted for spatial analysis.</p>
+<ul>
+<li><strong>VP9:</strong> Supports square partitions from 64x64 down to
+4x4, with limited rectangular splits (e.g., 1:2 and 2:1 ratios).</li>
+<li><strong>HEVC:</strong> Operates within a Quadtree structure from
+64x64 Coding Tree Units (CTUs) down to 8x8 Coding Units, running intra
+transforms at block sizes from 32x32 down to 4x4.</li>
+<li><strong>AV1 (AVIF):</strong> Employs 128x128 Superblocks and a
+10-way partition tree. AV1 allows intra-prediction across square blocks,
+1:2/2:1 rectangles, and extreme 1:4/4:1 aspect ratio blocks ranging from
+4x4 up to 64x64. This enables AVIF to isolate long, narrow image
+features (such as horizons or architectural lines) inside specialized
+prediction blocks that require fewer boundary signaling bits.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

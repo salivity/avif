@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Best Protocols for Streaming Tiled AVIF Data - avif</title>
+    <meta name="description" content="Streaming segmented or tiled AVIF (AV1 Image File Format) requires network protocols capable of handling high concurrency, low latency, fine-grained byte-range requests, and rapid request cancellation. This article examines the top network protocols suite">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/best-protocols-for-streaming-tiled-avif-data">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Best Protocols for Streaming Tiled AVIF Data - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/best-protocols-for-streaming-tiled-avif-data" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Streaming segmented or tiled AVIF (AV1 Image File Format) requires network protocols capable of handling high concurrency, low latency, fine-grained byte-range requests, and rapid request cancellation. This article examines the top network protocols suite" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="best-protocols-for-streaming-tiled-avif-data">Best Protocols for
+Streaming Tiled AVIF Data</h1>
+<p>Streaming segmented or tiled AVIF (AV1 Image File Format) requires
+network protocols capable of handling high concurrency, low latency,
+fine-grained byte-range requests, and rapid request cancellation. This
+article examines the top network protocols suited for delivering tiled
+AVIF data—focusing on HTTP/3, HTTP/2, and WebTransport—and highlights
+the specific transport characteristics required to deliver
+high-resolution, zoomable imagery smoothly.</p>
+<h3 id="the-network-requirements-of-tiled-avif">The Network Requirements
+of Tiled AVIF</h3>
+<p>AVIF supports spatial tiling, dividing high-resolution images into a
+grid of independently decodable sub-images. In deep-zoom, virtual
+reality, or progressive viewport-rendering applications, a client does
+not download the entire image file at once. Instead, it dynamically
+requests individual tiles based on the user's current zoom level and pan
+coordinates.</p>
+<p>To handle this efficiently, the underlying network protocol must
+support:</p>
+<ul>
+<li><strong>Multiplexing:</strong> Fetching dozens of small image chunks
+simultaneously without opening multiple transport connections.</li>
+<li><strong>Stream Prioritization:</strong> Ensuring tiles visible in
+the viewport load before off-screen tiles.</li>
+<li><strong>Rapid Cancellation:</strong> Terminating in-flight requests
+immediately when a user pans away.</li>
+<li><strong>Low Latency:</strong> Minimizing round-trip times (RTT) when
+loading new regions.</li>
+</ul>
+<hr />
+<h3 id="1-http3-quic--the-optimal-choice">1. HTTP/3 (QUIC) — The Optimal
+Choice</h3>
+<p>HTTP/3, built on top of the UDP-based QUIC protocol, is the best
+overall protocol for streaming segmented AVIF data across modern
+networks.</p>
+<ul>
+<li><strong>Elimination of Head-of-Line Blocking:</strong> In multi-tile
+fetching, packet loss on a single tile stream does not stall the
+delivery or decoding of other tiles in HTTP/3. Each tile download
+operates independently at the transport layer.</li>
+<li><strong>Immediate Stream Cancellation:</strong> When a user quickly
+scrolls or zooms past a section, the client issues a <code>CANCEL</code>
+frame. QUIC stops transmitting that stream instantly at the transport
+level, conserving bandwidth for the newly visible tiles.</li>
+<li><strong>Faster Connection Setup:</strong> With 0-RTT or 1-RTT
+handshakes and connection migration across network changes (such as
+switching between Wi-Fi and cellular), HTTP/3 provides the lowest
+latency for interactive viewport navigation.</li>
+</ul>
+<h3 id="2-http2--the-standard-production-choice">2. HTTP/2 — The
+Standard Production Choice</h3>
+<p>HTTP/2 remains widely deployed, highly compatible, and thoroughly
+capable of serving tiled AVIF data, making it the primary production
+baseline.</p>
+<ul>
+<li><strong>Single-Connection Multiplexing:</strong> HTTP/2 allows
+hundreds of tile requests—typically using HTTP Range headers (RFC 7233)
+against a single AVIF file—to be multiplexed over a single TCP
+connection, eliminating connection handshake overhead.</li>
+<li><strong>Stream Weighting and Dependency:</strong> Clients can set
+priorities for tiles directly inside the viewport over pre-fetched
+boundary tiles.</li>
+<li><strong>The TCP Limitation:</strong> Because HTTP/2 runs over TCP,
+packet loss on one tile can temporarily stall all other in-flight tiles
+due to TCP-level head-of-line blocking, which can cause frame stuttering
+during rapid zooming on unstable mobile connections.</li>
+</ul>
+<h3 id="3-webtransport--best-for-custom-viewport-engines">3.
+WebTransport — Best for Custom Viewport Engines</h3>
+<p>WebTransport is an emerging standard built on QUIC that provides
+low-latency, bidirectional, client-server communication using both
+reliable streams and unreliable datagrams.</p>
+<ul>
+<li><strong>Granular Application Control:</strong> WebTransport allows
+custom rendering engines (such as WebGL, WebGPU, or WebAssembly
+decoders) to manage streaming pipelines directly without the full
+overhead of the HTTP request-response lifecycle.</li>
+<li><strong>Dynamic Backpressure and Stream Abort:</strong> Developers
+can programmatically create unidirectional streams for each AVIF tile
+and immediately abort them with custom error codes if the viewport
+moves, allowing tighter client-side scheduling than standard browser
+fetch pipelines offer.</li>
+</ul>
+<h3 id="4-http11-with-byte-range-requests--fallback-only">4. HTTP/1.1
+with Byte-Range Requests — Fallback Only</h3>
+<p>While HTTP/1.1 supports the <code>Range</code> headers needed to
+slice individual AVIF tiles from a larger container, it is ill-suited
+for real-time interactive tiling. The lack of multiplexing requires
+browsers to open multiple parallel TCP connections (limited to six per
+host), creating latency bottlenecks, severe connection churn, and an
+inability to dynamically reprioritize tile downloads.</p>
+<hr />
+<h3 id="protocol-comparison-summary">Protocol Comparison Summary</h3>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Feature / Protocol</th>
+<th style="text-align: left;">HTTP/3 (QUIC)</th>
+<th style="text-align: left;">HTTP/2</th>
+<th style="text-align: left;">WebTransport</th>
+<th style="text-align: left;">HTTP/1.1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Transport Layer</strong></td>
+<td style="text-align: left;">UDP (QUIC)</td>
+<td style="text-align: left;">TCP</td>
+<td style="text-align: left;">UDP (QUIC)</td>
+<td style="text-align: left;">TCP</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Multiplexing</strong></td>
+<td style="text-align: left;">Transport-level</td>
+<td style="text-align: left;">Application-level</td>
+<td style="text-align: left;">Transport-level</td>
+<td style="text-align: left;">None (pipelining only)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Head-of-Line
+Blocking</strong></td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">TCP-level only</td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">Full</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Request Cancellation</strong></td>
+<td style="text-align: left;">Instantaneous</td>
+<td style="text-align: left;">Application-level</td>
+<td style="text-align: left;">Native stream reset</td>
+<td style="text-align: left;">Closes entire connection</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Primary Use Case</strong></td>
+<td style="text-align: left;">Web streaming (Production)</td>
+<td style="text-align: left;">Broad web fallback</td>
+<td style="text-align: left;">High-performance/Wasm</td>
+<td style="text-align: left;">Legacy baseline</td>
+</tr>
+</tbody>
+</table>
+<h3 id="conclusion">Conclusion</h3>
+<p>For standard browser environments fetching tiled AVIF content,
+<strong>HTTP/3</strong> is the superior protocol due to its native
+handling of independent streams and immediate cancellation capabilities.
+<strong>HTTP/2</strong> provides a dependable fallback with standard
+range-request multiplexing, while <strong>WebTransport</strong> offers
+the highest control for advanced, high-performance client rendering
+pipelines.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unpacking AVIF Textures to GPU Memory Layouts - avif</title>
+    <meta name="description" content="AVIF (AV1 Image File Format) provides industry-leading compression ratios for static imagery, but real-time rendering pipelines face hurdles when moving these assets to the graphics card. While GPUs cannot sample directly from AVIF&#39;s variable-rate bitstre">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/unpacking-avif-textures-to-gpu-memory-layouts">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Unpacking AVIF Textures to GPU Memory Layouts - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/unpacking-avif-textures-to-gpu-memory-layouts" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="AVIF (AV1 Image File Format) provides industry-leading compression ratios for static imagery, but real-time rendering pipelines face hurdles when moving these assets to the graphics card. While GPUs cannot sample directly from AVIF&#39;s variable-rate bitstre" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="unpacking-avif-textures-to-gpu-memory-layouts">Unpacking AVIF
+Textures to GPU Memory Layouts</h1>
+<p>AVIF (AV1 Image File Format) provides industry-leading compression
+ratios for static imagery, but real-time rendering pipelines face
+hurdles when moving these assets to the graphics card. While GPUs cannot
+sample directly from AVIF's variable-rate bitstream, modern hardware and
+graphics APIs allow AVIF data to be decoded directly into GPU-compatible
+memory layouts, such as uncompressed RGBA textures or video surfaces,
+without intermediate CPU-side staging.</p>
+<h3
+id="the-fundamental-mismatch-stream-compression-vs-block-compression">The
+Fundamental Mismatch: Stream Compression vs. Block Compression</h3>
+<p>Standard GPU texture units rely on fixed-rate block compression
+formats such as BCn (DirectX), ASTC, and ETC2. These formats compress
+texels in uniform, isolated blocks (typically 4x4 or larger), allowing
+the texture sampling hardware to perform random-access reads in constant
+time (<span class="math inline">\(O(1)\)</span>).</p>
+<p>AVIF, by contrast, is based on the AV1 video codec. It utilizes
+transform-based spatial compression, variable block sizes (from 128x128
+down to 4x4), inter-pixel directional prediction, and variable-length
+arithmetic entropy encoding. Because neighboring pixels depend on prior
+data streams, the GPU cannot query a single random coordinate inside an
+AVIF file without decompressing the surrounding context. Consequently,
+AVIF cannot serve as a direct, in-place texture format for native GPU
+samplers.</p>
+<h3 id="unpacking-directly-to-vram">Unpacking Directly to VRAM</h3>
+<p>Although direct sampling of the compressed bitstream is impossible,
+unpacking the data directly into GPU-compatible memory layouts—bypassing
+system RAM—is feasible using modern graphics architectures.</p>
+<ol type="1">
+<li><p><strong>Hardware Video Decoders (Vulkan Video and Direct3D
+12)</strong> Modern graphics cards (such as NVIDIA Ampere/Ada, AMD RDNA
+2/3, and Intel Arc) include dedicated fixed-function silicon for AV1
+decoding. Developers can push raw AVIF bitstreams into device-local
+memory and invoke hardware decode pipelines via APIs like Vulkan Video
+or Direct3D 12 Video. The hardware decodes the payload directly into
+GPU-resident memory surfaces.</p></li>
+<li><p><strong>Format and Layout Conversion via Compute Shaders</strong>
+AVIF assets are predominantly encoded in YUV color spaces (YUV 4:2:0 or
+4:4:4). Hardware decoders output to native hardware-tiled video surfaces
+(such as NV12 or P010). To make these textures usable by standard
+fragment or pixel shaders, a lightweight compute shader pass is
+dispatched to:</p>
+<ul>
+<li>Perform YUV-to-RGB color space conversion.</li>
+<li>Apply appropriate color profile transformations (such as Rec. 709 or
+Rec. 2020 to sRGB).</li>
+<li>Write the output directly into standard optimal-tiled memory layouts
+(e.g., <code>VK_IMAGE_TILING_OPTIMAL</code> or D3D12's standard swizzle
+patterns).</li>
+</ul></li>
+</ol>
+<h3 id="avif-vs-gpu-transcoders">AVIF vs. GPU Transcoders</h3>
+<p>Unlike texture delivery formats specifically engineered for real-time
+graphics—such as Basis Universal (KTX2)—AVIF cannot be quickly
+transcoded into GPU-native compressed formats like BC7 or ASTC.</p>
+<ul>
+<li><strong>Basis Universal / KTX2:</strong> Designed specifically to
+convert its intermediate format (ETC1S or UASTC) into native GPU block
+formats in a single compute or CPU pass, maintaining compressed
+footprints in VRAM.</li>
+<li><strong>AVIF:</strong> Once unpacked into GPU memory, it must reside
+as an uncompressed resource (typically RGBA8 or RGBA16F). Re-compressing
+an unpacked AVIF image into BCn or ASTC on the GPU requires running a
+heavyweight block-compression encoder in compute shaders, which is
+computationally expensive for real-time load sequences.</li>
+</ul>
+<h3 id="summary-of-direct-pipeline-execution">Summary of Direct Pipeline
+Execution</h3>
+<p>Direct unpacking of AVIF into GPU memory layouts follows this
+pipeline:</p>
+<ul>
+<li><strong>Ingest:</strong> Stream the raw AV1 bitstream directly to a
+GPU-allocated buffer.</li>
+<li><strong>Decode:</strong> Utilize fixed-function AV1 hardware
+decoders (NVDEC, VCN, QuickSync) via modern graphic video
+extensions.</li>
+<li><strong>Transform:</strong> Run a compute pass to transform planar
+YUV output into an optimal-tiled RGBA texture.</li>
+<li><strong>Sample:</strong> Bind the resulting resource to traditional
+raster or compute pipelines as a standard sampled texture.</li>
+</ul>
+<p>While AVIF dramatically reduces network transfer sizes and storage
+footprints, developers must account for the uncompressed VRAM overhead
+once the asset is unpacked into its final GPU-compatible layout.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

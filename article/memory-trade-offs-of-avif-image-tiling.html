@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Trade-Offs of AVIF Image Tiling - avif</title>
+    <meta name="description" content="Tiling an AVIF image into smaller, independent blocks allows systems to decode high-resolution content using less peak memory and improved multi-core parallelism. However, this strategy introduces distinct trade-offs, balancing lower single-thread memory">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/memory-trade-offs-of-avif-image-tiling">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Memory Trade-Offs of AVIF Image Tiling - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/memory-trade-offs-of-avif-image-tiling" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Tiling an AVIF image into smaller, independent blocks allows systems to decode high-resolution content using less peak memory and improved multi-core parallelism. However, this strategy introduces distinct trade-offs, balancing lower single-thread memory" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="memory-trade-offs-of-avif-image-tiling">Memory Trade-Offs of
+AVIF Image Tiling</h1>
+<p>Tiling an AVIF image into smaller, independent blocks allows systems
+to decode high-resolution content using less peak memory and improved
+multi-core parallelism. However, this strategy introduces distinct
+trade-offs, balancing lower single-thread memory footprints and fast
+viewport-based rendering against thread-multiplied memory overhead and
+reduced compression efficiency. Understanding these dynamics is critical
+for optimizing performance across low-memory devices, web browsers, and
+large-scale rendering pipelines.</p>
+<h3 id="reduced-peak-working-memory">Reduced Peak Working Memory</h3>
+<p>In standard single-frame AVIF decoding, the decoder must allocate
+working buffers large enough to process entire rows of pixels. For
+high-resolution images (such as 4K or 8K assets), this requires
+substantial contiguous memory allocations.</p>
+<p>Dividing an image into independent AV1 tiles allows a decoder to
+process only a fraction of the total dimensions at a time. This
+enables:</p>
+<ul>
+<li><strong>Lower Buffer Allocation:</strong> The decoder only needs
+working buffers scaled to the size of a single tile rather than the full
+image dimensions.</li>
+<li><strong>Partial/Region-of-Interest Decoding:</strong> When a user
+zooms in or views only a portion of a massive image, the system only
+loads and decodes the visible tiles into memory, saving massive amounts
+of RAM.</li>
+<li><strong>Streamlined Streaming:</strong> Memory can be discarded or
+flushed as tiles exit the viewport, preventing the accumulation of high
+memory footprints during panning operations.</li>
+</ul>
+<h3 id="multi-threading-and-concurrency-memory-overhead">Multi-Threading
+and Concurrency Memory Overhead</h3>
+<p>While individual tiles require less working memory, tiles are
+primarily designed to be decoded concurrently across multiple CPU
+threads. This introduces a linear memory multiplier:</p>
+<ul>
+<li><strong>Thread Contexts:</strong> Each active decoder thread
+requires its own internal state, reference frame buffers, and line
+buffers.</li>
+<li><strong>Simultaneous Allocations:</strong> If an 8-core CPU decodes
+eight tiles simultaneously, the instantaneous peak memory usage
+increases significantly, potentially negating the memory benefits of
+smaller tile buffers.</li>
+<li><strong>Reconstruction Buffers:</strong> To present the final image,
+the individual tile outputs must be composited into a full-size
+destination canvas, which temporarily keeps both the working tile memory
+and the target surface in RAM.</li>
+</ul>
+<h3 id="compression-inefficiencies-and-cache-impact">Compression
+Inefficiencies and Cache Impact</h3>
+<p>Tile boundaries operate independently, meaning spatial
+intra-prediction cannot cross tile borders. This separation introduces
+secondary memory impacts:</p>
+<ul>
+<li><strong>Bitstream Expansion:</strong> Because pixel prediction
+resets at each boundary, the encoder requires more bits to represent
+edge areas, resulting in larger overall file sizes and higher network
+transfer buffers.</li>
+<li><strong>Loop Filter Processing:</strong> Loop restoration, CDEF
+(Constrained Directional Enhancement Filter), and deblocking filters can
+require additional boundary pixel exchanges depending on whether loop
+filters are allowed to cross tile boundaries. When filters cross
+borders, decoders must maintain boundary cache lines, introducing minor
+cache churn and memory access synchronization stalls.</li>
+</ul>
+<h3 id="summary-of-the-trade-off">Summary of the Trade-Off</h3>
+<p>Tiling AVIF images transforms memory usage from a single, large,
+static allocation into smaller, flexible allocations that scale with
+thread count and display requirements. Tiling is optimal for
+resource-constrained environments that process large images sequentially
+or render viewports dynamically. Conversely, aggressively tiling an
+image for high-concurrency decoding increases multi-thread memory
+overhead and degrades compression efficiency, requiring careful tuning
+of tile grid dimensions based on target hardware limits.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

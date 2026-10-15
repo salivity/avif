@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>On-Demand AVIF Processing for Low-Memory Servers - avif</title>
+    <meta name="description" content="Processing on-demand AVIF images in low-memory environments requires a combination of strict concurrency management, memory-efficient streaming, encoder tuning, and caching. Because AVIF encoding relies on codecs like libaom or rav1e—which consume substan">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/on-demand-avif-processing-for-low-memory-servers">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="On-Demand AVIF Processing for Low-Memory Servers - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/on-demand-avif-processing-for-low-memory-servers" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Processing on-demand AVIF images in low-memory environments requires a combination of strict concurrency management, memory-efficient streaming, encoder tuning, and caching. Because AVIF encoding relies on codecs like libaom or rav1e—which consume substan" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="on-demand-avif-processing-for-low-memory-servers">On-Demand AVIF
+Processing for Low-Memory Servers</h1>
+<p>Processing on-demand AVIF images in low-memory environments requires
+a combination of strict concurrency management, memory-efficient
+streaming, encoder tuning, and caching. Because AVIF encoding relies on
+codecs like libaom or rav1e—which consume substantial RAM and CPU during
+pixel analysis—unbounded dynamic conversions will quickly trigger
+Out-Of-Memory (OOM) errors. By constraining pipeline buffers, enforcing
+worker limits, and using progressive offloading, constrained servers can
+reliably deliver modern image compression without risking stability.</p>
+<h3 id="the-memory-bottleneck-in-avif-conversion">The Memory Bottleneck
+in AVIF Conversion</h3>
+<p>AVIF generation demands memory at two distinct phases: decoding the
+source image and encoding the AVIF output. A typical 12-megapixel JPEG
+may occupy just 3 MB on disk, but decompressing it into raw,
+uncompressed 24-bit RGB pixel data requires approximately 36 MB of
+uncompressed memory. Passing that data into an AVIF encoder adds
+overhead, as modern AV1 encoders allocate frame buffers, reference
+buffers, and multi-threaded state memory. Multiple concurrent requests
+can easily overwhelm systems with 512 MB to 2 GB of RAM.</p>
+<h3 id="1-implement-strict-concurrency-limits">1. Implement Strict
+Concurrency Limits</h3>
+<p>Never allow the number of active AVIF encoding tasks to scale
+linearly with incoming HTTP traffic.</p>
+<ul>
+<li><strong>Worker Pools:</strong> Restrict conversions to a fixed
+worker pool. For a single-core or dual-core VPS with 1 GB RAM, set
+active encoding concurrency to 1 or 2 simultaneous jobs.</li>
+<li><strong>Queues and Fast Rejection:</strong> Place incoming
+generation requests in an in-memory queue. If the queue length exceeds a
+safe threshold, fail gracefully by returning the original source format
+(e.g., JPEG or WebP) or serving an HTTP 429/503 status rather than
+exhausting system memory.</li>
+</ul>
+<h3 id="2-optimize-pipeline-memory-with-streaming-libvips">2. Optimize
+Pipeline Memory with Streaming (libvips)</h3>
+<p>Avoid loading entire images into application memory. Instead of
+general-purpose engines like ImageMagick, rely on demand-driven,
+streaming libraries such as <code>libvips</code> (or its Node.js
+wrapper, <code>sharp</code>).</p>
+<ul>
+<li><strong>Sequential Reading:</strong> Read the input image
+line-by-line rather than buffering the complete uncompressed
+raster.</li>
+<li><strong>Downscale Before Encoding:</strong> Reduce image dimensions
+to the target display resolution <em>before</em> handing frames to the
+AVIF encoder. Resizing a 4000x3000 input to 800x600 reduces the pixel
+data handled by the AVIF encoder by 96%.</li>
+<li><strong>Memory Limits for libvips:</strong> Explicitly restrict
+cache boundaries via configuration (e.g.,
+<code>vips_cache_set_max_mem()</code> or setting
+<code>VIPS_CONCURRENCY=1</code>).</li>
+</ul>
+<h3 id="3-tune-encoder-parameters-for-low-footprint">3. Tune Encoder
+Parameters for Low Footprint</h3>
+<p>Default AVIF settings often prioritize maximum compression ratio at
+the expense of memory and CPU cycles. Adjust encoder flags to optimize
+for resource efficiency:</p>
+<ul>
+<li><strong>Encoder Speed/Effort:</strong> For codecs like
+<code>libaom-av1</code>, set the CPU effort preset to <code>4</code> or
+<code>6</code> (on a scale from 0 to 9, where 0 is slowest). Slower
+presets perform deep spatial searches that keep numerous reference
+frames resident in RAM.</li>
+<li><strong>Disable Multi-Tile Processing:</strong> Avoid high tile
+counts (<code>tile-rows</code>, <code>tile-columns</code>) if thread
+count is restricted; each tile structure introduces separate encoding
+buffers.</li>
+<li><strong>Chroma Subsampling:</strong> Use YUV420 rather than YUV444
+to reduce color plane memory usage by 50%.</li>
+</ul>
+<h3 id="4-isolate-encoding-processes">4. Isolate Encoding Processes</h3>
+<p>To protect the host process (such as the main web server or reverse
+proxy) from crashing during a memory spike:</p>
+<ul>
+<li><strong>Fork Subprocesses:</strong> Run the encoding logic in
+ephemeral child processes with explicit memory caps enforced via Linux
+control groups (<code>cgroups</code>) or <code>ulimit -v</code>.</li>
+<li><strong>Graceful Worker Termination:</strong> If a single rogue
+image exceeds memory boundaries, only the worker process terminates,
+leaving the primary application intact.</li>
+</ul>
+<h3 id="5-shift-traffic-with-edge-and-intermediate-caching">5. Shift
+Traffic with Edge and Intermediate Caching</h3>
+<p>On-demand conversion should only execute once per unique asset
+dimension.</p>
+<ul>
+<li><strong>Cache-Control Headers:</strong> Set long
+<code>max-age</code> and immutable cache directives so CDNs and browsers
+store the generated AVIF files indefinitely.</li>
+<li><strong>Locking Requests:</strong> Implement request coalescing
+(mutex locking) at the reverse proxy or server level. If ten identical
+requests arrive at the same millisecond for an uncached AVIF file,
+execute the conversion once while having the other nine requests wait
+for the cached result.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

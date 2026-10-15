@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Aspect Ratio Boxes in AVIF Explained - avif</title>
+    <meta name="description" content="Pixel aspect ratio boxes within an AVIF container are metadata elements designed to define the intended shape of individual pixels for proper image rendering. This article covers what the pixel aspect ratio box is, why it is used in the AV1 Image File For">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/pixel-aspect-ratio-boxes-in-avif-explained">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Pixel Aspect Ratio Boxes in AVIF Explained - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/pixel-aspect-ratio-boxes-in-avif-explained" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Pixel aspect ratio boxes within an AVIF container are metadata elements designed to define the intended shape of individual pixels for proper image rendering. This article covers what the pixel aspect ratio box is, why it is used in the AV1 Image File For" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="pixel-aspect-ratio-boxes-in-avif-explained">Pixel Aspect Ratio
+Boxes in AVIF Explained</h1>
+<p>Pixel aspect ratio boxes within an AVIF container are metadata
+elements designed to define the intended shape of individual pixels for
+proper image rendering. This article covers what the pixel aspect ratio
+box is, why it is used in the AV1 Image File Format, how it bridges the
+gap between non-square source content and modern square-pixel displays,
+and the technical advantages of handling non-square geometry at the
+container level.</p>
+<h3 id="understanding-the-pixel-aspect-ratio-box">Understanding the
+Pixel Aspect Ratio Box</h3>
+<p>In the AVIF specification—which inherits its container structure from
+the ISO Base Media File Format (ISOBMFF) and HEIF—the pixel aspect ratio
+box is represented by the four-character code <code>pasp</code>. Modern
+digital displays uniformly use square pixels, meaning each pixel has a
+1:1 width-to-height ratio. However, certain image and video sources use
+non-square pixels, where individual pixels are wider or taller than they
+are high.</p>
+<p>The <code>pasp</code> box explicitly declares this ratio by storing
+two unsigned 32-bit integers:</p>
+<ul>
+<li><strong><code>hSpacing</code></strong>: The horizontal spacing or
+width of a pixel.</li>
+<li><strong><code>vSpacing</code></strong>: The vertical spacing or
+height of a pixel.</li>
+</ul>
+<p>Together, these values establish the ratio
+<code>hSpacing:vSpacing</code>, instructing the image viewer or browser
+to scale the rendered output horizontally or vertically to match the
+author's intended geometry.</p>
+<h3 id="primary-uses-of-the-pasp-box-in-avif">Primary Uses of the
+<code>pasp</code> Box in AVIF</h3>
+<h4 id="1-preserving-anamorphic-and-legacy-content">1. Preserving
+Anamorphic and Legacy Content</h4>
+<p>A primary use of the <code>pasp</code> box is to store frames
+captured with anamorphic lenses or digitized from legacy analog video
+standards (such as NTSC or PAL). Anamorphic cinematography intentionally
+squeezes a wide field of view onto a narrower sensor area. In broadcast,
+formats like standard-definition DVD or D-1 store 720x480 pixels meant
+to be displayed at a 16:9 or 4:3 aspect ratio. Embedding a
+<code>pasp</code> box ensures that an AVIF file extracted from or
+encoded for these mediums displays at the correct geometry without
+geometric distortion.</p>
+<h4 id="2-lossless-display-correction">2. Lossless Display
+Correction</h4>
+<p>Without the <code>pasp</code> box, displaying non-square content
+correctly on a modern screen requires physically resampling the pixels
+to a square grid before encoding. Resampling introduces interpolation
+artifacts, alters high-frequency image details, and can inflate file
+sizes. By using the <code>pasp</code> box, the underlying AV1 compressed
+bitstream remains untouched and true to the source data. The rendering
+engine handles the scaling dynamically at display time, preserving the
+original pixel fidelity.</p>
+<h4 id="3-storage-and-bandwidth-optimization">3. Storage and Bandwidth
+Optimization</h4>
+<p>In certain specialized rendering or compression pipelines, non-square
+pixel subsampling is deliberately used to reduce horizontal or vertical
+resolution where human visual perception is less sensitive. By pairing
+an asymmetric pixel grid with a <code>pasp</code> box, developers can
+lower the total pixel count encoded by the AV1 codec—yielding smaller
+file sizes and faster transmission—while ensuring the viewer inflates
+the image to its intended proportions during playback.</p>
+<h3 id="decoder-and-rendering-behavior">Decoder and Rendering
+Behavior</h3>
+<p>When an AVIF-compliant parser reads an image file:</p>
+<ol type="1">
+<li>It locates the image item within the file's <code>meta</code>
+box.</li>
+<li>It checks the associated item properties for a <code>pasp</code>
+box.</li>
+<li>If present, the decoder calculates the intended display width by
+multiplying the coded pixel width by
+<code>(hSpacing / vSpacing)</code>.</li>
+<li>If absent, the renderer assumes a standard 1:1 ratio, displaying the
+raw coded dimensions directly.</li>
+</ol>
+<p>By providing explicit dimensional instructions, the <code>pasp</code>
+box guarantees visual consistency across web browsers, operating
+systems, and professional image editing software without modifying the
+core image stream.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

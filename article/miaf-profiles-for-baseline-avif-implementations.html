@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIAF Profiles for Baseline AVIF Implementations - avif</title>
+    <meta name="description" content="The AV1 Image File Format (AVIF) is structurally based on the Multi-Image Application Format (MIAF, ISO/IEC 23000-22), which specifies constrained container structures using the ISO Base Media File Format (ISOBMFF). This article explains how baseline AVIF">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/miaf-profiles-for-baseline-avif-implementations">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="MIAF Profiles for Baseline AVIF Implementations - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/miaf-profiles-for-baseline-avif-implementations" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The AV1 Image File Format (AVIF) is structurally based on the Multi-Image Application Format (MIAF, ISO/IEC 23000-22), which specifies constrained container structures using the ISO Base Media File Format (ISOBMFF). This article explains how baseline AVIF" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="miaf-profiles-for-baseline-avif-implementations">MIAF Profiles
+for Baseline AVIF Implementations</h1>
+<p>The AV1 Image File Format (AVIF) is structurally based on the
+Multi-Image Application Format (MIAF, ISO/IEC 23000-22), which specifies
+constrained container structures using the ISO Base Media File Format
+(ISOBMFF). This article explains how baseline AVIF implementations rely
+directly on MIAF profiles, detailing the required structural brands,
+video coding constraints, and technical compliance boundaries necessary
+for standard-compliant AVIF decoders and encoders.</p>
+<h3 id="the-miaf-foundation-in-avif">The MIAF Foundation in AVIF</h3>
+<p>MIAF defines a set of constraints to simplify format handling, reduce
+decoder complexity, and ensure broad interoperability across multimedia
+platforms. Rather than creating a container structure from scratch, the
+Alliance for Open Media (AOMedia) defined AVIF as an explicit
+application profile of MIAF.</p>
+<p>Because of this architectural dependency, every baseline AVIF
+implementation must directly comply with the core MIAF constraints,
+while incorporating AV1-specific decoding profiles.</p>
+<h3 id="the-baseline-miaf-profile-requirements">The Baseline MIAF
+Profile Requirements</h3>
+<p>In baseline AVIF implementations, MIAF profiles apply through a
+combination of container-level brands and AV1 video profile
+limitations:</p>
+<ul>
+<li><strong>The MIAF Brand (<code>miaf</code>):</strong> Baseline AVIF
+files are required to claim compatibility with the general MIAF
+specification. A fully compliant baseline AVIF file includes the
+<code>miaf</code> brand in the compatible brands list (<code>ftyp</code>
+box), alongside the structural <code>mif1</code> (ISO Multi-Image
+Format) brand and the AV1-specific <code>avif</code> brand.</li>
+<li><strong>Structural Framing Profile:</strong> Baseline AVIF restricts
+image structure according to MIAF rules. It mandates that images must be
+represented as either a single primary item or as a collection of grid
+items. MIAF limits complex presentation scenarios to ensure baseline
+decoders can reconstruct the image without supporting extensive, dynamic
+composition graphs.</li>
+<li><strong>Auxiliary Image Profiles (Alpha Channels):</strong> MIAF
+defines how auxiliary images—such as transparency/alpha channels and
+depth maps—are linked to primary items. Baseline AVIF requires that an
+auxiliary alpha channel item must share the same pixel aspect ratio and
+coordinate dimensions as the primary image, adhering directly to MIAF's
+auxiliary image rules.</li>
+</ul>
+<h3 id="interaction-with-the-avif-baseline-profile">Interaction with the
+AVIF Baseline Profile</h3>
+<p>AVIF establishes two main profiles: the <strong>Baseline
+Profile</strong> and the <strong>Advanced Profile</strong>. The Baseline
+Profile maps directly to MIAF requirements under the following
+parameters:</p>
+<ol type="1">
+<li><strong>Codec Profile:</strong> It mandates the use of the AV1 Main
+Profile.</li>
+<li><strong>Bit Depth and Chroma Subsampling:</strong> Conformance
+requires 8-bit or 10-bit pixel depth. Chroma subsampling is limited to
+4:2:0 or 4:0:0 (monochrome), keeping baseline decoders simple and
+uniform with MIAF's primary target profiles.</li>
+<li><strong>Level Limit:</strong> The baseline implementation caps
+single coded frames at Level 5.1, ensuring maximum image resolutions do
+not exceed practical decoding thresholds on consumer hardware.</li>
+</ol>
+<h3 id="practical-decoding-implications">Practical Decoding
+Implications</h3>
+<p>For an AVIF implementation to be considered baseline-compliant, the
+decoder must possess a MIAF-compliant parsing engine capable of handling
+standard ISOBMFF metadata, image grid configurations, and auxiliary
+image associations. By relying on the core MIAF profile, baseline AVIF
+ensures that implementers only need to support a standardized subset of
+ISOBMFF features alongside an AV1 Main Profile hardware or software
+decoder.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

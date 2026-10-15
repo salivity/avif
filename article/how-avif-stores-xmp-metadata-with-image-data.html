@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How AVIF Stores XMP Metadata with Image Data - avif</title>
+    <meta name="description" content="The AV1 Image File Format (AVIF) leverages the flexible ISO Base Media File Format (ISOBMFF) architecture to store Extensible Metadata Platform (XMP) data alongside primary image bitstreams. Rather than embedding metadata directly into the AV1 video compr">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-avif-stores-xmp-metadata-with-image-data">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How AVIF Stores XMP Metadata with Image Data - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-avif-stores-xmp-metadata-with-image-data" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The AV1 Image File Format (AVIF) leverages the flexible ISO Base Media File Format (ISOBMFF) architecture to store Extensible Metadata Platform (XMP) data alongside primary image bitstreams. Rather than embedding metadata directly into the AV1 video compr" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-avif-stores-xmp-metadata-with-image-data">How AVIF Stores
+XMP Metadata with Image Data</h1>
+<p>The AV1 Image File Format (AVIF) leverages the flexible ISO Base
+Media File Format (ISOBMFF) architecture to store Extensible Metadata
+Platform (XMP) data alongside primary image bitstreams. Rather than
+embedding metadata directly into the AV1 video compression stream, the
+AVIF container isolates metadata into distinct structural items and
+establishes links between the metadata and the target image using
+standard container-level references. This architecture ensures that
+applications can access, parse, or discard descriptive metadata like
+copyright, licensing, and capture details without touching or decoding
+the underlying image data.</p>
+<h3 id="the-role-of-isobmff-architecture">The Role of ISOBMFF
+Architecture</h3>
+<p>AVIF is not a standalone raw image format; it is an image profile
+built on top of the High Efficiency Image File Format (HEIF), which
+inherits its structure from ISOBMFF. In ISOBMFF, all data is organized
+into hierarchical blocks called "boxes" (or atoms).</p>
+<p>Primary image content and metadata are treated as distinct entities
+called "items" within the top-level Meta Box (<code>meta</code>). This
+separation of concerns allows the container to handle multiple types of
+data—such as image grids, alpha channels, Exif blocks, and XMP
+packets—uniformly.</p>
+<h3 id="identifying-xmp-items-in-the-meta-box">Identifying XMP Items in
+the Meta Box</h3>
+<p>To register an XMP payload inside the container, AVIF uses the Item
+Information Box (<code>iinf</code>), which contains individual Item Info
+Entry (<code>infe</code>) boxes for every item in the file.</p>
+<ol type="1">
+<li><strong>Item ID Assignment:</strong> The parser assigns a unique
+numeric <code>item_ID</code> to the primary image and a distinct
+<code>item_ID</code> to the XMP metadata block.</li>
+<li><strong>Item Type Specification:</strong> For XMP, the
+<code>infe</code> box specifies an <code>item_type</code> set to
+<code>mime</code>.</li>
+<li><strong>MIME Type String:</strong> The item entry defines the MIME
+content-type string as <code>application/rdf+xml</code>. This string
+explicitly signals to parsers that the item payload contains standard
+RDF/XML-encoded XMP data.</li>
+</ol>
+<h3 id="linking-metadata-to-image-data-via-references">Linking Metadata
+to Image Data via References</h3>
+<p>Once the image and the XMP metadata are declared as separate items,
+the container must define how they relate to one another. This
+relationship is managed by the Item Reference Box
+(<code>iref</code>).</p>
+<p>The <code>iref</code> box creates directed links between items using
+specific Four-Character Codes (FourCC). For XMP metadata:</p>
+<ul>
+<li>The container creates a reference of type <code>cdsc</code> (Content
+Describes).</li>
+<li>The reference identifies the XMP metadata item as the source and
+points to the primary image item (<code>pitm</code>) as the target.</li>
+<li>This explicitly tells reading software that the payload of the
+metadata item describes the attributes of the referenced image
+item.</li>
+</ul>
+<p>In cases where an AVIF file contains an image sequence or multiple
+derived images (such as thumbnails or auxiliary depth maps), multiple
+<code>cdsc</code> links can be created, or links can be directed
+strictly to the primary image item to avoid redundant metadata
+duplication.</p>
+<h3 id="physical-storage-in-the-media-data-box">Physical Storage in the
+Media Data Box</h3>
+<p>While the <code>meta</code> box provides the index, identifiers, and
+relationship mappings, the actual raw XMP text is stored either directly
+within an Item Data Box (<code>idat</code>) inside the <code>meta</code>
+box or, more commonly, within the top-level Media Data Box
+(<code>mdat</code>).</p>
+<p>The Item Location Box (<code>iloc</code>) acts as the bridge between
+the structural index and the physical bytes:</p>
+<ul>
+<li>It maps the XMP <code>item_ID</code> to an explicit byte offset and
+byte length within the target data box.</li>
+<li>Reading systems read the <code>iloc</code> entry for the XMP item
+and immediately locate the exact byte range containing the serialized
+XMP packet without needing to scan the entire file sequentially.</li>
+</ul>
+<h3 id="performance-and-parsing-advantages">Performance and Parsing
+Advantages</h3>
+<p>Handling XMP in this manner provides major performance benefits:</p>
+<ul>
+<li><strong>Selective Extraction:</strong> Web crawlers, photo managers,
+and content registries can retrieve attribution and copyright data
+simply by parsing the container boxes, skipping the large image payload
+entirely.</li>
+<li><strong>Streamability:</strong> Encoders can place the metadata at
+the beginning of the file, allowing user agents to read image properties
+and rights data before the full image frame has finished
+downloading.</li>
+<li><strong>Lossless Editing:</strong> Metadata can be updated or
+stripped by rewriting container offsets and the <code>mdat</code>
+payload without needing to recompress the AV1 image stream.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

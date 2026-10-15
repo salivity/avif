@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Progressive AVIF Resolution Layers Explained - avif</title>
+    <meta name="description" content="Progressive AVIF images allow web browsers and decoders to render low-resolution previews that progressively sharpen to full fidelity as the file downloads. This functionality is made possible by coupling the scalable coding tools of the AV1 video codec w">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/progressive-avif-resolution-layers-explained">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Progressive AVIF Resolution Layers Explained - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/progressive-avif-resolution-layers-explained" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Progressive AVIF images allow web browsers and decoders to render low-resolution previews that progressively sharpen to full fidelity as the file downloads. This functionality is made possible by coupling the scalable coding tools of the AV1 video codec w" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="progressive-avif-resolution-layers-explained">Progressive AVIF
+Resolution Layers Explained</h1>
+<p>Progressive AVIF images allow web browsers and decoders to render
+low-resolution previews that progressively sharpen to full fidelity as
+the file downloads. This functionality is made possible by coupling the
+scalable coding tools of the AV1 video codec with the structural
+hierarchy of the ISO Base Media File Format (ISOBMFF). The container
+organizes and signals these distinct resolution tiers through
+standardized boxes, bitstream configurations, and item references,
+enabling decoders to reconstruct each resolution step
+systematically.</p>
+<h3 id="the-foundation-isobmff-container-architecture">The Foundation:
+ISOBMFF Container Architecture</h3>
+<p>AVIF files inherit their organizational structure from the High
+Efficiency Image File Format (HEIF), which is based on ISOBMFF. At the
+top level, non-timed still image assets reside within the
+<code>meta</code> (Metadata) box.</p>
+<p>Inside the <code>meta</code> box, visual data is organized into
+discrete structural components:</p>
+<ul>
+<li><strong><code>hdlr</code> (Handler Box):</strong> Identifies the
+metadata handler type as <code>pict</code> (picture).</li>
+<li><strong><code>pitm</code> (Primary Item Box):</strong> Specifies the
+ID of the master, full-resolution image item.</li>
+<li><strong><code>iloc</code> (Item Location Box):</strong> Provides the
+byte offsets and lengths of the image payload data stored elsewhere in
+the file (typically in the <code>mdat</code> or Media Data box).</li>
+<li><strong><code>iinf</code> (Item Information Box):</strong> Contains
+<code>infe</code> (Item Info Entry) boxes that describe the
+characteristics and MIME types of each image item.</li>
+</ul>
+<h3 id="structuring-layers-via-av1-spatial-scalability">Structuring
+Layers via AV1 Spatial Scalability</h3>
+<p>The primary method for embedding multiple resolution layers inside an
+AVIF container leverages AV1's native spatial scalability. Rather than
+storing entirely separate, redundant image files, the container
+encapsulates an AV1 bitstream divided into discrete Open Bitstream Units
+(OBUs).</p>
+<p>Within this bitstream:</p>
+<ol type="1">
+<li><strong>Sequence Header OBU:</strong> Defines the overall stream
+profile and sets up Operating Points (OP). The header contains
+scalability metadata that explicitly signals how many spatial layers
+exist and how they are configured.</li>
+<li><strong>Base Layer (Spatial ID 0):</strong> Encoded at a fraction of
+the final dimensions (such as 1/4 or 1/2 resolution). This layer is
+self-contained and decodable on its own as a keyframe.</li>
+<li><strong>Enhancement Layers (Spatial ID &gt; 0):</strong> Encoded as
+dependent frames carrying residual pixel information, high-frequency
+details, or higher spatial dimensions. These layers rely on inter-layer
+prediction referencing the decoded base layer.</li>
+</ol>
+<p>When packed as a single progressive item, the entire layered AV1
+payload sits inside the <code>mdat</code> box, but the ISOBMFF container
+defines property boxes within <code>iprp</code> (Item Properties) that
+declare the progressive structure to parsers before the rest of the
+payload is read.</p>
+<h3 id="layer-representation-via-item-references">Layer Representation
+via Item References</h3>
+<p>Alternatively, progressive AVIF files can split resolution steps into
+distinct items tracked directly at the container level using the
+<code>iref</code> (Item Reference) box.</p>
+<p>In this structure:</p>
+<ul>
+<li>The base resolution preview is registered as its own item in the
+<code>iinf</code> box.</li>
+<li>The intermediate and full-resolution layers are stored as distinct
+child or enhancement items.</li>
+<li>The <code>iref</code> box establishes a directed relationship
+between these items using reference types such as <code>base</code>
+(indicating that an enhancement item depends on a base item) or
+<code>prog</code> (explicitly denoting progressive progression).</li>
+</ul>
+<p>By decoupling layers into separate items, the file's
+<code>iloc</code> box can specify non-contiguous byte ranges within
+<code>mdat</code>. This allows the base layer bytes to be placed
+immediately after the container headers at the beginning of the file,
+ensuring the client receives the lowest-resolution frame within the
+initial network packets.</p>
+<h3 id="parsing-and-incremental-decoding">Parsing and Incremental
+Decoding</h3>
+<p>When a progressive AVIF file streams over a network:</p>
+<ol type="1">
+<li>The parser reads the container header (<code>ftyp</code>,
+<code>meta</code>, <code>iloc</code>, and <code>iprp</code>).</li>
+<li>It detects the scalability configuration through the primary item
+properties and the AV1 sequence header.</li>
+<li>As the first segment of <code>mdat</code> arrives, the decoder
+extracts the base layer OBU (Spatial ID 0) or the item defined by the
+initial <code>iloc</code> extent.</li>
+<li>The decoder reconstructs and scales the base image to the target
+display dimensions, presenting an immediate preview.</li>
+<li>As subsequent bytes arrive, the decoder consumes the higher-tier
+spatial OBUs, applying the differential residual data until the full
+target resolution defined by the primary item is completely
+rendered.</li>
+</ol></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why Browsers Decode AVIF With Pixel Variations - avif</title>
+    <meta name="description" content="When rendering AVIF (AV1 Image File Format) images, different web browsers frequently output minute pixel variations. This article explores the technical reasons behind these discrepancies, which stem primarily from the use of diverse AV1 decoding librari">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/why-browsers-decode-avif-with-pixel-variations">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Why Browsers Decode AVIF With Pixel Variations - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/why-browsers-decode-avif-with-pixel-variations" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="When rendering AVIF (AV1 Image File Format) images, different web browsers frequently output minute pixel variations. This article explores the technical reasons behind these discrepancies, which stem primarily from the use of diverse AV1 decoding librari" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="why-browsers-decode-avif-with-pixel-variations">Why Browsers
+Decode AVIF With Pixel Variations</h1>
+<p>When rendering AVIF (AV1 Image File Format) images, different web
+browsers frequently output minute pixel variations. This article
+explores the technical reasons behind these discrepancies, which stem
+primarily from the use of diverse AV1 decoding libraries, variations in
+color management systems, chroma upsampling algorithms, hardware
+acceleration differences, and floating-point rounding during YUV-to-RGB
+conversions.</p>
+<h2 id="diverse-underlying-decoder-implementations">Diverse Underlying
+Decoder Implementations</h2>
+<p>Browsers rely on different underlying software libraries and hardware
+decoders to process AV1 bitstreams:</p>
+<ul>
+<li><strong>Software Decoders:</strong> Chromium-based browsers (Chrome,
+Edge) and Mozilla Firefox primarily use <code>dav1d</code>, an
+open-source decoder optimized for speed using assembly code. However,
+other platforms or older builds may rely on <code>libgav1</code> or the
+reference <code>libaom</code> implementation. Each library can use
+slightly different internal fixed-point approximations or rounding
+strategies for speed optimizations, leading to slight numeric shifts in
+the decoded sample values.</li>
+<li><strong>Hardware Acceleration:</strong> Modern GPUs feature
+dedicated silicon for hardware-accelerated AV1 decoding. Hardware
+decoders from different vendors (Intel, AMD, Nvidia, Apple) often
+implement rounding, clipping, and deblocking filtering within custom
+hardware pipelines that do not match software-based decoders to the
+exact bit.</li>
+</ul>
+<h2 id="chroma-upsampling-differences">Chroma Upsampling
+Differences</h2>
+<p>Most AVIF images are compressed using 4:2:0 chroma subsampling to
+minimize file size, meaning color information is stored at half the
+horizontal and vertical resolution of the brightness (luma) data.</p>
+<p>To render the image, browsers must reconstruct the missing color data
+through chroma upsampling. The exact placement and interpolation of
+these chroma samples depend on the browser engine's graphics
+pipeline:</p>
+<ul>
+<li><strong>Interpolation Filters:</strong> Engines choose between
+nearest-neighbor, bilinear, or bicubic filtering to upsample chroma
+planes.</li>
+<li><strong>Subpixel Alignment:</strong> Misalignments by even a
+fraction of a pixel during chroma positioning alter the calculated RGB
+values along sharp edges or high-contrast borders.</li>
+</ul>
+<h2 id="yuv-to-rgb-matrix-conversions">YUV to RGB Matrix
+Conversions</h2>
+<p>AVIF files store data in the YCbCr (YUV) color model, but computer
+displays require RGB values. Converting YUV to RGB requires matrix
+multiplication:</p>
+<p><span class="math display">\[\begin{bmatrix} R \\ G \\ B
+\end{bmatrix} = M \times \begin{bmatrix} Y \\ Cb \\ Cr
+\end{bmatrix}\]</span></p>
+<p>Differences in pixel values arise from how each engine executes this
+formula:</p>
+<ul>
+<li><strong>Math Precision:</strong> Some engines use full
+single-precision floating-point math in GPU shaders, while others rely
+on SIMD-optimized integer arithmetic with lower precision to maximize
+rendering performance.</li>
+<li><strong>Color Range Handling:</strong> Discrepancies can occur in
+how strictly decoders map full-range versus limited-range quantization
+levels defined in the AVIF metadata.</li>
+</ul>
+<h2 id="color-management-systems-and-profiles">Color Management Systems
+and Profiles</h2>
+<p>Color reproduction is heavily dictated by the operating system and
+the browser's integrated Color Management System (CMS):</p>
+<ul>
+<li><strong>CMS Engines:</strong> Chromium relies on Skia and its
+internal color pipeline, Firefox uses <code>qcms</code>, and Apple’s
+WebKit leverages macOS/iOS native <code>ColorSync</code>.</li>
+<li><strong>Transform Approximations:</strong> Converting embedded ICC
+profiles or NCLX (Narrow-range/Full-range, Color Primaries, Transfer
+Characteristics, Matrix Coefficients) color tags to the display's native
+profile involves complex 3D Look-Up Tables (LUTs) or parametric transfer
+functions. Subtle variations in how these curves are interpolated and
+clipped cause minor pixel value divergences across platforms.</li>
+</ul>
+<h2 id="bit-depth-truncation-and-dithering">Bit-Depth Truncation and
+Dithering</h2>
+<p>AVIF supports 8-bit, 10-bit, and 12-bit color depths. When a 10-bit
+AVIF is rendered on a standard 8-bit display:</p>
+<ul>
+<li>One engine may perform a straight bit-shift (truncation), dropping
+the least significant bits.</li>
+<li>Another engine may implement spatial dithering (e.g.,
+Floyd-Steinberg or ordered dithering) to eliminate banding
+artifacts.</li>
+</ul>
+<p>These divergent approaches directly alter individual pixel values in
+the final rendered output, resulting in the minute variations observed
+during cross-browser comparisons.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

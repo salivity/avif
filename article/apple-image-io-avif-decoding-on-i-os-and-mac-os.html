@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apple ImageIO AVIF Decoding on iOS and macOS - avif</title>
+    <meta name="description" content="Apple’s ImageIO framework provides native, system-level support for decoding AV1 Image File Format (AVIF) files across iOS and macOS. This article details the operating system requirements, the underlying mechanisms ImageIO uses to parse and decode AVIF a">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/apple-image-io-avif-decoding-on-i-os-and-mac-os">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Apple ImageIO AVIF Decoding on iOS and macOS - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/apple-image-io-avif-decoding-on-i-os-and-mac-os" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Apple’s ImageIO framework provides native, system-level support for decoding AV1 Image File Format (AVIF) files across iOS and macOS. This article details the operating system requirements, the underlying mechanisms ImageIO uses to parse and decode AVIF a" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="apple-imageio-avif-decoding-on-ios-and-macos">Apple ImageIO AVIF
+Decoding on iOS and macOS</h1>
+<p>Apple’s ImageIO framework provides native, system-level support for
+decoding AV1 Image File Format (AVIF) files across iOS and macOS. This
+article details the operating system requirements, the underlying
+mechanisms ImageIO uses to parse and decode AVIF assets, hardware
+acceleration advantages on newer Apple Silicon chips, and how developers
+interact with the framework to load these images efficiently.</p>
+<h3 id="platform-availability-and-container-architecture">Platform
+Availability and Container Architecture</h3>
+<p>Apple introduced system-wide decoding support for AVIF starting in
+iOS 16 and macOS 13 (Ventura). Because AVIF uses the ISO Base Media File
+Format (ISOBMFF)—the same foundational container standard used by
+HEIF—Apple was able to integrate AVIF decoding directly into the
+existing ImageIO architecture.</p>
+<p>Within ImageIO, the format is identified by the uniform type
+identifier <code>public.avif</code>. The system parses the container
+structure, extracts the AV1-compressed bitstream from the file's item
+data, and delivers standard bitmap representations to client
+applications.</p>
+<h3 id="decoding-mechanics-via-cgimagesource">Decoding Mechanics via
+CGImageSource</h3>
+<p>Decoding an AVIF image with ImageIO requires no specialized
+third-party dependencies. The process relies on standard Core Graphics
+and ImageIO functions:</p>
+<ol type="1">
+<li><strong>Creating the Image Source:</strong> Developers initialize a
+<code>CGImageSourceRef</code> from raw data, a file URL, or a data
+provider using functions such as <code>CGImageSourceCreateWithURL</code>
+or <code>CGImageSourceCreateWithData</code>.</li>
+<li><strong>Reading Image Properties:</strong> ImageIO reads container
+metadata without decompressing the pixel payload. Functions like
+<code>CGImageSourceCopyPropertiesAtIndex</code> reveal essential
+dimensions, color profiles, orientation, and bit depth.</li>
+<li><strong>Decompressing the Frame:</strong> Calling
+<code>CGImageSourceCreateImageAtIndex</code> triggers the decompression
+of the AV1 bitstream into a <code>CGImageRef</code>.</li>
+</ol>
+<p>ImageIO performs lazy decoding, deferring full decompression until
+the image is requested for rendering or caching, which minimizes memory
+overhead.</p>
+<h3 id="hardware-vs-software-decoding">Hardware vs. Software
+Decoding</h3>
+<p>Decoding performance depends on the device's hardware profile:</p>
+<ul>
+<li><strong>Hardware-Accelerated Decoding:</strong> Devices powered by
+the A17 Pro chip, the M3 family of chips, or newer architectures include
+dedicated hardware AV1 decoders. ImageIO routes AVIF decompression
+directly to this hardware block, resulting in near-instantaneous load
+times and significantly reduced battery consumption.</li>
+<li><strong>Software Fallback:</strong> On older devices running iOS 16+
+or macOS 13+ that lack hardware AV1 units (such as M1, M2, and older
+A-series processors), ImageIO uses an optimized software fallback
+pipeline. While software decoding consumes more CPU cycles, ImageIO
+employs multi-threading to maintain responsive UI frame rates.</li>
+</ul>
+<h3 id="color-profiles-hdr-and-high-bit-depths">Color Profiles, HDR, and
+High Bit Depths</h3>
+<p>AVIF supports 8-bit, 10-bit, and 12-bit color depths along with High
+Dynamic Range (HDR) mastering (such as PQ and HLG transfer functions).
+ImageIO natively parses these embedded color profiles and signaling
+parameters. When decoding an HDR AVIF file, ImageIO yields an image
+context that retains wide-gamut (Display P3) and HDR headroom data,
+allowing UIKit, AppKit, and Metal to render the content accurately on
+Extended Dynamic Range (EDR) displays.</p>
+<h3 id="integration-with-high-level-frameworks">Integration with
+High-Level Frameworks</h3>
+<p>Higher-level frameworks utilize ImageIO's AVIF pipeline under the
+hood:</p>
+<ul>
+<li><strong>UIKit and AppKit:</strong> Initializers such as
+<code>UIImage(data:)</code> or <code>NSImage(data:)</code> hand AVIF
+byte arrays directly to ImageIO.</li>
+<li><strong>SwiftUI:</strong> The <code>Image</code> view relies on
+UIKit/AppKit representations to display AVIF images without supplemental
+configuration.</li>
+<li><strong>WebKit:</strong> Safari on iOS 16+ and macOS 13+ delegates
+web-based AVIF rendering to ImageIO, enabling compressed modern web
+assets to display natively in browser contexts.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hardware Blocks for Instant AVIF Encoding on SoCs - avif</title>
+    <meta name="description" content="This article examines the specialized silicon blocks required within a System-on-Chip (SoC) to achieve instantaneous, real-time AVIF still-image encoding directly from a camera pipeline. Because AVIF uses the intra-frame compression tools of the AV1 video">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/hardware-blocks-for-instant-avif-encoding-on-so-cs">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Hardware Blocks for Instant AVIF Encoding on SoCs - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/hardware-blocks-for-instant-avif-encoding-on-so-cs" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article examines the specialized silicon blocks required within a System-on-Chip (SoC) to achieve instantaneous, real-time AVIF still-image encoding directly from a camera pipeline. Because AVIF uses the intra-frame compression tools of the AV1 video" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="hardware-blocks-for-instant-avif-encoding-on-socs">Hardware
+Blocks for Instant AVIF Encoding on SoCs</h1>
+<p>This article examines the specialized silicon blocks required within
+a System-on-Chip (SoC) to achieve instantaneous, real-time AVIF
+still-image encoding directly from a camera pipeline. Because AVIF uses
+the intra-frame compression tools of the AV1 video codec packaged inside
+an ISOBMFF container, achieving sub-100 millisecond capture-to-storage
+times requires tight integration between the image pipeline, a
+high-throughput AV1 encoding core, low-latency memory architectures, and
+dedicated bitstream muxing hardware.</p>
+<h3 id="1-dedicated-av1-hardware-encoder-core">1. Dedicated AV1 Hardware
+Encoder Core</h3>
+<p>The cornerstone of instant AVIF encoding is a dedicated AV1 hardware
+video processing unit (VPU) with full intra-frame profile support. AVIF
+files are essentially standalone AV1 keyframes (intra-frames). The
+encoder block must feature:</p>
+<ul>
+<li><strong>Spatial Intra-Prediction Engines:</strong> Silicon dedicated
+to calculating 56 directional intra-modes, recursive filtering, and
+chroma-from-luma (CFL) prediction.</li>
+<li><strong>Transform and Quantization Logic:</strong> Support for large
+64x64 and recursive rectangular Discrete Cosine Transforms (DCT) and
+Asymmetric Discrete Sine Transforms (ADST).</li>
+<li><strong>Hardware In-Loop Filters:</strong> Real-time processing
+pipelines for Constrained Directional Enhancement Filter (CDEF) and Loop
+Restoration (Wiener and self-guided filters) to clean up compression
+artifacts without software overhead.</li>
+<li><strong>10-Bit and 12-Bit Color Pipelines:</strong> Native hardware
+support for high dynamic range (HDR) color depths and 4:2:0, 4:2:2, or
+4:4:4 chroma subsampling formats.</li>
+</ul>
+<h3 id="2-high-throughput-image-signal-processor-isp">2. High-Throughput
+Image Signal Processor (ISP)</h3>
+<p>Before encoding can occur, the raw sensor data must be conditioned
+instantaneously. The ISP must be linked directly to the encoding
+subsystem. Essential capabilities include:</p>
+<ul>
+<li><strong>Real-Time Demosaicing and Denoising:</strong> Converting
+Bayer or Quad-Bayer RAW data into high-resolution color representations
+without dropping frames.</li>
+<li><strong>Hardware Color Space Conversion (CSC):</strong> Converting
+RAW/linear RGB into YUV color spaces natively supported by the AV1
+encoding core.</li>
+<li><strong>Tiling and Slice Partitioning:</strong> Splitting
+ultra-high-resolution images (e.g., 48MP to 200MP) into parallel strips
+or tiles that can feed multiple encoder cores simultaneously.</li>
+</ul>
+<h3 id="3-direct-memory-access-dma-and-system-level-cache-slc">3. Direct
+Memory Access (DMA) and System-Level Cache (SLC)</h3>
+<p>Transferring uncompressed, multi-megapixel frames to external DRAM
+creates latency and thermal bottlenecks. Instant encoding requires:</p>
+<ul>
+<li><strong>Zero-Copy Memory Interconnects:</strong> A shared, coherent
+memory bus that allows the ISP to stream processed image buffers
+directly into the encoder’s input FIFO queues.</li>
+<li><strong>Large On-Chip SRAM / System-Level Cache:</strong> Keeping
+intermediate frames, reference blocks, and transform coefficients
+on-chip avoids the multi-gigabyte-per-second DRAM bandwidth spikes
+associated with large still images.</li>
+</ul>
+<h3 id="4-hardware-bitstream-formatter-and-container-muxer">4. Hardware
+Bitstream Formatter and Container Muxer</h3>
+<p>Once the AV1 core outputs the compressed Open Bitstream Units (OBUs),
+the data must be packaged into the standard AVIF container (ISO/IEC
+23000-22).</p>
+<ul>
+<li><strong>ISOBMFF Box Generator:</strong> A dedicated micro-engine or
+hardware-assisted direct-memory-transfer block that writes ISOBMFF
+metadata boxes (<code>ftyp</code>, <code>meta</code>, <code>hdlr</code>,
+<code>iloc</code>, <code>mdat</code>) in parallel with the compression
+pipeline.</li>
+<li><strong>Metadata Injector:</strong> Hardware-accelerated merging of
+EXIF, XMP, and ICC color profiles into the container stream to ensure
+the file is finalized immediately as the last image tile completes
+encoding.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

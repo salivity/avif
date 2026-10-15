@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JPEG vs WebP vs AVIF Battery Drain on Mobile - avif</title>
+    <meta name="description" content="Modern image formats significantly reduce web page weight, but their complex compression algorithms impact mobile battery life differently. While next-generation formats like AVIF and WebP require less cellular or Wi-Fi data to download, their decompressi">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/jpeg-vs-web-p-vs-avif-battery-drain-on-mobile">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="JPEG vs WebP vs AVIF Battery Drain on Mobile - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/jpeg-vs-web-p-vs-avif-battery-drain-on-mobile" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Modern image formats significantly reduce web page weight, but their complex compression algorithms impact mobile battery life differently. While next-generation formats like AVIF and WebP require less cellular or Wi-Fi data to download, their decompressi" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="jpeg-vs-webp-vs-avif-battery-drain-on-mobile">JPEG vs WebP vs
+AVIF Battery Drain on Mobile</h1>
+<p>Modern image formats significantly reduce web page weight, but their
+complex compression algorithms impact mobile battery life differently.
+While next-generation formats like AVIF and WebP require less cellular
+or Wi-Fi data to download, their decompression requires computational
+power that can deplete battery reserves faster than legacy formats like
+JPEG. Understanding how JPEG, WebP, and AVIF perform across network
+transfer, software decoding, and hardware-accelerated decoding reveals
+clear battery drain trade-offs on mobile devices.</p>
+<h3 id="the-energy-balance-network-transfer-vs-image-decoding">The
+Energy Balance: Network Transfer vs. Image Decoding</h3>
+<p>Total battery consumption when displaying an image consists of two
+primary factors:</p>
+<ol type="1">
+<li><strong>Network Energy:</strong> The energy consumed by the mobile
+modem (LTE, 5G, or Wi-Fi) to download the file. Larger files keep the
+radio active longer in high-power states, which increases battery
+drain.</li>
+<li><strong>Decoding Energy:</strong> The energy used by the CPU, GPU,
+or dedicated hardware decoder to decompress the image into raw pixels
+for display.</li>
+</ol>
+<h3 id="jpeg-low-decoding-cost-high-transfer-cost">JPEG: Low Decoding
+Cost, High Transfer Cost</h3>
+<p>JPEG has been the web standard for decades, meaning virtually every
+mobile system-on-a-chip (SoC) features mature, highly optimized software
+decoders or native hardware acceleration for it.</p>
+<ul>
+<li><strong>Decoding Efficiency:</strong> JPEG requires the lowest CPU
+utilization of the three formats. Decoding a standard JPEG consumes
+minimal CPU cycles, generating almost no measurable thermal spike or
+processing-related battery drop.</li>
+<li><strong>Network Impact:</strong> Because JPEG compression is
+relatively inefficient compared to modern alternatives, file sizes are
+larger. On weak mobile connections, keeping the cellular modem energized
+to download heavier JPEG payloads can negate its low decoding energy
+cost.</li>
+<li><strong>Overall Profile:</strong> Ideal for battery efficiency when
+images are cached locally or served on fast, low-power Wi-Fi
+networks.</li>
+</ul>
+<h3 id="webp-the-balanced-performer">WebP: The Balanced Performer</h3>
+<p>WebP, based on the VP8 video codec, reduces file sizes by 25% to 35%
+compared to JPEG at equivalent visual quality.</p>
+<ul>
+<li><strong>Decoding Efficiency:</strong> WebP decoding is slightly more
+computationally demanding than JPEG, typically requiring 1.2x to 1.5x
+more CPU resources. However, broad support in mobile browsers and mobile
+operating systems has led to deep optimizations that keep battery impact
+negligible.</li>
+<li><strong>Network Impact:</strong> The substantial reduction in data
+payload allows the cellular modem to power down faster, offsetting the
+minor decoding overhead.</li>
+<li><strong>Overall Profile:</strong> In real-world web browsing and
+infinite-scroll applications, WebP frequently delivers the best net
+battery efficiency on mid-tier and legacy devices.</li>
+</ul>
+<h3 id="avif-high-computational-complexity">AVIF: High Computational
+Complexity</h3>
+<p>AVIF is derived from the AV1 video codec and delivers superior
+compression efficiency, often producing files that are 50% smaller than
+JPEG and 20% smaller than WebP.</p>
+<ul>
+<li><strong>Decoding Efficiency:</strong> AVIF is significantly more
+complex to decompress. When a device lacks dedicated AV1 hardware
+decoding—common on budget phones and devices released before 2023—the
+CPU must perform heavy software decoding. Benchmark tests show software
+decoding of AVIF can consume 2x to 5x more CPU energy than JPEG and
+significantly more than WebP.</li>
+<li><strong>Hardware Acceleration Factor:</strong> Flagship chipsets
+equipped with dedicated AV1 hardware decoders dramatically lower this
+energy penalty, bringing decoding power draw closer to WebP levels.</li>
+<li><strong>Network Impact:</strong> AVIF saves the most network power
+of any format due to its extremely low file size, which benefits battery
+life in high-latency or low-bandwidth cellular environments.</li>
+<li><strong>Overall Profile:</strong> On modern devices with AV1
+hardware decoding, AVIF is energy-efficient. On devices relying on
+software fallback, rendering large galleries or fast-scrolling feeds of
+AVIF images causes measurable battery drain and thermal throttling.</li>
+</ul>
+<h3 id="measured-battery-impact-in-real-world-scenarios">Measured
+Battery Impact in Real-World Scenarios</h3>
+<ul>
+<li><strong>Single Image Loads:</strong> The difference in battery
+consumption between JPEG, WebP, and AVIF on an isolated image load is
+immeasurable to an end user.</li>
+<li><strong>Image-Heavy Feeds (Social Media, E-commerce):</strong>
+Continuous scrolling through image-dense feeds reveals stark contrasts.
+Devices utilizing software decoding for AVIF display accelerated battery
+loss (a noticeable percentage drop over a 30-minute session) compared to
+JPEG or WebP feeds.</li>
+<li><strong>Cellular vs. Wi-Fi:</strong> On poor 4G or 5G connections,
+the network savings of WebP and AVIF consistently outperform JPEG by
+allowing modems to sleep quickly. Once images are downloaded, however,
+JPEG and WebP maintain lower sustained power draw during rapid on-screen
+rendering.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

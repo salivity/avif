@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Tile Decoding in Low-Memory Embedded Devices - avif</title>
+    <meta name="description" content="This article explores how tile-based decoding within the AV1 Image File Format (AVIF) enables low-memory embedded devices to process high-resolution images. By breaking large images into smaller, independently decodable rectangular segments, AVIF allows c">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-tile-decoding-in-low-memory-embedded-devices">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Tile Decoding in Low-Memory Embedded Devices - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-tile-decoding-in-low-memory-embedded-devices" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explores how tile-based decoding within the AV1 Image File Format (AVIF) enables low-memory embedded devices to process high-resolution images. By breaking large images into smaller, independently decodable rectangular segments, AVIF allows c" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-tile-decoding-in-low-memory-embedded-devices">AVIF Tile
+Decoding in Low-Memory Embedded Devices</h1>
+<p>This article explores how tile-based decoding within the AV1 Image
+File Format (AVIF) enables low-memory embedded devices to process
+high-resolution images. By breaking large images into smaller,
+independently decodable rectangular segments, AVIF allows constrained
+hardware—such as microcontrollers, smart home displays, and wearables—to
+bypass standard full-frame buffer requirements. This architectural
+approach minimizes peak RAM usage, supports region-of-interest
+rendering, and brings modern compression efficiency to devices with
+severe memory limits.</p>
+<h2 id="the-memory-bottleneck-in-embedded-imaging">The Memory Bottleneck
+in Embedded Imaging</h2>
+<p>Embedded systems typically operate under tight hardware constraints,
+often featuring memory measured in tens of megabytes or even just
+hundreds of kilobytes. Standard image formats like JPEG, PNG, or
+unpartitioned WebP generally require the decoder to reconstruct large
+portions of the image, if not the entire frame, into an uncompressed
+bitmap buffer in RAM before displaying it.</p>
+<p>For instance, an uncompressed 4K image (3840 × 2160) using a standard
+24-bit RGB format requires approximately 25 megabytes of contiguous RAM
+simply to hold the decoded pixel data. For an embedded device with only
+8 MB or 16 MB of available system memory, loading such an image causes
+immediate memory exhaustion.</p>
+<h2 id="how-avif-tile-based-decoding-works">How AVIF Tile-Based Decoding
+Works</h2>
+<p>AVIF inherits the tiling framework of the AV1 video codec. An image
+can be divided into a grid of independent rectangular sections called
+"tiles." Each tile contains its own compressed bitstream and spatial
+boundary data, allowing it to be decoded entirely independently of
+neighboring tiles.</p>
+<p>The decoder does not need to parse the entire compressed bitstream or
+maintain state dependencies across the whole canvas. Instead, it
+processes the image one tile at a time.</p>
+<h2 id="key-benefits-for-low-memory-hardware">Key Benefits for
+Low-Memory Hardware</h2>
+<h3 id="1-minimal-working-buffer-requirements">1. Minimal Working Buffer
+Requirements</h3>
+<p>With tile-based decoding, the maximum working memory required by the
+decoder is bounded by the size of an individual tile rather than the
+full image dimensions. If an image is split into 256 × 256 pixel tiles,
+the decoder only needs enough RAM to decompress a single 256 × 256 block
+at any given moment. This reduces the temporary decompression buffer
+from tens of megabytes to a few hundred kilobytes.</p>
+<h3 id="2-stream-to-display-rendering">2. Stream-to-Display
+Rendering</h3>
+<p>Embedded architectures often feature direct access to display
+interfaces (such as SPI, DPI, or MIPI DSI). Tile decoding enables a
+streaming pipeline where:</p>
+<ul>
+<li>A single tile is decoded in system RAM.</li>
+<li>The decoded pixel data is transferred directly to the display
+controller's hardware buffer or drawn directly onto the screen.</li>
+<li>The working RAM is cleared and reused for the next tile.</li>
+</ul>
+<p>This eliminates the need for an intermediate, full-canvas software
+framebuffer.</p>
+<h3 id="3-region-of-interest-roi-decoding">3. Region of Interest (ROI)
+Decoding</h3>
+<p>In embedded applications featuring zoomable user interfaces, map
+viewers, or small viewports (such as smartwatches), rendering an entire
+high-resolution asset is wasteful. Tile-based decoding enables the
+device to extract and decode only the tiles visible within the current
+viewport. Tiles outside the screen boundaries are ignored completely,
+saving processing cycles, memory, and battery power.</p>
+<h3 id="4-bounded-predictor-states">4. Bounded Predictor States</h3>
+<p>In standard spatial image compression, intra-frame prediction relies
+on neighboring reconstructed pixels, requiring decoders to keep pixel
+rows in memory across the entire width of an image. AVIF tiles reset
+intra-prediction at tile boundaries. This limits line-buffer overhead
+strictly to the width of the active tile, avoiding the memory cost of
+tracking global prediction states.</p>
+<h2 id="summary">Summary</h2>
+<p>Tile-based decoding in AVIF solves the fundamental memory limitations
+of embedded devices by decoupling image resolution from RAM
+requirements. By allowing small, independent blocks to be decoded
+sequentially or on demand, AVIF enables resource-constrained systems to
+leverage next-generation image compression without exceeding tight
+memory budgets.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

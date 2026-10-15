@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF irot Box: How Image Rotation Works - avif</title>
+    <meta name="description" content="This article explains how the AVIF image format uses the irot (Image Rotation) box to execute 90, 180, and 270-degree image rotations. Derived from the High Efficiency Image File Format (HEIF) and the ISO Base Media File Format (ISOBMFF) specifications, t">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-irot-box-how-image-rotation-works">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF irot Box: How Image Rotation Works - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-irot-box-how-image-rotation-works" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explains how the AVIF image format uses the irot (Image Rotation) box to execute 90, 180, and 270-degree image rotations. Derived from the High Efficiency Image File Format (HEIF) and the ISO Base Media File Format (ISOBMFF) specifications, t" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-irot-box-how-image-rotation-works">AVIF irot Box: How Image
+Rotation Works</h1>
+<p>This article explains how the AVIF image format uses the
+<code>irot</code> (Image Rotation) box to execute 90, 180, and
+270-degree image rotations. Derived from the High Efficiency Image File
+Format (HEIF) and the ISO Base Media File Format (ISOBMFF)
+specifications, the <code>irot</code> box provides a lightweight,
+non-destructive mechanism to specify display orientation using a compact
+2-bit field, eliminating the need to decode and re-encode compressed
+pixel data.</p>
+<h3 id="structure-of-the-irot-box">Structure of the <code>irot</code>
+Box</h3>
+<p>AVIF relies on ISOBMFF item properties to associate descriptive
+metadata with the primary image item. The <code>irot</code> box is
+defined as an essential or non-essential transformative item
+property.</p>
+<p>The box consists of a standard 8-byte ISOBMFF header followed by a
+single byte of payload:</p>
+<ul>
+<li><strong>Box Size:</strong> 4 bytes (standard box header)</li>
+<li><strong>Box Type:</strong> 4 bytes (ASCII characters
+<code>'irot'</code>)</li>
+<li><strong>Reserved Bits:</strong> 6 bits (must be set to
+<code>0</code>)</li>
+<li><strong>Angle Field:</strong> 2 bits (unsigned integer specifying
+rotation)</li>
+</ul>
+<h3 id="the-angle-field-values">The Angle Field Values</h3>
+<p>The ISO/IEC 23008-12 (HEIF) specification defines the 2-bit
+<code>angle</code> field as an anti-clockwise (counter-clockwise)
+rotation in units of 90 degrees. The mathematical formula applied to
+determine the rotation angle is:</p>
+<p><span class="math display">\[\text{Rotation Angle (Anti-Clockwise)} =
+\text{angle} \times 90^\circ\]</span></p>
+<p>The four possible binary states map directly to specific
+orientations:</p>
+<ul>
+<li><strong><code>0</code> (<code>00</code> in binary):</strong> <span
+class="math inline">\(0^\circ\)</span> rotation (original image
+orientation is preserved).</li>
+<li><strong><code>1</code> (<code>01</code> in binary):</strong> <span
+class="math inline">\(90^\circ\)</span> anti-clockwise rotation
+(equivalent to <span class="math inline">\(270^\circ\)</span> clockwise
+rotation).</li>
+<li><strong><code>2</code> (<code>10</code> in binary):</strong> <span
+class="math inline">\(180^\circ\)</span> anti-clockwise rotation
+(equivalent to <span class="math inline">\(180^\circ\)</span> clockwise
+rotation).</li>
+<li><strong><code>3</code> (<code>11</code> in binary):</strong> <span
+class="math inline">\(270^\circ\)</span> anti-clockwise rotation
+(equivalent to <span class="math inline">\(90^\circ\)</span> clockwise
+rotation).</li>
+</ul>
+<h3 id="processing-and-display-pipeline">Processing and Display
+Pipeline</h3>
+<p>When an AVIF decoder renders an image containing an <code>irot</code>
+property, it executes the following steps:</p>
+<ol type="1">
+<li><strong>Pixel Decoding:</strong> The decoder extracts and
+reconstructs the pixel grid from the AV1 image bitstream in its native
+stored orientation.</li>
+<li><strong>Transform Application:</strong> The rendering pipeline reads
+the <code>angle</code> value from the associated <code>irot</code> box
+in the <code>ipco</code> (Item Property Container) box.</li>
+<li><strong>Canvas Orientation:</strong> The image is rotated
+anti-clockwise by <span class="math inline">\(\text{angle} \times
+90^\circ\)</span> prior to final display. If the angle is 1 or 3, the
+display canvas automatically swaps the image width and height
+dimensions.</li>
+</ol>
+<h3 id="interaction-with-mirroring-imir">Interaction with Mirroring
+(<code>imir</code>)</h3>
+<p>If an image item includes both an <code>irot</code> box and an
+<code>imir</code> (Image Mirroring) box, the order of application is
+strictly determined by their association order in the <code>ipma</code>
+(Item Property Association) box. Renderers must apply properties
+sequentially as listed in the item association to ensure that composite
+transformations (such as flipping followed by rotation) render correctly
+across different decoding implementations.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

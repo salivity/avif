@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reading and Modifying AVIF Metadata with ExifTool - avif</title>
+    <meta name="description" content="Modern command-line utilities like ExifTool read and modify metadata in AV1 Image File Format (AVIF) files by parsing the structural hierarchy of the underlying ISO Base Media File Format (ISOBMFF). Rather than decoding the compressed AV1 visual payload,">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/reading-and-modifying-avif-metadata-with-exif-tool">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Reading and Modifying AVIF Metadata with ExifTool - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/reading-and-modifying-avif-metadata-with-exif-tool" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Modern command-line utilities like ExifTool read and modify metadata in AV1 Image File Format (AVIF) files by parsing the structural hierarchy of the underlying ISO Base Media File Format (ISOBMFF). Rather than decoding the compressed AV1 visual payload," />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="reading-and-modifying-avif-metadata-with-exiftool">Reading and
+Modifying AVIF Metadata with ExifTool</h1>
+<p>Modern command-line utilities like ExifTool read and modify metadata
+in AV1 Image File Format (AVIF) files by parsing the structural
+hierarchy of the underlying ISO Base Media File Format (ISOBMFF). Rather
+than decoding the compressed AV1 visual payload, these tools navigate
+nested structural data blocks known as "boxes" to extract, edit, and
+re-index embedded metadata payloads like Exif, XMP, and IPTC. This
+process involves locating data items via internal index tables,
+recalculating byte offsets when sizes change, and safely reconstructing
+the container without re-encoding the underlying image bitstream.</p>
+<h3 id="the-isobmff-structure-behind-avif">The ISOBMFF Structure Behind
+AVIF</h3>
+<p>AVIF does not store metadata as raw headers appended to the beginning
+of the file. Instead, it inherits the box-structured architecture
+defined by ISOBMFF and HEIF. Every block of data is preceded by a
+four-byte length header and a four-byte FourCC (Four-Character Code)
+label.</p>
+<p>The root of an AVIF file contains high-level structural boxes:</p>
+<ul>
+<li><code>ftyp</code> (File Type Box): Identifies the file brand and
+compatibility (e.g., <code>avif</code>, <code>mif1</code>).</li>
+<li><code>meta</code> (Item Metadata Box): Houses descriptive metadata,
+references, and item catalogs.</li>
+<li><code>mdat</code> (Media Data Box): Holds the raw binary data,
+including the AV1 image bitstream and sometimes raw metadata
+payloads.</li>
+</ul>
+<p>Within the <code>meta</code> box, two structural components are
+critical for metadata management: the Item Information Box
+(<code>iinf</code>) and the Item Location Box (<code>iloc</code>).</p>
+<h3 id="how-exiftool-reads-avif-metadata">How ExifTool Reads AVIF
+Metadata</h3>
+<p>To read metadata, ExifTool walks the box hierarchy to resolve item
+references:</p>
+<ol type="1">
+<li><strong>Scanning Item Types:</strong> ExifTool navigates into the
+<code>meta</code> box and locates <code>iinf</code>. Inside
+<code>iinf</code>, it inspects individual Item Info Entries
+(<code>infe</code>). Each entry registers an item ID and a specific
+type, such as <code>Exif</code> or <code>mime</code> (with a content
+type like <code>application/rdf+xml</code> for XMP).</li>
+<li><strong>Resolving Byte Offsets:</strong> Once an item ID associated
+with metadata is found, ExifTool cross-references that ID in the
+<code>iloc</code> box. The <code>iloc</code> box acts as a partition
+map, declaring the exact byte offset and byte length of the item's
+payload.</li>
+<li><strong>Extracting the Payload:</strong> ExifTool seeks directly to
+the specified byte offset—which points to a location inside an
+<code>idat</code> (Item Data Box) or the root <code>mdat</code> box—and
+reads the raw payload.</li>
+<li><strong>Parsing Metadata Blocks:</strong> Once extracted, ExifTool
+feeds the raw byte stream into its format-specific parsers. For example,
+it strips any format-specific prefixes (such as the standard 4-byte Exif
+header offset) and reads standard TIFF/Exif tags or parses XML
+serialization for XMP.</li>
+</ol>
+<h3 id="how-exiftool-modifies-avif-metadata">How ExifTool Modifies AVIF
+Metadata</h3>
+<p>Writing metadata to an AVIF file is more complex than reading because
+altering a metadata field often changes the total byte size of that
+block. In an offset-based container like ISOBMFF, changing a single
+byte's position breaks existing references across the entire file.</p>
+<p>To prevent data corruption, ExifTool uses an atomic rewrite
+process:</p>
+<ol type="1">
+<li><strong>Payload Serialization:</strong> ExifTool takes the updated
+metadata tags, serializes them into the target format (such as an
+updated Exif binary block or XMP XML packet), and prepares the new byte
+stream.</li>
+<li><strong>Container Reconstruction:</strong> ExifTool generates a new
+temporary file rather than modifying the original in-place. It copies
+unchanged boxes, such as <code>ftyp</code> and the image bitstream
+inside <code>mdat</code>.</li>
+<li><strong>Offset Recalculation:</strong> Because the size of the
+metadata has changed, all data residing downstream from the insertion
+point shifts. ExifTool recalculates all absolute and relative offsets
+for every referenced item (including the primary AV1 image frame) and
+updates the entries within the <code>iloc</code> box.</li>
+<li><strong>Box Header Adjustments:</strong> The size field at the
+beginning of every ancestor box—including <code>meta</code>,
+<code>mdat</code>, and any parent grouping boxes—is updated to reflect
+the new dimensions.</li>
+<li><strong>Safe Replacement:</strong> Once the new file passes
+container integrity checks, ExifTool replaces the original file on
+disk.</li>
+</ol>
+<h3 id="performance-and-data-integrity">Performance and Data
+Integrity</h3>
+<p>Because ExifTool treats the AV1 video frame within the
+<code>mdat</code> container as an opaque binary blob, metadata
+operations execute without decompressing or re-encoding visual data.
+This ensures zero generational quality loss, uses minimal CPU overhead,
+and keeps the operations fast enough for high-volume batch processing on
+the command line.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

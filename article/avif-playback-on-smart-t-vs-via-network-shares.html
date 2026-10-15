@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Playback on Smart TVs via Network Shares - avif</title>
+    <meta name="description" content="Smart television operating systems display mixed capabilities when handling AVIF (AV1 Image File Format) images over local network shares such as SMB, NFS, or DLNA/UPnP. Although AV1 hardware decoders are increasingly standard in modern smart TVs, the abi">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-playback-on-smart-t-vs-via-network-shares">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Playback on Smart TVs via Network Shares - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-playback-on-smart-t-vs-via-network-shares" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Smart television operating systems display mixed capabilities when handling AVIF (AV1 Image File Format) images over local network shares such as SMB, NFS, or DLNA/UPnP. Although AV1 hardware decoders are increasingly standard in modern smart TVs, the abi" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-playback-on-smart-tvs-via-network-shares">AVIF Playback on
+Smart TVs via Network Shares</h1>
+<p>Smart television operating systems display mixed capabilities when
+handling AVIF (AV1 Image File Format) images over local network shares
+such as SMB, NFS, or DLNA/UPnP. Although AV1 hardware decoders are
+increasingly standard in modern smart TVs, the ability to render static
+AVIF images over a network depends on the TV operating system's software
+stack, the native media player's container support, and the network
+protocol serving the file. Consequently, while some modern platforms
+handle AVIF files without friction, others require transcoding media
+servers or third-party client applications to display them.</p>
+<h3 id="hardware-decoding-vs-software-implementation">Hardware Decoding
+vs. Software Implementation</h3>
+<p>AVIF utilizes the compression algorithms of the AV1 video codec to
+deliver high-quality static images and image sequences at substantially
+lower file sizes than JPEG or PNG. Most 4K and 8K televisions released
+since 2020 include dedicated hardware AV1 decoders. However,
+hardware-level video decoding does not inherently grant still-image
+decoding. The television's operating system must explicitly integrate an
+AVIF image parser (such as <code>libavif</code>) into its
+image-rendering pipeline. Without this software layer, the native photo
+viewer will report the file as unsupported or corrupt, despite the
+hardware being technically capable of processing the underlying AV1
+bitstream.</p>
+<h3 id="operating-system-support-over-network-shares">Operating System
+Support Over Network Shares</h3>
+<h4 id="android-tv-and-google-tv">Android TV and Google TV</h4>
+<p>Android added system-level support for AVIF in Android 12. Devices
+running Android TV 12 or newer can natively parse AVIF files. However,
+the default media players pre-installed by TV manufacturers (such as
+Sony, Philips, or TCL) do not always index AVIF files when scanning
+network paths.</p>
+<p>To overcome native software limitations, Android TV users have the
+advantage of robust third-party app stores. Applications such as Kodi,
+VLC for Android, and Nova Video Player include their own decoding
+libraries and network clients. These apps bypass native OS limitations,
+connecting directly to SMB or NFS shares to decode and render AVIF files
+reliably.</p>
+<h4 id="lg-webos">LG webOS</h4>
+<p>LG webOS models equipped with AV1-capable processors can process AV1
+video streams, but native support for AVIF still images remains
+restricted. The default "Photos &amp; Video" app in webOS primarily
+indexes traditional image formats like JPEG, PNG, and MPO. When
+accessing local shares via SMB or UPnP/DLNA, webOS typically ignores
+files with the <code>.avif</code> extension. Because webOS restricts
+sideloading and lacks third-party image viewers with internal AVIF
+parsers, native direct playback over local network shares on LG TVs is
+largely unavailable.</p>
+<h4 id="samsung-tizen">Samsung Tizen</h4>
+<p>Similar to webOS, Samsung's Tizen platform features AV1 hardware
+decoding on modern sets but maintains limited native support for AVIF
+still images within its default media player. Browsing an SMB or USB
+share via Tizen's built-in file manager usually results in unrecognized
+file errors for <code>.avif</code> containers. Tizen's app ecosystem
+does not currently feature broad third-party image viewers that bundle
+standalone AVIF decoders.</p>
+<h3 id="the-impact-of-network-protocols-smb-vs-dlna">The Impact of
+Network Protocols: SMB vs. DLNA</h3>
+<p>The network protocol used to share images fundamentally changes how
+smart TVs process AVIF files:</p>
+<ul>
+<li><strong>SMB and NFS (Direct File Access):</strong> When a TV
+accesses a file share via Server Message Block (SMB) or Network File
+System (NFS), it reads the raw file directly. In this scenario, playback
+success depends entirely on the TV client's internal software parser. If
+the app supports AVIF, the image loads; if not, it fails.</li>
+<li><strong>DLNA and UPnP (Server-Mediated Streaming):</strong> DLNA
+relies on a server-client handshake where the server advertises media
+profiles using specific MIME types (e.g., <code>image/avif</code>). Most
+older DLNA servers do not recognize the AVIF MIME type and fail to serve
+the file altogether. Even if recognized, the DLNA client on the TV must
+declare to the server that it supports AVIF. If the TV does not declare
+this capability, the server will either hide the file or attempt to
+transcode it on the fly into a baseline JPEG.</li>
+</ul>
+<h3 id="recommended-workarounds-for-unsupported-tvs">Recommended
+Workarounds for Unsupported TVs</h3>
+<p>For smart TVs running webOS, Tizen, or older Android TV builds that
+cannot natively render AVIF files over network shares, two primary
+solutions exist:</p>
+<ol type="1">
+<li><strong>Media Servers with On-the-Fly Transcoding:</strong> Running
+media servers like Plex, Jellyfin, or Emby on the host network allows
+AVIF files to be converted to compatible formats (such as JPEG or WebP)
+before they reach the television, preserving viewability without
+requiring manual batch conversion.</li>
+<li><strong>Dedicated External Streaming Devices:</strong> Using
+external streaming hardware running open platforms (such as an Apple TV
+4K running tvOS 16+, or a modern Android TV streaming box) ensures
+broader codec and container support via specialized media apps,
+circumventing the native software bottlenecks of the TV panel
+itself.</li>
+</ol></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF tune=ssim Quantization Decisions Explained - avif</title>
+    <meta name="description" content="The tune=ssim parameter in AVIF encoding shifts the encoder&#39;s internal decision-making away from raw mathematical error minimization toward structural fidelity preservation. In an AVIF pipeline—typically powered by underlying AV1 encoders like libaom or S">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-tune-ssim-quantization-decisions-explained">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF tune=ssim Quantization Decisions Explained - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-tune-ssim-quantization-decisions-explained" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The tune=ssim parameter in AVIF encoding shifts the encoder&#39;s internal decision-making away from raw mathematical error minimization toward structural fidelity preservation. In an AVIF pipeline—typically powered by underlying AV1 encoders like libaom or S" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-tunessim-quantization-decisions-explained">AVIF tune=ssim
+Quantization Decisions Explained</h1>
+<p>The <code>tune=ssim</code> parameter in AVIF encoding shifts the
+encoder's internal decision-making away from raw mathematical error
+minimization toward structural fidelity preservation. In an AVIF
+pipeline—typically powered by underlying AV1 encoders like libaom or
+SVT-AV1—this tuning directly alters quantization by modifying
+block-level delta quantization parameters (Delta-QP), re-weighting
+distortion calculations during rate-distortion optimization (RDO), and
+adjusting coefficient thresholding. Rather than treating all pixel
+errors equally, the encoder redistributes quantization coarse-graining
+to regions where the human visual system, modeled by the Structural
+Similarity (SSIM) index, is least sensitive to degradation.</p>
+<h3 id="shifting-the-optimization-metric-away-from-mse">Shifting the
+Optimization Metric Away from MSE</h3>
+<p>By default, AV1 encoders often tune for Mean Squared Error (MSE) or
+traditional Peak Signal-to-Noise Ratio (PSNR). MSE computes distortion
+simply as the squared difference between the source and compressed pixel
+values. Under MSE-based quantization, the encoder treats a single pixel
+error in a high-contrast edge the same as an error in a flat,
+solid-color gradient.</p>
+<p>Enabling <code>tune=ssim</code> replaces or augments the MSE
+distortion calculation with an SSIM-derived metric during
+rate-distortion evaluation:</p>
+<p><span class="math display">\[J = D_{\text{SSIM}} + \lambda
+R\]</span></p>
+<p>Where <span class="math inline">\(D_{\text{SSIM}}\)</span> reflects
+loss of structural similarity, luminance degradation, and contrast
+distortion, <span class="math inline">\(\lambda\)</span> is the Lagrange
+multiplier, and <span class="math inline">\(R\)</span> represents the
+bit cost. Because the derivative of SSIM with respect to error varies
+depending on local variance, the cost of quantization errors changes
+dynamically based on image context.</p>
+<h3 id="dynamic-delta-qp-allocation-via-spatial-masking">Dynamic
+Delta-QP Allocation via Spatial Masking</h3>
+<p>One of the most significant changes <code>tune=ssim</code> introduces
+is the localized adjustment of quantization step sizes across
+macroblocks or coding units (Delta-QP).</p>
+<ul>
+<li><strong>Smooth and Flat Regions:</strong> Flat regions, such as
+clear skies or subtle skin tones, produce low variance. In these areas,
+SSIM penalizes artifacts heavily because any structural distortion
+drastically degrades the similarity score. Consequently,
+<code>tune=ssim</code> drives Delta-QP lower in flat areas, assigning
+finer quantization steps. This directly mitigates banding (contouring)
+and blocking artifacts common to standard AVIF compression.</li>
+<li><strong>Complex Textures and Edges:</strong> In high-variance areas
+with dense detail (such as grass, gravel, or foliage), human visual
+perception experiences visual masking. SSIM recognizes that structural
+degradation in these regions is less perceptually noticeable. The
+encoder responds by increasing the quantization parameter (higher QP)
+for these blocks, applying coarser quantization to save bits.</li>
+</ul>
+<h3 id="trellis-quantization-and-coefficient-thresholding">Trellis
+Quantization and Coefficient Thresholding</h3>
+<p>Quantization in AVIF does not simply divide frequency coefficients by
+a matrix; it relies heavily on Trellis Quantization (or rate-distortion
+optimized quantization). During this phase, the encoder evaluates
+whether rounding transform coefficients up, down, or entirely to zero
+optimizes the rate-distortion trade-off.</p>
+<p>Under <code>tune=ssim</code>, the penalty for dropping high-frequency
+AC coefficients in textured areas is lower than under MSE tuning. The
+encoder aggressively zeros out high-frequency coefficients that
+contribute minimally to the structural composition of the frame,
+yielding a substantial reduction in bitstream size. Conversely,
+low-frequency AC coefficients and DC coefficients responsible for
+fundamental luminance and coarse structural outlines receive stronger
+protection during thresholding.</p>
+<h3 id="practical-impact-on-avif-outputs">Practical Impact on AVIF
+Outputs</h3>
+<p>The modifications to quantization under <code>tune=ssim</code>
+produce noticeable differences in the final AVIF image:</p>
+<ol type="1">
+<li><strong>Reduction in Ringing and Banding:</strong> Because smooth
+transitions receive lower quantization parameters, gradient banding is
+significantly curtailed without needing to lower the global QP for the
+entire image.</li>
+<li><strong>Selective Softening:</strong> Fine, chaotic noise (such as
+subtle film grain) is often quantized out because the encoder classifies
+high-frequency variance as maskable texture rather than key structural
+information.</li>
+<li><strong>Optimized Bitrate Efficiency:</strong> By taking bits away
+from busy textures and allocating them exclusively to structurally
+sensitive flat areas, <code>tune=ssim</code> yields higher visual
+fidelity per byte, matching perceptual human judgment more closely than
+standard mathematical error metrics.</li>
+</ol></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

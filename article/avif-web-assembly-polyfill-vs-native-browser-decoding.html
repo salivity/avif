@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF WebAssembly Polyfill vs Native Browser Decoding - avif</title>
+    <meta name="description" content="Evaluating image delivery performance requires understanding the significant gap between WebAssembly (Wasm) AVIF polyfills and native browser decoding. While a Wasm polyfill enables backward compatibility for browsers lacking native AVIF support, it intro">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-web-assembly-polyfill-vs-native-browser-decoding">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF WebAssembly Polyfill vs Native Browser Decoding - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-web-assembly-polyfill-vs-native-browser-decoding" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Evaluating image delivery performance requires understanding the significant gap between WebAssembly (Wasm) AVIF polyfills and native browser decoding. While a Wasm polyfill enables backward compatibility for browsers lacking native AVIF support, it intro" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-webassembly-polyfill-vs-native-browser-decoding">AVIF
+WebAssembly Polyfill vs Native Browser Decoding</h1>
+<p>Evaluating image delivery performance requires understanding the
+significant gap between WebAssembly (Wasm) AVIF polyfills and native
+browser decoding. While a Wasm polyfill enables backward compatibility
+for browsers lacking native AVIF support, it introduces substantial
+network, memory, and CPU overhead that slows down total page load times.
+In contrast, native browser decoding processes AVIF images directly
+through optimized internal pipelines, yielding vastly superior rendering
+speeds and lower Largest Contentful Paint (LCP) metrics.</p>
+<h3 id="network-transfer-overhead">Network Transfer Overhead</h3>
+<p>Native decoding requires only the image file itself to be fetched.
+When the browser encounters an <code>&lt;img&gt;</code> tag or CSS
+background with an AVIF source, it streams the bytes straight to the
+internal decoder.</p>
+<p>A WebAssembly polyfill imposes a heavy network tax before decoding
+can even start:</p>
+<ul>
+<li><strong>Binary Payloads:</strong> The client must download the
+JavaScript loader script along with the compiled Wasm binary (typically
+100 KB to 300 KB compressed).</li>
+<li><strong>Render Blocking:</strong> On slower connections, loading
+this auxiliary code delays the initial decode phase, directly penalizing
+Core Web Vitals.</li>
+<li><strong>Double Fetching:</strong> Depending on implementation,
+polyfills may intercept requests, sometimes leading to redundant fetches
+or delayed asset discovery by the browser's preload scanner.</li>
+</ul>
+<h3 id="decoding-speed-and-execution">Decoding Speed and Execution</h3>
+<p>Once the assets are downloaded, the raw decoding throughput differs
+drastically:</p>
+<ul>
+<li><strong>Native Execution:</strong> Browsers utilize native libraries
+(such as <code>libgav1</code> or <code>dav1d</code>) compiled directly
+into the platform binary. These decoders fully exploit platform-specific
+CPU features, advanced SIMD vectorization, and multi-core threading
+without sandbox limitations. As a result, native decoding can process
+frames in a fraction of a millisecond to a few milliseconds.</li>
+<li><strong>WebAssembly Polyfills:</strong> Although Wasm executes at
+near-native speeds for many computational tasks, an AVIF decoder inside
+Wasm faces several bottlenecks. Single-threaded Wasm implementations can
+be 5 to 15 times slower than native decoders. Even with Wasm SIMD and
+Web Workers enabled, the sandbox overhead and memory boundary crossings
+significantly degrade throughput.</li>
+</ul>
+<h3 id="threading-and-main-thread-impact">Threading and Main Thread
+Impact</h3>
+<p>Native image decoding occurs completely off the main thread within
+the browser's dedicated image decoding pipeline. Native decoders push
+the decoded bitmap directly to the compositor, preventing UI frame drops
+and input latency.</p>
+<p>Polyfills generally manage execution in one of two ways:</p>
+<ol type="1">
+<li><strong>Main Thread Decoding:</strong> Directly running the Wasm
+binary on the main thread locks the UI, causing noticeable scroll
+stutter, layout jank, and poor Interaction to Next Paint (INP).</li>
+<li><strong>Web Worker Offloading:</strong> Decoding in a Web Worker
+avoids blocking the main thread during computation. However,
+transferring the resulting raw pixel array (ImageData) back to the main
+thread via <code>postMessage</code> creates a memory allocation and
+copying overhead. The image must then be rendered to an HTML
+<code>&lt;canvas&gt;</code> or converted to a Blob URL, both of which
+require additional CPU cycles.</li>
+</ol>
+<h3 id="load-time-and-paint-metrics-comparison">Load Time and Paint
+Metrics Comparison</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Metric / Attribute</th>
+<th style="text-align: left;">Native AVIF Decoding</th>
+<th style="text-align: left;">WebAssembly AVIF Polyfill</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Prerequisite Assets</strong></td>
+<td style="text-align: left;">0 KB (Built-in)</td>
+<td style="text-align: left;">100 KB – 300 KB (JS + Wasm)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Decode Latency</strong></td>
+<td style="text-align: left;">Low (Optimized C/Rust + SIMD)</td>
+<td style="text-align: left;">High (Wasm sandbox execution)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Main Thread Impact</strong></td>
+<td style="text-align: left;">None (Handled by browser engine)</td>
+<td style="text-align: left;">Moderate to High (Transfers/Canvas
+draws)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Largest Contentful Paint
+(LCP)</strong></td>
+<td style="text-align: left;">Fast</td>
+<td style="text-align: left;">Delayed by script execution</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Memory Consumption</strong></td>
+<td style="text-align: left;">Minimal (Engine-managed cache)</td>
+<td style="text-align: left;">High (Multiple raw pixel buffer
+copies)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="practical-conclusion">Practical Conclusion</h3>
+<p>Relying on a WebAssembly AVIF polyfill negates the primary benefit of
+the AVIF format: faster page loads achieved through smaller file sizes.
+The bandwidth saved by AVIF's superior compression is often entirely
+erased by the size of the Wasm binary and the delay of software-based
+decoding.</p>
+<p>The optimal approach is to rely on native content negotiation using
+the HTML <code>&lt;picture&gt;</code> element with
+<code>&lt;source type="image/avif"&gt;</code> and fall back to native
+WebP or JPEG for older browsers, avoiding polyfills entirely for
+standard web performance optimization.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

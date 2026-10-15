@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How libavif Encodes and Decodes AVIF Images - avif</title>
+    <meta name="description" content="The open-source libavif library is the official reference implementation for the AV1 Image File Format (AVIF), providing developers with a portable, C-based toolkit for reading and writing AVIF files. Rather than reinventing the wheel, libavif acts as an">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-libavif-encodes-and-decodes-avif-images">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How libavif Encodes and Decodes AVIF Images - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-libavif-encodes-and-decodes-avif-images" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The open-source libavif library is the official reference implementation for the AV1 Image File Format (AVIF), providing developers with a portable, C-based toolkit for reading and writing AVIF files. Rather than reinventing the wheel, libavif acts as an" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-libavif-encodes-and-decodes-avif-images">How libavif Encodes
+and Decodes AVIF Images</h1>
+<p>The open-source <code>libavif</code> library is the official
+reference implementation for the AV1 Image File Format (AVIF), providing
+developers with a portable, C-based toolkit for reading and writing AVIF
+files. Rather than reinventing the wheel, <code>libavif</code> acts as
+an intermediary layer that pairs AV1 video compression engines with the
+ISO Base Media File Format (ISOBMFF) container structure. By abstracting
+the complexities of bitstream parsing, chroma subsampling, metadata
+management, and color transformations, the library allows software
+applications to seamlessly convert raw pixel data into compressed AVIF
+images and reconstruct them back into displayable formats.</p>
+<h3 id="architecture-and-codec-abstraction">Architecture and Codec
+Abstraction</h3>
+<p>At its core, <code>libavif</code> is a container parser and
+multiplexer rather than a standalone image compressor. AVIF relies on
+AV1 video compression frames encapsulated in a HEIF/ISOBMFF container.
+To handle the actual heavy lifting of raw pixel compression and
+decompression, <code>libavif</code> relies on external AV1 codecs
+through an abstraction layer.</p>
+<ul>
+<li><strong>Supported Encoders:</strong> It can interface with libraries
+such as <code>libaom</code> (the reference AV1 encoder),
+<code>rav1e</code> (a fast, memory-safe Rust encoder), and
+<code>SVT-AV1</code> (a highly scalable, multi-threaded encoder).</li>
+<li><strong>Supported Decoders:</strong> It predominantly uses
+<code>dav1d</code> (optimized for speed and low memory usage),
+<code>libgav1</code>, or <code>libaom</code>.</li>
+</ul>
+<p>Developers can compile <code>libavif</code> with one or more of these
+backend codecs enabled, and the library automatically selects the best
+available engine or allows the user to specify a preferred backend at
+runtime.</p>
+<h3 id="the-encoding-workflow">The Encoding Workflow</h3>
+<p>Encoding an image with <code>libavif</code> involves taking
+uncompressed image buffers and transforming them into a
+standard-compliant <code>.avif</code> file through several distinct
+stages:</p>
+<ol type="1">
+<li><strong>Pixel Ingestion and Color Conversion:</strong> The input
+data—typically RGB or RGBA—is converted into the YUV color space. The
+library supports various chroma subsampling modes, including 4:4:4 (full
+resolution), 4:2:2, and 4:2:0 (standard color compression), as well as
+monochrome.</li>
+<li><strong>Channel Separation:</strong> If the input image contains an
+alpha channel (transparency), <code>libavif</code> separates the alpha
+plane from the color planes. The primary color payload and the alpha
+channel are encoded as two distinct AV1 bitstreams to maintain
+compliance with the AVIF specification.</li>
+<li><strong>AV1 Frame Compression:</strong> The library configures the
+underlying AV1 encoder with parameters such as quality factor, speed
+preset, tile configurations, and bit depth (8, 10, or 12 bits). The
+encoder processes the YUV and alpha frames, outputting compressed AV1
+temporal units.</li>
+<li><strong>ISOBMFF Multiplexing:</strong> <code>libavif</code> packs
+the compressed bitstreams into the ISOBMFF container. It creates the
+required box hierarchy (such as <code>ftyp</code>, <code>meta</code>,
+<code>hdlr</code>, and <code>iloc</code>), links the alpha item as an
+auxiliary image to the primary color item, and embeds metadata like ICC
+profiles, Exif, and XMP payloads directly into container boxes.</li>
+</ol>
+<h3 id="the-decoding-workflow">The Decoding Workflow</h3>
+<p>Decoding operates in reverse, reading the container format and
+rendering raw pixel arrays for application use:</p>
+<ol type="1">
+<li><strong>Container Parsing:</strong> When an AVIF file is fed into
+<code>libavif</code>, the parser inspects the container headers,
+identifies the primary image item, discovers associated alpha or depth
+auxiliary items, and extracts image dimensions, bit depth, and color
+profile information (CICP or ICC).</li>
+<li><strong>Bitstream Extraction:</strong> The library locates the raw
+AV1 chunks within the media data boxes (<code>mdat</code>) and passes
+the primary color bitstream to the configured decoder (such as
+<code>dav1d</code>). If an auxiliary alpha channel exists, it is sent to
+the decoder concurrently or sequentially.</li>
+<li><strong>Reconstruction and Post-Processing:</strong> The decoder
+outputs raw YUV and alpha planes. <code>libavif</code> recombines these
+planes, performs YUV-to-RGB conversion according to the embedded color
+matrix, applies any required spatial transformations (such as rotation
+or mirroring specified in the container metadata), and outputs a final
+RGB/RGBA buffer.</li>
+</ol>
+<h3 id="advanced-feature-handling">Advanced Feature Handling</h3>
+<p>Beyond basic single-frame operations, <code>libavif</code>
+facilitates advanced media handling:</p>
+<ul>
+<li><strong>High Dynamic Range (HDR):</strong> It supports 10- and
+12-bit color pipelines, alongside SMPTE ST 2084 (PQ) and Hybrid
+Log-Gamma (HLG) transfer characteristics.</li>
+<li><strong>Image Grids:</strong> Large images can be split into a grid
+of smaller tiles, encoded independently, and assembled by the container.
+This enables parallelized encoding and low-memory decoding on
+resource-constrained devices.</li>
+<li><strong>Image Sequences:</strong> <code>libavif</code> handles
+animated AVIF files by encoding frames over a temporal timeline,
+utilizing native AV1 inter-frame prediction to drastically reduce file
+sizes compared to animated GIFs or WebP.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Metadata Stripping: Average File Size Savings - avif</title>
+    <meta name="description" content="Stripping non-essential metadata from AVIF images typically yields an average file size reduction of 10% to 30%, with extreme cases for small images reaching over 50%. Because the AVIF format compresses visual data far more efficiently than legacy formats">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-metadata-stripping-average-file-size-savings">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Metadata Stripping: Average File Size Savings - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-metadata-stripping-average-file-size-savings" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Stripping non-essential metadata from AVIF images typically yields an average file size reduction of 10% to 30%, with extreme cases for small images reaching over 50%. Because the AVIF format compresses visual data far more efficiently than legacy formats" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-metadata-stripping-average-file-size-savings">AVIF Metadata
+Stripping: Average File Size Savings</h1>
+<p>Stripping non-essential metadata from AVIF images typically yields an
+average file size reduction of 10% to 30%, with extreme cases for small
+images reaching over 50%. Because the AVIF format compresses visual data
+far more efficiently than legacy formats like JPEG or WebP, auxiliary
+data such as EXIF, XMP, and embedded thumbnails make up a
+disproportionately large share of the final file footprint. This guide
+breaks down the quantitative savings of removing metadata from AVIF
+files and why it matters for web performance.</p>
+<h3 id="average-reduction-percentages-and-absolute-savings">Average
+Reduction Percentages and Absolute Savings</h3>
+<p>The exact reduction depends heavily on the initial resolution and
+visual complexity of the image:</p>
+<ul>
+<li><strong>Small Web Images (under 50 KB):</strong> Stripping metadata
+typically reduces file sizes by <strong>20% to 50%</strong>. In these
+assets, the image data might only take 10 KB to 20 KB, while camera
+metadata and editing histories take 5 KB to 15 KB.</li>
+<li><strong>Medium Web Images (50 KB to 200 KB):</strong> Typical
+savings range between <strong>10% and 20%</strong>.</li>
+<li><strong>Large Photographic Images (above 200 KB):</strong> Savings
+generally normalize between <strong>2% and 8%</strong>, as the primary
+image payload outweighs the metadata payload.</li>
+</ul>
+<p>In absolute numbers, removing non-essential metadata routinely sheds
+between <strong>2 KB and 30 KB</strong> per image. If an embedded
+preview thumbnail or extensive Adobe Photoshop XMP data is present,
+savings can exceed <strong>100 KB</strong>.</p>
+<h3 id="why-metadata-has-a-larger-impact-on-avif">Why Metadata Has a
+Larger Impact on AVIF</h3>
+<p>In traditional formats like JPEG, metadata usually accounts for a
+negligible fraction (often 1% to 3%) of an unoptimized 2 MB photo.</p>
+<p>However, when that same image is compressed into AVIF, modern AV1
+intra-frame coding techniques shrink the visual payload by up to 80% to
+90%. Because metadata tags—such as text strings, GPS coordinates, camera
+configurations, and application histories—do not benefit from AV1 visual
+compression algorithms, they remain static in size. Consequently,
+metadata can unexpectedly comprise a massive portion of the overall AVIF
+file size if left intact.</p>
+<h3 id="common-types-of-metadata-removed">Common Types of Metadata
+Removed</h3>
+<ol type="1">
+<li><strong>EXIF Data:</strong> Camera settings, shutter speed, focal
+length, timestamps, and GPS coordinates. Removing this typically saves 2
+KB to 6 KB and protects user privacy.</li>
+<li><strong>XMP and IPTC Data:</strong> Application history, licensing
+details, and editing steps recorded by photo editing software. Complex
+editing histories can consume anywhere from 5 KB to 50 KB.</li>
+<li><strong>Embedded Thumbnails:</strong> Camera-generated JPEG previews
+embedded inside the EXIF block. Removing these often saves 10 KB to 25
+KB.</li>
+<li><strong>Non-Essential ICC Color Profiles:</strong> Full ICC profiles
+can consume 3 KB to 10 KB. Replacing a full profile with standard NCLX
+color signaling (sRGB or Display P3) embedded directly in the AVIF
+bitstream saves space without compromising browser rendering.</li>
+</ol>
+<h3 id="practical-implementation">Practical Implementation</h3>
+<p>To maximize the bandwidth advantages of AVIF for production use,
+processing pipelines should explicitly strip all ancillary chunks while
+preserving only critical colorimetry tags. Command-line tools like
+<code>avifenc</code> (using the <code>--strip</code> flag) or image
+processors like Sharp and ImageMagick automatically drop these payloads
+during encoding, ensuring minimum byte delivery with zero visual quality
+loss.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

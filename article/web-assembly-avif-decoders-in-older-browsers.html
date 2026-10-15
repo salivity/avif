@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebAssembly AVIF Decoders in Older Browsers - avif</title>
+    <meta name="description" content="Using WebAssembly (Wasm) to decode AVIF images in legacy browsers enables modern image compression support where native decoding is absent. However, this polyfill strategy introduces major technical trade-offs. Older browsers often lack the necessary brow">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/web-assembly-avif-decoders-in-older-browsers">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="WebAssembly AVIF Decoders in Older Browsers - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/web-assembly-avif-decoders-in-older-browsers" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Using WebAssembly (Wasm) to decode AVIF images in legacy browsers enables modern image compression support where native decoding is absent. However, this polyfill strategy introduces major technical trade-offs. Older browsers often lack the necessary brow" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="webassembly-avif-decoders-in-older-browsers">WebAssembly AVIF
+Decoders in Older Browsers</h1>
+<p>Using WebAssembly (Wasm) to decode AVIF images in legacy browsers
+enables modern image compression support where native decoding is
+absent. However, this polyfill strategy introduces major technical
+trade-offs. Older browsers often lack the necessary browser APIs and
+WebAssembly extensions required for efficient software decoding, leading
+to severe performance bottlenecks, high memory consumption, and degraded
+user experience.</p>
+<h3 id="lack-of-baseline-webassembly-support">Lack of Baseline
+WebAssembly Support</h3>
+<p>Browsers released before 2017—such as Internet Explorer 11 and older
+mobile browsers—do not support WebAssembly natively. In these
+environments, a Wasm-based AVIF decoder cannot run at all unless
+compiled down to asm.js, a fallback that is significantly slower, larger
+in file size, and often impractical for production environments.</p>
+<h3 id="absence-of-simd-and-multithreading">Absence of SIMD and
+Multithreading</h3>
+<p>Modern software-based AVIF decoding relies heavily on two WebAssembly
+extensions to achieve acceptable speeds:</p>
+<ul>
+<li><strong>WebAssembly SIMD (Single Instruction, Multiple
+Data):</strong> Vectorizes arithmetic operations, drastically reducing
+the time needed to decompress AV1 video frames.</li>
+<li><strong>Web Workers and SharedArrayBuffer:</strong> Enables
+multi-threaded decoding across multiple CPU cores.</li>
+</ul>
+<p>Older browsers with early WebAssembly implementations lack support
+for Wasm SIMD and cross-origin isolated <code>SharedArrayBuffer</code>
+instances. Without these capabilities, decoders are forced to run in
+single-threaded scalar mode, resulting in decoding times that can be up
+to ten times slower than native decoding.</p>
+<h3 id="main-thread-contention-and-layout-delay">Main Thread Contention
+and Layout Delay</h3>
+<p>When images are decoded natively by the browser, decompression occurs
+asynchronously off the main thread with optimized platform pipelines. In
+contrast, running a Wasm decoder requires JavaScript intervention to
+fetch the binary, pass the image buffer to the Wasm instance, and draw
+the resulting pixel data onto an HTML5 <code>&lt;canvas&gt;</code> or
+convert it into a Blob URL. If workers are unsupported or misconfigured,
+this computation runs on the main thread, causing interface freezes,
+high Total Blocking Time (TBT), and poor Largest Contentful Paint (LCP)
+scores.</p>
+<h3 id="memory-overhead-and-resource-leaks">Memory Overhead and Resource
+Leaks</h3>
+<p>Decompressing high-resolution AVIF files requires allocating raw RGBA
+pixel arrays in the WebAssembly linear memory space before rendering.
+Older devices running outdated browsers typically operate under tight
+memory constraints. The memory footprint of the Wasm module itself,
+combined with large intermediate buffers, can trigger out-of-memory
+crashes on low-end mobile devices and legacy operating systems.</p>
+<h3 id="bundle-size-and-network-overhead">Bundle Size and Network
+Overhead</h3>
+<p>Using a client-side decoder requires downloading both the JavaScript
+glue code and the compiled WebAssembly binary (such as a compiled
+version of <code>libavif</code> or <code>dav1d</code>) before any images
+can be displayed. This payload often ranges from 150 KB to over 500 KB
+compressed. For pages with few images, the network overhead of fetching
+the decoder often exceeds the bandwidth saved by using AVIF over legacy
+formats like WebP or JPEG.</p>
+<h3 id="increased-battery-consumption">Increased Battery
+Consumption</h3>
+<p>Hardware acceleration is unavailable to WebAssembly decoders. Relying
+entirely on software CPU decoding for image rendering causes extended
+spikes in CPU usage, which drains device battery rapidly—especially on
+older, less power-efficient hardware.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

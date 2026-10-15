@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How AVIF Handles HDR Imagery Compared to SDR Formats - avif</title>
+    <meta name="description" content="The AV1 Image File Format (AVIF) represents a generational leap in digital imaging by natively supporting High Dynamic Range (HDR) workflows that traditional Standard Dynamic Range (SDR) formats cannot match. Utilizing compression technology derived from">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-avif-handles-hdr-imagery-compared-to-sdr-formats">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How AVIF Handles HDR Imagery Compared to SDR Formats - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-avif-handles-hdr-imagery-compared-to-sdr-formats" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The AV1 Image File Format (AVIF) represents a generational leap in digital imaging by natively supporting High Dynamic Range (HDR) workflows that traditional Standard Dynamic Range (SDR) formats cannot match. Utilizing compression technology derived from" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-avif-handles-hdr-imagery-compared-to-sdr-formats">How AVIF
+Handles HDR Imagery Compared to SDR Formats</h1>
+<p>The AV1 Image File Format (AVIF) represents a generational leap in
+digital imaging by natively supporting High Dynamic Range (HDR)
+workflows that traditional Standard Dynamic Range (SDR) formats cannot
+match. Utilizing compression technology derived from the AV1 video
+codec, AVIF handles high peak brightness, deep black levels, and wide
+color gamuts by implementing 10-bit and 12-bit color depths along with
+modern transfer functions like PQ and HLG. Compared to legacy SDR
+formats such as standard JPEG and WebP—which are constrained by 8-bit
+limits and narrow color spaces—AVIF preserves realistic luminance and
+fine color gradients while maintaining remarkably low file sizes.</p>
+<h3 id="bit-depth-and-gradient-precision">Bit Depth and Gradient
+Precision</h3>
+<p>Standard SDR formats like JPEG and WebP are typically restricted to
+an 8-bit color depth per channel. This limits each pixel to 256 values
+per color channel (roughly 16.7 million possible colors). When rendering
+scenes with extreme brightness or subtle gradations—such as sunsets or
+shadows—8-bit formats frequently suffer from posterization and visible
+color banding.</p>
+<p>AVIF natively supports both 10-bit and 12-bit color depths. A 10-bit
+depth provides 1,024 values per channel (over 1 billion colors), while
+12-bit offers 4,096 values per channel. This exponentially larger
+numerical range allows AVIF to capture the broad brightness spectrum
+required for HDR without introducing banding artifacts or losing detail
+in dark and bright extremes.</p>
+<h3
+id="electro-optical-transfer-functions-gamma-vs-pq-and-hlg">Electro-Optical
+Transfer Functions: Gamma vs. PQ and HLG</h3>
+<p>SDR formats rely on conventional gamma curves (such as sRGB)
+originally designed for cathode-ray tube (CRT) monitors. These curves
+assume a maximum display brightness of around 100 nits, discarding
+highlight and shadow data beyond this narrow range.</p>
+<p>AVIF integrates modern Electro-Optical Transfer Functions (EOTFs)
+specified by the ITU-R BT.2100 standard:</p>
+<ul>
+<li><strong>Perceptual Quantizer (PQ / SMPTE ST 2084):</strong> Designed
+to match human visual perception across a luminance range reaching up to
+10,000 nits. This allows AVIF to encode intense specular highlights—such
+as reflections on chrome or direct sunlight—alongside deep shadow
+details.</li>
+<li><strong>Hybrid Log-Gamma (HLG):</strong> A curve that offers
+backward compatibility with SDR displays while providing expanded
+dynamic range on supported HDR screens.</li>
+</ul>
+<h3 id="wide-color-gamut-wcg-support">Wide Color Gamut (WCG)
+Support</h3>
+<p>Most SDR images are bound to the Rec. 709 / sRGB color space, which
+represents only about 35% of the colors the human eye can perceive.</p>
+<p>AVIF features full support for wide color gamuts, notably DCI-P3 and
+BT.2020. BT.2020 covers approximately 75% of the visible spectrum.
+Because HDR requires both high luminance and rich, saturated colors at
+extreme brightness levels, AVIF’s native support for these broad color
+profiles ensures that bright highlights retain their true color rather
+than blowing out into pure white.</p>
+<h3 id="tone-mapping-and-auxiliary-gain-maps">Tone Mapping and Auxiliary
+Gain Maps</h3>
+<p>To manage differences in display capabilities, AVIF supports HDR
+metadata detailing mastering display color volumes (MDCV) and content
+light levels (CLL). This informs the rendering device precisely how to
+tone-map the image according to the screen’s maximum luminance.</p>
+<p>Additionally, AVIF supports multi-layer architectures and auxiliary
+gain maps (such as the ISO 21496-1 standard). In this approach, a
+baseline SDR image is paired with a lightweight monochrome or color gain
+map within a single AVIF file. Standard displays render the baseline SDR
+layer without distortion, while HDR-compatible displays use the gain map
+to scale the brightness and color up to full HDR, solving the
+cross-platform backward compatibility problem that previously hindered
+HDR image adoption.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How CAVIF Optimizes Encoding for High-Quality AVIF - avif</title>
+    <meta name="description" content="The CAVIF tool is an open-source, command-line encoder designed to generate highly compressed AVIF images without sacrificing visual fidelity. By acting as a specialized wrapper around the rav1e AV1 video encoder, CAVIF translates complex AV1 video parame">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-cavif-optimizes-encoding-for-high-quality-avif">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How CAVIF Optimizes Encoding for High-Quality AVIF - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-cavif-optimizes-encoding-for-high-quality-avif" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The CAVIF tool is an open-source, command-line encoder designed to generate highly compressed AVIF images without sacrificing visual fidelity. By acting as a specialized wrapper around the rav1e AV1 video encoder, CAVIF translates complex AV1 video parame" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-cavif-optimizes-encoding-for-high-quality-avif">How CAVIF
+Optimizes Encoding for High-Quality AVIF</h1>
+<p>The CAVIF tool is an open-source, command-line encoder designed to
+generate highly compressed AVIF images without sacrificing visual
+fidelity. By acting as a specialized wrapper around the
+<code>rav1e</code> AV1 video encoder, CAVIF translates complex AV1 video
+parameters into optimized, still-image-specific configurations. This
+article explores the internal mechanisms CAVIF uses to automate
+quantization, manage chroma subsampling, balance encoding speed against
+compression density, and isolate transparency channels to produce
+high-quality AVIF outputs.</p>
+<h3 id="still-image-tuning-via-rav1e">Still-Image Tuning via rav1e</h3>
+<p>Unlike general-purpose AV1 video encoders that optimize for
+inter-frame temporal redundancy, CAVIF configures <code>rav1e</code>
+strictly for intra-frame (still image) coding. It disables temporal
+filtering and inter-frame motion estimation, allocating all available
+computational budget to spatial intra-prediction modes, transform block
+sizes, and directional filtering. This ensures that every bit is
+dedicated entirely to spatial detail and sharpness.</p>
+<h3 id="intelligent-quantization-and-rate-control">Intelligent
+Quantization and Rate Control</h3>
+<p>CAVIF maps a user-friendly quality scale (typically ranging from 1 to
+100) directly into internal AV1 quantizer values (<code>qp</code>).
+Rather than applying a flat quantization index across the entire
+image:</p>
+<ul>
+<li><strong>Segment-Based Quantization:</strong> It leverages AV1
+segmentation features to apply variable quantizer steps to different
+areas based on spatial complexity. High-frequency textures receive
+distinct quantization parameters compared to flat gradients.</li>
+<li><strong>Banding Prevention:</strong> Smooth gradients (such as skies
+or soft shadows) are prone to color banding in 8-bit compression.
+CAVIF's parameter mapping preserves precision in low-variance blocks to
+prevent contouring artifacts while applying higher compression to noisy,
+textured areas where human vision is less sensitive to fine losses.</li>
+</ul>
+<h3 id="chroma-subsampling-control">Chroma Subsampling Control</h3>
+<p>Standard image formats frequently force 4:2:0 subsampling, which
+halves color resolution horizontally and vertically, causing visible
+blur and color bleed along sharp edges, text, and UI elements. CAVIF
+optimizes for quality by offering direct control over chroma
+formats:</p>
+<ul>
+<li><strong>Default 4:4:4 Preservation:</strong> When configured for
+high-quality outputs, CAVIF preserves full color resolution (YUV 4:4:4),
+retaining pixel-perfect edge transitions and crisp text rendering.</li>
+<li><strong>Controlled Downsampling:</strong> When configured for YUV
+4:2:0 to target minimal file sizes, it applies anti-aliased,
+phase-aligned downsampling filters prior to encoding to minimize
+fringing artifacts.</li>
+</ul>
+<h3 id="speed-and-partition-search-optimization">Speed and Partition
+Search Optimization</h3>
+<p>CAVIF allows users to control encoding effort using a speed
+parameter. This parameter directly tunes the heuristic pruning within
+<code>rav1e</code>:</p>
+<ul>
+<li><strong>Block Partitioning Depth:</strong> At higher quality
+settings (lower speed values), the encoder evaluates recursive partition
+trees down to 4x4 sub-blocks. This allows fine, complex details to be
+isolated into smaller blocks while large, uniform areas are grouped into
+larger transforms (up to 64x64).</li>
+<li><strong>Transform Domain Selection:</strong> CAVIF tests multiple
+discrete cosine transform (DCT) and asymmetric discrete sine transform
+(ADST) combinations per block to identify the mathematical transform
+that produces the sparsest coefficient representation.</li>
+</ul>
+<h3 id="independent-alpha-channel-encoding">Independent Alpha Channel
+Encoding</h3>
+<p>Transparent PNGs converted to AVIF require distinct handling for the
+alpha mask. CAVIF encodes the alpha channel as a separate monochrome
+(greyscale) auxiliary video stream within the AVIF container:</p>
+<ul>
+<li><strong>Channel Independence:</strong> By separating color from
+transparency, CAVIF applies optimal quantization to the RGB channels
+without degrading the sharp boundaries of the alpha mask.</li>
+<li><strong>Artifact Mitigation:</strong> This prevents haloing and
+discoloration along semi-transparent boundaries, a common issue in
+poorly configured AV1 pipelines.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

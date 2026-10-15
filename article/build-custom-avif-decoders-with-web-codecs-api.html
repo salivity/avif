@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Build Custom AVIF Decoders with WebCodecs API - avif</title>
+    <meta name="description" content="The WebCodecs API allows web applications to access low-level media processing components natively implemented in modern browsers. Because the AVIF (AV1 Image File Format) specification fundamentally encapsulates AV1-encoded still images inside an ISOBMFF">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/build-custom-avif-decoders-with-web-codecs-api">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Build Custom AVIF Decoders with WebCodecs API - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/build-custom-avif-decoders-with-web-codecs-api" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The WebCodecs API allows web applications to access low-level media processing components natively implemented in modern browsers. Because the AVIF (AV1 Image File Format) specification fundamentally encapsulates AV1-encoded still images inside an ISOBMFF" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="build-custom-avif-decoders-with-webcodecs-api">Build Custom AVIF
+Decoders with WebCodecs API</h1>
+<p>The WebCodecs API allows web applications to access low-level media
+processing components natively implemented in modern browsers. Because
+the AVIF (AV1 Image File Format) specification fundamentally
+encapsulates AV1-encoded still images inside an ISOBMFF container,
+developers can leverage WebCodecs to construct high-performance, custom
+JavaScript AVIF decoders. This article details the underlying
+architecture, the implementation workflow, and the benefits and
+constraints of building custom image pipelines with WebCodecs.</p>
+<h2 id="understanding-the-avif-and-webcodecs-relationship">Understanding
+the AVIF and WebCodecs Relationship</h2>
+<p>AVIF is derived from the AV1 video standard. Instead of encoding a
+sequence of moving pictures, an AVIF file stores one or more AV1
+keyframes along with metadata like color profiles, alpha channels, and
+transform properties wrapped inside an ISOBMFF (ISO Base Media File
+Format) box structure.</p>
+<p>The WebCodecs API exposes the browser's internal AV1 decoder via the
+<code>VideoDecoder</code> interface. Rather than running a heavyweight,
+software-compiled WebAssembly build of an AV1 decoder (such as
+<code>dav1d</code> or <code>libaom</code>), JavaScript can pass raw AV1
+bitstreams directly to the browser's native, hardware-accelerated
+decoding engine.</p>
+<h2 id="the-custom-decoding-pipeline">The Custom Decoding Pipeline</h2>
+<p>A custom AVIF decoder built with WebCodecs relies on a multi-step
+pipeline:</p>
+<h3 id="1-isobmff-demuxing">1. ISOBMFF Demuxing</h3>
+<p>WebCodecs handles raw video packets, not container formats. The first
+stage requires a lightweight JavaScript or WebAssembly parser to parse
+the AVIF file's container boxes (<code>ftyp</code>, <code>meta</code>,
+<code>hdlr</code>, <code>iloc</code>, and <code>mdat</code>). The parser
+extracts:</p>
+<ul>
+<li>The raw AV1 Open Bitstream Units (OBUs) containing the primary image
+payload.</li>
+<li>The auxiliary image item containing alpha channel data, if
+present.</li>
+<li>Image metadata, such as color matrix coefficients, transfer
+characteristics, and EXIF/XMP payloads.</li>
+</ul>
+<h3 id="2-decoder-initialization">2. Decoder Initialization</h3>
+<p>Once the raw bitstream is isolated, a <code>VideoDecoder</code>
+instance is created with an output callback and an error handler:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> decoder <span class="op">=</span> <span class="kw">new</span> <span class="fu">VideoDecoder</span>({</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">output</span><span class="op">:</span> (videoFrame) <span class="kw">=&gt;</span> {</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Render or manipulate the decoded frame</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">renderFrame</span>(videoFrame)<span class="op">;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">error</span><span class="op">:</span> (err) <span class="kw">=&gt;</span> <span class="bu">console</span><span class="op">.</span><span class="fu">error</span>(<span class="st">&quot;Decoding error:&quot;</span><span class="op">,</span> err)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>decoder<span class="op">.</span><span class="fu">configure</span>({</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">codec</span><span class="op">:</span> <span class="st">&quot;av01.0.04M.08&quot;</span><span class="op">,</span> <span class="co">// Profile, level, tier, and bit-depth parameters</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">hardwareAcceleration</span><span class="op">:</span> <span class="st">&quot;prefer-hardware&quot;</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span></code></pre></div>
+<h3 id="3-chunk-processing-and-decoding">3. Chunk Processing and
+Decoding</h3>
+<p>The extracted AV1 data is wrapped in an
+<code>EncodedVideoChunk</code> and passed into the decoder:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> chunk <span class="op">=</span> <span class="kw">new</span> <span class="fu">EncodedVideoChunk</span>({</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">type</span><span class="op">:</span> <span class="st">&quot;key&quot;</span><span class="op">,</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">timestamp</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">data</span><span class="op">:</span> av1PayloadUint8Array</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>decoder<span class="op">.</span><span class="fu">decode</span>(chunk)<span class="op">;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="cf">await</span> decoder<span class="op">.</span><span class="fu">flush</span>()<span class="op">;</span></span></code></pre></div>
+<h3 id="4-frame-rendering-and-consumption">4. Frame Rendering and
+Consumption</h3>
+<p>The <code>output</code> callback receives a <code>VideoFrame</code>
+object. This frame can be directly drawn to an HTML
+<code>&lt;canvas&gt;</code> or <code>OffscreenCanvas</code> using
+<code>CanvasRenderingContext2D.drawImage()</code>, converted into an
+<code>ImageBitmap</code> via <code>createImageBitmap()</code>, or read
+as raw pixel data using <code>VideoFrame.copyTo()</code>.</p>
+<h2 id="advantages-of-webcodecs-for-avif">Advantages of WebCodecs for
+AVIF</h2>
+<ul>
+<li><strong>Hardware Acceleration:</strong> Native hardware decoders
+process frames with significantly lower CPU usage and battery
+consumption compared to pure WebAssembly decoders.</li>
+<li><strong>Reduced Bundle Sizes:</strong> By offloading AV1
+decompression to the browser, JavaScript bundle sizes are reduced from
+megabytes (for software decoders) to tens of kilobytes (just the ISOBMFF
+demuxer).</li>
+<li><strong>Controlled Streaming and Progressive Rendering:</strong>
+Applications can stream AVIF files and feed raw chunks incrementally,
+offering custom loading transitions before standard browser
+implementations fully decode the image.</li>
+<li><strong>Animated AVIF Flexibility:</strong> Decoding multi-frame
+AVIF files via WebCodecs allows frame-accurate playback control, custom
+frame-rate scaling, and real-time canvas manipulations.</li>
+</ul>
+<h2 id="technical-considerations-and-limitations">Technical
+Considerations and Limitations</h2>
+<ul>
+<li><strong>Container Demuxing Overhead:</strong> WebCodecs does not
+parse container formats, placing the responsibility of correctly
+extracting byte offsets, transformations, and orientation tags on the
+developer.</li>
+<li><strong>Color Management:</strong> AV1 bitstreams contain Color
+Config OBUs, and AVIF containers can hold ICC color profiles. Rendering
+the output <code>VideoFrame</code> to a standard Canvas element requires
+manual alignment with the target color space (such as Display P3 or Rec.
+2020) to prevent inaccurate color reproduction.</li>
+<li><strong>Separate Alpha Planes:</strong> Unlike formats where
+transparency is interleaved within pixel data, AVIF often stores alpha
+channels as a secondary, monochromatic AV1 image track. A fully
+functional AVIF decoder must run two parallel decoding operations—one
+for color and one for alpha—and blend them on a Canvas or through a
+WebGL shader.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

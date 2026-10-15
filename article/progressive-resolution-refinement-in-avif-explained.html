@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Progressive Resolution Refinement in AVIF Explained - avif</title>
+    <meta name="description" content="This article explores how the AV1 Image File Format (AVIF) handles progressive resolution refinement through layered bitstreams. By leveraging the native spatial scalability features of the underlying AV1 video compression standard alongside the structura">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/progressive-resolution-refinement-in-avif-explained">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Progressive Resolution Refinement in AVIF Explained - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/progressive-resolution-refinement-in-avif-explained" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explores how the AV1 Image File Format (AVIF) handles progressive resolution refinement through layered bitstreams. By leveraging the native spatial scalability features of the underlying AV1 video compression standard alongside the structura" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="progressive-resolution-refinement-in-avif-explained">Progressive
+Resolution Refinement in AVIF Explained</h1>
+<p>This article explores how the AV1 Image File Format (AVIF) handles
+progressive resolution refinement through layered bitstreams. By
+leveraging the native spatial scalability features of the underlying AV1
+video compression standard alongside the structural encapsulation of the
+ISO Base Media File Format (ISOBMFF), AVIF enables decoders to display a
+low-resolution base layer immediately and progressively upscale the
+image fidelity as subsequent enhancement layers are received and
+decoded.</p>
+<h3 id="av1-layered-coding-architecture">AV1 Layered Coding
+Architecture</h3>
+<p>At the codec level, AVIF inherits its layering capabilities from the
+AV1 bitstream specifications. AV1 achieves progressive resolution
+refinement primarily through spatial scalability.</p>
+<p>An AV1 bitstream can be divided into distinct Operating Points (OPs),
+which represent subsets of the overall bitstream composed of different
+spatial and temporal layers. For progressive still images, spatial
+layers are configured such that:</p>
+<ul>
+<li><strong>Base Layer (Spatial Layer 0):</strong> Encodes a
+structurally complete representation of the image at a reduced
+resolution (e.g., 25% or 50% of the target dimensions).</li>
+<li><strong>Enhancement Layers (Spatial Layer 1+):</strong> Encode the
+residual high-frequency data and differential pixels needed to step the
+image up to higher intermediate or final native resolutions.</li>
+</ul>
+<p>These layers are encapsulated within Open Bitstream Units (OBUs),
+specifically utilizing sequence headers, frame headers, and tile groups
+that signal scalability ratios, reference frame assignments, and
+upscaling parameters.</p>
+<h3 id="encapsulation-and-isobmff-integration">Encapsulation and ISOBMFF
+Integration</h3>
+<p>AVIF integrates this codec-level scalability into the file format
+container using standard ISOBMFF boxes. Progressive refinement can be
+specified in two main structural ways:</p>
+<ol type="1">
+<li><strong>Single Layered Item:</strong> The primary image item
+contains an AV1 bitstream with multiple spatial layers. The AV1
+configuration property (<code>av1C</code>) identifies the number of
+operating points, indicating whether spatial scalability is active and
+which operating point delivers the complete, maximum-resolution
+target.</li>
+<li><strong>Item References and Derived Images:</strong> Individual
+layers can be represented as distinct items linked via an item reference
+box (<code>iref</code>) using reference types such as <code>scal</code>
+(scalable layer). This explicitly declares the dependency graph between
+the base image item and the enhancement items, allowing parsers to
+easily prioritize retrieval.</li>
+</ol>
+<h3 id="decoding-and-progressive-rendering-workflow">Decoding and
+Progressive Rendering Workflow</h3>
+<p>When an AVIF-compliant parser encounters a progressive image, the
+refinement workflow operates as follows:</p>
+<ol type="1">
+<li><strong>Header Parsing:</strong> The parser reads the
+<code>av1C</code> property to discover the available operating points
+and spatial layer flags.</li>
+<li><strong>Base Layer Execution:</strong> The decoder extracts and
+reconstructs Spatial Layer 0. The application immediately displays this
+base image, either at native dimensions or smoothly interpolated across
+the viewport to eliminate layout shifts.</li>
+<li><strong>Reference-Based Reconstruction:</strong> As additional
+enhancement OBUs arrive over the network, the decoder uses the already
+decoded lower-resolution layer as a reference frame. It applies
+inter-layer prediction, decoding only the residual spatial details.</li>
+<li><strong>Resolution Upgrades:</strong> The target surface is updated
+iteratively with higher-resolution passes until the final spatial layer
+reaches native visual fidelity.</li>
+</ol>
+<p>Through this tight integration of AV1 spatial scalability and ISOBMFF
+structural signaling, AVIF enables clean, low-latency progressive
+rendering that reduces perceived loading times over constrained network
+connections.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How AVIF Supports 10,000 Nits HDR Luminance - avif</title>
+    <meta name="description" content="The AV1 Image File Format (AVIF) enables true High Dynamic Range (HDR) content delivery by natively accommodating mastering luminance targets up to 10,000 nits (candelas per square meter). It achieves this capability by leveraging the modern video coding">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-avif-supports-10-000-nits-hdr-luminance">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How AVIF Supports 10,000 Nits HDR Luminance - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-avif-supports-10-000-nits-hdr-luminance" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The AV1 Image File Format (AVIF) enables true High Dynamic Range (HDR) content delivery by natively accommodating mastering luminance targets up to 10,000 nits (candelas per square meter). It achieves this capability by leveraging the modern video coding" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-avif-supports-10000-nits-hdr-luminance">How AVIF Supports
+10,000 Nits HDR Luminance</h1>
+<p>The AV1 Image File Format (AVIF) enables true High Dynamic Range
+(HDR) content delivery by natively accommodating mastering luminance
+targets up to 10,000 nits (candelas per square meter). It achieves this
+capability by leveraging the modern video coding standards of AV1,
+specifically through high bit-depth architectures, advanced non-linear
+transfer functions, and standardized HDR metadata signaling. This
+framework ensures that images captured and mastered for ultra-bright
+displays retain their dynamic range and color volume without clipping or
+degradation.</p>
+<h3 id="the-perceptual-quantizer-smpte-st-2084">The Perceptual Quantizer
+(SMPTE ST 2084)</h3>
+<p>The primary mechanism that allows AVIF to scale up to 10,000 nits is
+its support for the Perceptual Quantizer (PQ) Electro-Optical Transfer
+Function (EOTF), standardized as SMPTE ST 2084. Traditional gamma curves
+(such as sRGB or Rec. 709) are relative curves anchored to an assumed
+maximum display luminance of roughly 80 to 100 nits.</p>
+<p>In contrast, PQ is an absolute transfer function designed
+specifically to map digital code values directly to absolute luminance
+levels spanning from 0.0001 nits up to a theoretical maximum of 10,000
+nits. When an image is encoded using the PQ curve, each integer value
+directly corresponds to a precise physical brightness level, allowing
+AVIF to define peak highlights anywhere within the 10,000-nit
+envelope.</p>
+<h3 id="10-bit-and-12-bit-encoding-profiles">10-Bit and 12-Bit Encoding
+Profiles</h3>
+<p>Covering the vast luminance range between 0.0001 and 10,000 nits
+requires fine gradation to prevent visual artifacts like contouring and
+color banding. AVIF supports AV1’s Main and Professional profiles, which
+offer:</p>
+<ul>
+<li><strong>10-bit color depth:</strong> Provides 1,024 discrete steps
+per color channel.</li>
+<li><strong>12-bit color depth:</strong> Provides 4,096 discrete steps
+per color channel.</li>
+</ul>
+<p>When paired with the perceptual efficiency of the ST 2084 curve, a
+10-bit or 12-bit sample depth distributes code values in alignment with
+human visual contrast sensitivity. This ensures that the wide dynamic
+range stretching to 10,000 nits is smoothly rendered without visible
+quantization errors.</p>
+<h3 id="signaling-via-cicp-color-information-code-points">Signaling via
+CICP (Color Information Code Points)</h3>
+<p>AVIF communicates color and luminance properties through
+Coding-Independent Code Points (CICP), defined in ITU-T H.273 and stored
+in the container's <code>colr</code> (Color Information) box. To achieve
+the full range of modern HDR, AVIF can set:</p>
+<ul>
+<li><strong>Color Primaries:</strong> Set to ITU-R BT.2020 for an
+ultra-wide color gamut.</li>
+<li><strong>Transfer Characteristics:</strong> Set to Value 16 (SMPTE ST
+2084 / PQ) to trigger 10,000-nit luminance decoding.</li>
+<li><strong>Matrix Coefficients:</strong> Standardized color space
+transformation (e.g., BT.2020 non-constant luminance).</li>
+</ul>
+<p>By parsing these values, an image decoder immediately recognizes that
+the pixel values correspond to an absolute luminance scale targeting the
+PQ curve rather than an arbitrary SDR curve.</p>
+<h3 id="mastering-display-color-volume-mdcv-metadata">Mastering Display
+Color Volume (MDCV) Metadata</h3>
+<p>While the PQ curve provides the mathematical capability to reach
+10,000 nits, the actual mastering environment parameters are carried via
+Mastering Display Color Volume (MDCV) metadata, standardized under SMPTE
+ST 2086.</p>
+<p>Within the AVIF format (derived from the ISOBMFF / HEIF structure),
+this metadata is stored in the <code>mdcv</code> item property box or
+within the AV1 sequence header Open Bitstream Units (OBUs). It
+explicitly defines:</p>
+<ul>
+<li><strong>Maximum Display Mastering Luminance:</strong> Up to 10,000
+nits (stored in units of 0.0001 cd/m²).</li>
+<li><strong>Minimum Display Mastering Luminance:</strong> Down to 0.0001
+nits.</li>
+<li><strong>Mastering Primaries and White Point:</strong> The exact
+chromaticity coordinates of the monitor used by the colorist.</li>
+</ul>
+<p>This metadata tells the rendering pipeline that the master was
+authored on a reference monitor capable of producing up to 10,000 nits,
+providing essential context for down-mapping.</p>
+<h3 id="content-light-level-information-clli">Content Light Level
+Information (CLLI)</h3>
+<p>To assist target displays that cannot achieve 10,000 nits—which
+includes most consumer panels—AVIF supports Content Light Level
+Information (CLLI) metadata via the <code>clli</code> property box. It
+contains two critical values:</p>
+<ul>
+<li><strong>MaxCLL (Maximum Content Light Level):</strong> The absolute
+brightest single pixel present anywhere in the image, up to 10,000
+nits.</li>
+<li><strong>MaxFALL (Maximum Frame Average Light Level):</strong> The
+average brightness of the entire image area.</li>
+</ul>
+<p>Consuming devices use MaxCLL and MaxFALL to execute tone mapping. If
+an AVIF image contains a 10,000-nit specular highlight, a display
+capable of only 1,000 nits uses this metadata to roll off the highlights
+smoothly and compress the dynamic range without severe clipping or loss
+of midtone contrast.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

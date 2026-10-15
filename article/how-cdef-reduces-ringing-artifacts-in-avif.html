@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How CDEF Reduces Ringing Artifacts in AVIF - avif</title>
+    <meta name="description" content="The Constrained Directional Enhancement Filter (CDEF) is an in-loop filtering tool in the AV1 video codec and AVIF image format designed to eliminate ringing artifacts and mosquito noise near sharp edges. By determining the primary direction of edges with">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-cdef-reduces-ringing-artifacts-in-avif">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How CDEF Reduces Ringing Artifacts in AVIF - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-cdef-reduces-ringing-artifacts-in-avif" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The Constrained Directional Enhancement Filter (CDEF) is an in-loop filtering tool in the AV1 video codec and AVIF image format designed to eliminate ringing artifacts and mosquito noise near sharp edges. By determining the primary direction of edges with" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-cdef-reduces-ringing-artifacts-in-avif">How CDEF Reduces
+Ringing Artifacts in AVIF</h1>
+<p>The Constrained Directional Enhancement Filter (CDEF) is an in-loop
+filtering tool in the AV1 video codec and AVIF image format designed to
+eliminate ringing artifacts and mosquito noise near sharp edges. By
+determining the primary direction of edges within small pixel blocks and
+applying a non-linear low-pass filter aligned with those directions,
+CDEF effectively smooths out high-frequency distortion without blurring
+fine details or structural boundaries.</p>
+<h3 id="the-origin-of-ringing-artifacts">The Origin of Ringing
+Artifacts</h3>
+<p>In lossy image compression like AVIF, an image is divided into blocks
+and transformed into frequency components via discrete cosine transforms
+(DCT) or asymmetric discrete sine transforms (ADST). When an image
+contains high-contrast transitions—such as black text on a white
+background or the crisp outline of an object—the quantization step
+discards high-frequency coefficients to save data. This loss causes the
+Gibbs phenomenon, manifesting as rippling distortions or "halos" along
+the boundaries, commonly known as ringing artifacts.</p>
+<h3 id="direction-search">Direction Search</h3>
+<p>CDEF addresses ringing by first identifying the structural
+orientation of the image content. The image is processed in small blocks
+(typically 8x8 pixels). For each block, the algorithm computes variance
+along eight possible directions (spanning 0 to 180 degrees).</p>
+<p>The direction that yields the lowest variance along its path is
+selected as the dominant edge direction. By identifying which way the
+edge runs, the algorithm ensures that subsequent filtering respects the
+visual geometry of the scene rather than treating the block
+uniformly.</p>
+<h3 id="directional-filtering-along-the-edge">Directional Filtering
+Along the Edge</h3>
+<p>Once the primary direction is established, CDEF applies a non-linear
+low-pass filter. Standard deblocking or smoothing filters often filter
+across edges, which blurs the boundary and degrades image sharpness. In
+contrast, CDEF filters primarily along the detected edge direction.</p>
+<p>The filter uses a combination of primary and secondary taps:</p>
+<ul>
+<li><strong>Primary taps:</strong> Placed along the identified edge
+direction to smooth out ringing ripples parallel to the edge.</li>
+<li><strong>Secondary taps:</strong> Placed across the direction at a
+45-degree offset to catch cross-directional noise, but with
+significantly less weight.</li>
+</ul>
+<h3 id="non-linear-clamping-and-constraints">Non-Linear Clamping and
+Constraints</h3>
+<p>The critical mechanism preventing CDEF from destroying true image
+detail is its constraint mechanism. A standard linear filter averages
+neighboring pixels, which can erode subtle textures. CDEF prevents this
+by imposing a non-linear threshold (clamping) on how much any given
+pixel value can change.</p>
+<p>Each pixel difference is evaluated against two parameters:</p>
+<ul>
+<li><strong>Threshold:</strong> Dictates the maximum difference a
+neighboring pixel can have to be considered part of the ringing artifact
+rather than a distinct feature.</li>
+<li><strong>Damping:</strong> Controls the falloff rate, reducing the
+influence of pixels that diverge from the target pixel.</li>
+</ul>
+<p>If a neighboring pixel’s intensity differs significantly from the
+pixel being filtered—such as the opposite side of a high-contrast
+boundary—its contribution is clamped to zero or heavily attenuated.
+Consequently, low-amplitude ringing ripples fall within the threshold
+and are flattened, while the high-contrast transition remains
+intact.</p>
+<h3 id="efficiency-and-visual-impact">Efficiency and Visual Impact</h3>
+<p>Because CDEF merges the concepts of directional filtering (from the
+Daala codec) and constrained low-pass filtering (from the Thor codec),
+it executes in a single filtering pass. In AVIF images, this allows
+sharp graphical elements, typography, and high-contrast photographic
+edges to remain visually crisp at low file sizes where traditional JPEG
+compression produces noticeable distortion.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

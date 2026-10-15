@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiple Alpha Masks in AVIF for Web Design - avif</title>
+    <meta name="description" content="While the underlying container architecture of the AV1 Image File Format (AVIF) technically supports multiple image items and auxiliary data channels, web browsers cannot natively extract or utilize multiple alpha masks from a single AVIF file for selecti">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/multiple-alpha-masks-in-avif-for-web-design">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Multiple Alpha Masks in AVIF for Web Design - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/multiple-alpha-masks-in-avif-for-web-design" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="While the underlying container architecture of the AV1 Image File Format (AVIF) technically supports multiple image items and auxiliary data channels, web browsers cannot natively extract or utilize multiple alpha masks from a single AVIF file for selecti" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="multiple-alpha-masks-in-avif-for-web-design">Multiple Alpha
+Masks in AVIF for Web Design</h1>
+<p>While the underlying container architecture of the AV1 Image File
+Format (AVIF) technically supports multiple image items and auxiliary
+data channels, web browsers cannot natively extract or utilize multiple
+alpha masks from a single AVIF file for selective layer compositing. In
+modern web development, browsers parse an AVIF asset strictly as a
+flattened visual bitmap (RGB plus a single primary alpha channel) or as
+an animated sequence. Consequently, developers cannot use standard CSS
+or HTML to isolate individual embedded masks for runtime compositing,
+necessitating alternative workflows such as channel packing or separate
+asset management.</p>
+<h3 id="the-container-capability-vs-web-browser-reality">The Container
+Capability vs. Web Browser Reality</h3>
+<p>AVIF is built on top of the HEIF (High Efficiency Image File Format)
+and ISOBMFF (ISO Base Media File Format) structures. These
+specifications allow a file to host multiple distinct items, including
+auxiliary image items designated for depth maps, gain maps, and
+additional alpha planes.</p>
+<p>However, web rendering engines (Blink, Gecko, and WebKit) do not
+expose an interface to selectively query auxiliary items within an image
+container. When an AVIF file is rendered via standard web
+mechanisms—such as the HTML <code>&lt;img&gt;</code> tag, CSS
+<code>background-image</code>, or CSS <code>mask-image</code>—the
+browser engine decodes only the primary visual item and its associated
+primary alpha auxiliary. Any additional alpha masks or secondary
+auxiliary streams contained within the file are ignored during the
+standard rendering pipeline.</p>
+<h3 id="limitations-with-css-masking-and-layer-compositing">Limitations
+with CSS Masking and Layer Compositing</h3>
+<p>Selective layer compositing in web design requires CSS properties
+like <code>mask-image</code>, <code>clip-path</code>, or blend modes to
+dynamically alter specific visual layers. Standard CSS syntax does not
+provide track, item, or channel selectors for image formats. For
+example, a rule such as:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode css"><code class="sourceCode css"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">.composite-layer</span> {</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">mask-image</span><span class="ch">:</span> <span class="fu">url(</span><span class="st">&#39;graphic.avif&#39;</span><span class="fu">)</span><span class="op">;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>will strictly read the overall luminance or the primary alpha channel
+of <code>graphic.avif</code>. There is no mechanism within the CSS
+Masking Module to specify a sub-item, auxiliary index, or secondary
+alpha track embedded inside an AVIF file.</p>
+<h3 id="alternative-approaches-for-selective-masking">Alternative
+Approaches for Selective Masking</h3>
+<p>Because direct multi-mask AVIF extraction is unsupported natively in
+the browser, developers use three primary workarounds to achieve
+selective compositing:</p>
+<ol type="1">
+<li><p><strong>RGB Channel Packing:</strong> Instead of embedding
+separate auxiliary alpha tracks, developers pack up to three distinct
+grayscale masks into the Red, Green, and Blue color channels of a single
+standard AVIF image. A custom WebGL shader or HTML5 Canvas context can
+then read the individual RGB channels and apply them as independent
+masks dynamically at runtime.</p></li>
+<li><p><strong>Discrete Mask Files:</strong> The most common approach
+for production web design is delivering masks as separate, highly
+compressed single-channel AVIF or WebP files. These can be manipulated
+individually via standard CSS properties or combined using multi-layer
+CSS masking rules:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode css"><code class="sourceCode css"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">.element</span> {</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">mask-image</span><span class="ch">:</span> <span class="fu">url(</span><span class="st">&#39;mask-layer-1.avif&#39;</span><span class="fu">)</span><span class="op">,</span> <span class="fu">url(</span><span class="st">&#39;mask-layer-2.avif&#39;</span><span class="fu">)</span><span class="op">;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">mask-composite</span><span class="ch">:</span> <span class="dv">subtract</span><span class="op">;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div></li>
+<li><p><strong>Client-Side ISOBMFF Parsing:</strong> Using
+JavaScript-based decoders (such as WebAssembly-compiled libavif or
+MP4Box.js), a script can manually parse the ISOBMFF box tree, extract
+individual auxiliary tracks, and pipe them into separate Canvas layers.
+While technically viable, this approach introduces performance overhead
+and defeats the browser's native hardware-accelerated image decoding
+benefits.</p></li>
+</ol>
+<h3 id="summary">Summary</h3>
+<p>An AVIF file cannot practically contain multiple alpha masks for
+selective layer compositing in web design due to browser implementation
+limits. While the underlying file specification theoretically allows
+complex multi-item storage, the web platform lacks the APIs to expose
+individual auxiliary alpha streams. Web designers must rely on discrete
+image assets, CSS multi-masking rules, or channel-packing techniques
+executed through Canvas or WebGL to achieve multi-layered compositing
+effects.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

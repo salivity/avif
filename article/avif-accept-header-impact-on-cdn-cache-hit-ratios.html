@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Accept Header Impact on CDN Cache Hit Ratios - avif</title>
+    <meta name="description" content="Delivering AVIF images via HTTP content negotiation significantly reduces image file sizes and improves page load times, but it directly affects content delivery network (CDN) cache hit ratios. By relying on the Accept request header to determine whether">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-accept-header-impact-on-cdn-cache-hit-ratios">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Accept Header Impact on CDN Cache Hit Ratios - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-accept-header-impact-on-cdn-cache-hit-ratios" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Delivering AVIF images via HTTP content negotiation significantly reduces image file sizes and improves page load times, but it directly affects content delivery network (CDN) cache hit ratios. By relying on the Accept request header to determine whether" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-accept-header-impact-on-cdn-cache-hit-ratios">AVIF Accept
+Header Impact on CDN Cache Hit Ratios</h1>
+<p>Delivering AVIF images via HTTP content negotiation significantly
+reduces image file sizes and improves page load times, but it directly
+affects content delivery network (CDN) cache hit ratios. By relying on
+the <code>Accept</code> request header to determine whether a browser
+supports AVIF, edge servers must store multiple format variants for a
+single image URL. Without proper header normalization or edge logic,
+this header variation fragments the cache, diluting cache density and
+reducing overall cache hit ratios.</p>
+<h3 id="the-role-of-the-vary-accept-header">The Role of the
+<code>Vary: Accept</code> Header</h3>
+<p>When an origin server serves AVIF dynamically based on browser
+capability, it evaluates the incoming <code>Accept</code> header and
+returns a <code>Vary: Accept</code> response header. This header
+instructs intermediate caches, including CDNs, that the cached response
+depends on the exact <code>Accept</code> header sent by the client.</p>
+<p>If a browser advertises support for <code>image/avif</code>, the CDN
+attempts to serve an AVIF copy. If another client lacks this support
+(such as older mobile browsers), the CDN must serve WebP or traditional
+JPEG/PNG formats. Consequently, a single asset URL no longer maps to a
+single cached file, inherently dividing the potential cache hit pool
+among multiple format variants.</p>
+<h3 id="the-problem-cache-key-fragmentation">The Problem: Cache Key
+Fragmentation</h3>
+<p>The primary reason the AVIF <code>Accept</code> header harms CDN
+performance is string diversity. Different browsers and client libraries
+format the <code>Accept</code> header differently. For example:</p>
+<ul>
+<li><strong>Chrome</strong> might send:
+<code>image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8</code></li>
+<li><strong>Firefox</strong> might send:
+<code>image/avif,image/webp,*/*</code></li>
+<li><strong>Safari</strong> might send:
+<code>image/webp,image/png,image/svg+xml,image/*;q=0.8,*/*;q=0.5</code>
+(or include AVIF on modern versions)</li>
+</ul>
+<p>By default, an unmanaged CDN treats each distinct header string as a
+distinct cache key. Even if ten clients all support AVIF, subtle
+variations in spacing, MIME type ordering, or quality (<code>q</code>)
+values cause cache misses. This creates dozens of separate cache entries
+for the exact same AVIF file, driving the cache hit ratio down
+dramatically.</p>
+<h3 id="impact-on-cache-hit-ratios">Impact on Cache Hit Ratios</h3>
+<ol type="1">
+<li><strong>Cold-Start Penalties:</strong> Every unique browser format
+request triggers a cache miss and an origin request to fetch or generate
+the image.</li>
+<li><strong>Lower Cache Retention:</strong> CDN edge nodes operate on
+finite storage. Splitting one asset into two or three image formats
+(AVIF, WebP, JPEG) triples the storage footprint for that asset. On
+high-volume or long-tail catalogs, this leads to aggressive cache
+evictions, further suppressing hit ratios.</li>
+<li><strong>Regional Edge Differences:</strong> In geographies where
+modern browser adoption lags, regional CDN nodes experience unbalanced
+variant requests, leading to inconsistent performance profiles across
+different user locations.</li>
+</ol>
+<h3 id="strategies-to-protect-cache-hit-ratios">Strategies to Protect
+Cache Hit Ratios</h3>
+<p>To benefit from AVIF without degrading CDN cache efficiency,
+implementations should apply specific edge-routing patterns:</p>
+<ul>
+<li><strong>Edge Header Normalization:</strong> Before evaluating the
+cache key, configure the CDN to rewrite the client's <code>Accept</code>
+header into a normalized, uniform token (e.g., <code>format=avif</code>,
+<code>format=webp</code>, or <code>format=default</code>). This ensures
+that all browsers capable of decoding AVIF share a single cached asset
+entry.</li>
+<li><strong>Markup-Level Routing:</strong> Instead of content
+negotiation over the <code>Accept</code> header, use the HTML
+<code>&lt;picture&gt;</code> element with discrete file paths (e.g.,
+<code>image.avif</code> and <code>image.webp</code>). This removes
+dynamic header dependency, creates standard static URLs, and restores
+standard 1:1 cache-key mappings.</li>
+<li><strong>CDN-Native Image Optimization:</strong> Many modern CDNs
+provide built-in image optimization pipelines. These services process
+format negotiation internally at the edge layer, serving AVIF
+dynamically while bypassing the raw <code>Vary: Accept</code> cache
+fragmentation traps.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

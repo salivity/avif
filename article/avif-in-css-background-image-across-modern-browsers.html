@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF in CSS background-image Across Modern Browsers - avif</title>
+    <meta name="description" content="This article provides an overview of how the CSS background-image property handles the AVIF image format across all modern rendering engines. It covers the current support landscape across Blink, Gecko, and WebKit, details native implementation behaviors,">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-in-css-background-image-across-modern-browsers">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF in CSS background-image Across Modern Browsers - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-in-css-background-image-across-modern-browsers" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article provides an overview of how the CSS background-image property handles the AVIF image format across all modern rendering engines. It covers the current support landscape across Blink, Gecko, and WebKit, details native implementation behaviors," />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-in-css-background-image-across-modern-browsers">AVIF in CSS
+background-image Across Modern Browsers</h1>
+<p>This article provides an overview of how the CSS
+<code>background-image</code> property handles the AVIF image format
+across all modern rendering engines. It covers the current support
+landscape across Blink, Gecko, and WebKit, details native implementation
+behaviors, and demonstrates the practical techniques—such as the CSS
+<code>image-set()</code> function and cascading fallbacks—required to
+deliver AVIF background assets reliably without breaking older
+browsers.</p>
+<h2 id="modern-rendering-engine-support-for-avif">Modern Rendering
+Engine Support for AVIF</h2>
+<p>All three primary rendering engines—Blink (Google Chrome, Microsoft
+Edge, Opera), Gecko (Mozilla Firefox), and WebKit (Apple
+Safari)—natively support AVIF (AV1 Image File Format) inside the CSS
+<code>background-image</code> property.</p>
+<ul>
+<li><strong>Blink (Chromium):</strong> Added native AVIF support in
+version 85. AVIF images applied via
+<code>background-image: url(...)</code> parse and decode via the native
+libavif integration without requiring vendor prefixes or special
+flags.</li>
+<li><strong>Gecko (Firefox):</strong> Enabled full AVIF support by
+default in Firefox 93. Gecko decodes AVIF background images
+asynchronously, minimizing main-thread blocking during layout and paint
+cycles.</li>
+<li><strong>WebKit (Safari):</strong> Introduced AVIF support in Safari
+16.4 on iOS and macOS Ventura/Sonoma. WebKit relies on platform-level
+decoding frameworks, meaning hardware acceleration is utilized where
+supported by the operating system.</li>
+</ul>
+<p>Because all current stable releases of these engines include AVIF
+decoders, declaring <code>background-image: url('hero.avif')</code>
+works universally on up-to-date browsers.</p>
+<h2 id="delivering-avif-with-fallbacks">Delivering AVIF with
+Fallbacks</h2>
+<p>While current engine releases support AVIF, real-world deployment
+requires graceful degradation for older clients (such as Safari 16.3 and
+below, or legacy Internet Explorer/Edge releases).</p>
+<h3 id="method-1-the-css-image-set-function">Method 1: The CSS
+<code>image-set()</code> Function</h3>
+<p>The modern and standard method to serve AVIF background images with
+appropriate fallbacks is the CSS <code>image-set()</code> function
+combined with the <code>type()</code> specifier.</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode css"><code class="sourceCode css"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">.hero</span> {</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="co">/* Fallback for engines with no image-set support */</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">background-image</span><span class="ch">:</span> <span class="fu">url(</span><span class="st">&#39;hero.jpg&#39;</span><span class="fu">)</span><span class="op">;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="co">/* Modern format negotiation */</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">background-image</span><span class="ch">:</span> <span class="fu">image-set(</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">url(</span><span class="st">&#39;hero.avif&#39;</span><span class="fu">)</span> type<span class="fu">(</span><span class="st">&#39;image/avif&#39;</span><span class="fu">)</span><span class="op">,</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">url(</span><span class="st">&#39;hero.webp&#39;</span><span class="fu">)</span> type<span class="fu">(</span><span class="st">&#39;image/webp&#39;</span><span class="fu">)</span><span class="op">,</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">url(</span><span class="st">&#39;hero.jpg&#39;</span><span class="fu">)</span> type<span class="fu">(</span><span class="st">&#39;image/jpeg&#39;</span><span class="fu">)</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">)</span><span class="op">;</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>When an engine parses <code>image-set()</code>, it evaluates the
+formats listed inside the <code>type()</code> functions from top to
+bottom. If the engine supports <code>image/avif</code>, it fetches and
+renders the AVIF resource, ignoring the subsequent formats. If the
+engine does not support AVIF, it skips to WebP or standard JPEG/PNG.</p>
+<p>All modern engines fully support the standard
+<code>image-set()</code> syntax with <code>type()</code>
+declarations:</p>
+<ul>
+<li>Chromium/Blink fully supports <code>image-set()</code> with format
+types.</li>
+<li>Gecko supports <code>image-set()</code> with format hints since
+Firefox 113.</li>
+<li>WebKit standard implementation is available without prefixes in
+modern versions.</li>
+</ul>
+<h3 id="method-2-the-supports-rule">Method 2: The <code>@supports</code>
+Rule</h3>
+<p>An alternative approach leverages the CSS <code>@supports</code>
+at-rule. Because CSS feature queries cannot directly evaluate image
+decoding support dynamically, this method is typically combined with a
+lightweight feature-detection script (such as Modernizr) or targeted
+selector strategies:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode css"><code class="sourceCode css"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">.element</span> {</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">background-image</span><span class="ch">:</span> <span class="fu">url(</span><span class="st">&#39;fallback.jpg&#39;</span><span class="fu">)</span><span class="op">;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">/* Applied when a feature-detection script confirms AVIF support */</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">.avif</span> <span class="fu">.element</span> {</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">background-image</span><span class="ch">:</span> <span class="fu">url(</span><span class="st">&#39;optimized.avif&#39;</span><span class="fu">)</span><span class="op">;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<h2 id="performance-characteristics">Performance Characteristics</h2>
+<p>Using AVIF within <code>background-image</code> provides substantial
+payload reductions—often 20% to 50% smaller than WebP and up to 80%
+smaller than legacy JPEG/PNG files. Modern engines process AVIF
+background assets similarly to any other image format:</p>
+<ol type="1">
+<li><strong>Network Fetching:</strong> The rendering engine requests the
+resource during the style and layout phase when the element is matched
+to the DOM.</li>
+<li><strong>Decoding:</strong> Decoding takes place asynchronously.
+Modern engines avoid painting blocks by displaying the element's
+<code>background-color</code> until the AVIF decode operation
+completes.</li>
+<li><strong>Caching:</strong> Decoded raster caches are stored in GPU
+memory when appropriate, matching the rendering efficiency of
+traditional image formats.</li>
+</ol></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

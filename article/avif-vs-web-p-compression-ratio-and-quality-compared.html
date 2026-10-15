@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF vs WebP: Compression Ratio and Quality Compared - avif</title>
+    <meta name="description" content="When comparing modern image formats on the web, AVIF consistently outperforms WebP in lossy compression ratio while maintaining equivalent or superior visual fidelity. On average, AVIF achieves 20% to 30% smaller file sizes than WebP at comparable visual">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-vs-web-p-compression-ratio-and-quality-compared">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF vs WebP: Compression Ratio and Quality Compared - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-vs-web-p-compression-ratio-and-quality-compared" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="When comparing modern image formats on the web, AVIF consistently outperforms WebP in lossy compression ratio while maintaining equivalent or superior visual fidelity. On average, AVIF achieves 20% to 30% smaller file sizes than WebP at comparable visual" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-vs-webp-compression-ratio-and-quality-compared">AVIF vs
+WebP: Compression Ratio and Quality Compared</h1>
+<p>When comparing modern image formats on the web, AVIF consistently
+outperforms WebP in lossy compression ratio while maintaining equivalent
+or superior visual fidelity. On average, AVIF achieves 20% to 30%
+smaller file sizes than WebP at comparable visual quality levels, making
+it particularly powerful for bandwidth optimization. While WebP remains
+faster to encode and excels at certain lossless tasks, AVIF's advanced
+compression architecture delivers significantly cleaner visuals at lower
+bitrates.</p>
+<h3 id="architectural-differences">Architectural Differences</h3>
+<p>The performance disparity between the two formats stems from their
+underlying video compression technologies. WebP is derived from the
+older VP8 video codec (with an independent engine for lossless
+compression), introduced in 2010. In contrast, AVIF is built on the
+modern AV1 codec finalized in 2018. AV1 incorporates nearly a decade of
+advancements in coding tools, including larger and more flexible
+transform blocks, directional intra-prediction, and sophisticated
+in-loop filtering, all of which directly translate into more efficient
+image data representation.</p>
+<h3 id="lossy-compression-and-perceptual-fidelity">Lossy Compression and
+Perceptual Fidelity</h3>
+<p>In standard photographic use cases, AVIF achieves a higher
+compression ratio than WebP before artifacts become noticeable:</p>
+<ul>
+<li><strong>Low Bitrates:</strong> At high compression levels, WebP
+degrades by applying broad blurring and blockiness across textured
+areas. AVIF preserves sharper edges and retains higher structural
+detail, masking compression artifacts more naturally to the human
+eye.</li>
+<li><strong>Color and Gradients:</strong> WebP's lossy engine is
+constrained by 8-bit color depth and 4:2:0 chroma subsampling, which
+often causes color banding in skies and smooth gradients. AVIF supports
+10-bit and 12-bit color depth as well as 4:4:4 chroma subsampling,
+preventing banding even at aggressive compression ratios.</li>
+<li><strong>Objective Metrics:</strong> Across standard image quality
+metrics such as SSIM, PSNR, and VMAF, AVIF regularly demonstrates a 20%
+to 35% bitrate reduction over WebP when matched for the same quality
+score.</li>
+</ul>
+<h3 id="lossless-compression">Lossless Compression</h3>
+<p>The compression advantage changes when dealing with lossless data.
+WebP features a dedicated, highly optimized lossless compression
+algorithm that frequently matches or outperforms AVIF in file size. For
+simple graphics, logos, and pixel art where mathematical exactness is
+required, WebP often compresses faster and achieves smaller or equal
+file sizes compared to AVIF’s lossless mode.</p>
+<h3 id="performance-and-resource-utilization">Performance and Resource
+Utilization</h3>
+<p>While AVIF leads in lossy compression efficiency, it requires
+substantially more computational power:</p>
+<ul>
+<li><strong>Encoding Overhead:</strong> Encoding an image to AVIF can
+take significantly longer and consume more CPU resources than encoding
+to WebP. WebP is lightweight enough for on-the-fly, dynamic generation
+on web servers, whereas AVIF typically benefits from pre-generation or
+asynchronous processing pipelines.</li>
+<li><strong>Decoding Speed:</strong> Both formats decode quickly in
+modern browsers, but WebP decodes slightly faster on low-powered mobile
+devices due to the simplicity of the VP8 architecture.</li>
+</ul>
+<h3 id="summary">Summary</h3>
+<p>At equivalent visual fidelity, AVIF provides a superior compression
+ratio for photographic content and complex imagery, yielding substantial
+bandwidth savings over WebP. However, WebP retains a functional
+advantage in encoding speed and lossless compression performance.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convert and Manipulate AVIF Images with Pillow - avif</title>
+    <meta name="description" content="This guide demonstrates how Python developers can process, modify, and convert modern AVIF (AV1 Image File Format) files using the Pillow library. You will learn how to enable AVIF compatibility within the Python imaging ecosystem, open and inspect AVIF f">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/convert-and-manipulate-avif-images-with-pillow">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Convert and Manipulate AVIF Images with Pillow - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/convert-and-manipulate-avif-images-with-pillow" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This guide demonstrates how Python developers can process, modify, and convert modern AVIF (AV1 Image File Format) files using the Pillow library. You will learn how to enable AVIF compatibility within the Python imaging ecosystem, open and inspect AVIF f" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="convert-and-manipulate-avif-images-with-pillow">Convert and
+Manipulate AVIF Images with Pillow</h1>
+<p>This guide demonstrates how Python developers can process, modify,
+and convert modern AVIF (AV1 Image File Format) files using the Pillow
+library. You will learn how to enable AVIF compatibility within the
+Python imaging ecosystem, open and inspect AVIF files, apply standard
+manipulations such as resizing and rotation, and convert images
+seamlessly between AVIF, JPEG, and PNG formats.</p>
+<h2 id="enabling-avif-support">Enabling AVIF Support</h2>
+<p>While Pillow provides extensive format support, AVIF encoding and
+decoding typically rely on libavif or the <code>pillow-heif</code>
+plugin for full cross-platform compatibility.</p>
+<p>Install Pillow and <code>pillow-heif</code> via pip:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install Pillow pillow-heif</span></code></pre></div>
+<p>Before performing any file operations, register the AVIF plugin with
+Pillow at the start of your script:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> PIL <span class="im">import</span> Image</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pillow_heif</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Register AVIF and HEIF openers with Pillow</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>pillow_heif.register_avif_opener()</span></code></pre></div>
+<p>Once registered, standard <code>PIL.Image</code> functions handle
+AVIF files natively.</p>
+<h2 id="reading-and-inspecting-avif-images">Reading and Inspecting AVIF
+Images</h2>
+<p>Opening an AVIF file uses the standard <code>Image.open()</code>
+workflow. You can inspect attributes such as format, dimensions, and
+color mode directly:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> PIL <span class="im">import</span> Image</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pillow_heif</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>pillow_heif.register_avif_opener()</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> Image.<span class="bu">open</span>(<span class="st">&quot;example.avif&quot;</span>) <span class="im">as</span> img:</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;Format: </span><span class="sc">{</span>img<span class="sc">.</span><span class="bu">format</span><span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;Size: </span><span class="sc">{</span>img<span class="sc">.</span>size<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;Mode: </span><span class="sc">{</span>img<span class="sc">.</span>mode<span class="sc">}</span><span class="ss">&quot;</span>)</span></code></pre></div>
+<h2 id="manipulating-avif-images">Manipulating AVIF Images</h2>
+<p>Once loaded into memory, AVIF images behave like any other Pillow
+<code>Image</code> object. You can resize, crop, filter, or rotate
+them:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> PIL <span class="im">import</span> Image, ImageFilter</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pillow_heif</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>pillow_heif.register_avif_opener()</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> Image.<span class="bu">open</span>(<span class="st">&quot;input.avif&quot;</span>) <span class="im">as</span> img:</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Resize while maintaining aspect ratio</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    resized_img <span class="op">=</span> img.resize((<span class="dv">800</span>, <span class="dv">600</span>))</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Rotate 90 degrees counter-clockwise</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    rotated_img <span class="op">=</span> resized_img.rotate(<span class="dv">90</span>, expand<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Apply a blur filter</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    blurred_img <span class="op">=</span> rotated_img.<span class="bu">filter</span>(ImageFilter.GaussianBlur(radius<span class="op">=</span><span class="dv">2</span>))</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Save the manipulated image back to AVIF</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    blurred_img.save(<span class="st">&quot;manipulated.avif&quot;</span>, <span class="st">&quot;AVIF&quot;</span>)</span></code></pre></div>
+<h2 id="converting-other-formats-to-avif">Converting Other Formats to
+AVIF</h2>
+<p>AVIF offers significantly higher compression efficiency compared to
+JPEG and PNG. To convert standard image formats to AVIF, open the source
+image and save it using the <code>format="AVIF"</code> parameter.</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> PIL <span class="im">import</span> Image</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pillow_heif</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>pillow_heif.register_avif_opener()</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert a JPEG or PNG to AVIF</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> Image.<span class="bu">open</span>(<span class="st">&quot;source.png&quot;</span>) <span class="im">as</span> img:</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Convert RGBA to RGB if saving without transparency</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> img.mode <span class="kw">in</span> (<span class="st">&quot;RGBA&quot;</span>, <span class="st">&quot;P&quot;</span>):</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>        img <span class="op">=</span> img.convert(<span class="st">&quot;RGBA&quot;</span>)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>        img <span class="op">=</span> img.convert(<span class="st">&quot;RGB&quot;</span>)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    img.save(</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;output.avif&quot;</span>,</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>        <span class="bu">format</span><span class="op">=</span><span class="st">&quot;AVIF&quot;</span>,</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>        quality<span class="op">=</span><span class="dv">75</span>,    <span class="co"># Compression quality (0-100)</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>        speed<span class="op">=</span><span class="dv">6</span>        <span class="co"># CPU effort (0 is slowest/best, 10 is fastest)</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div>
+<p>Adjusting <code>quality</code> controls the balance between
+compression and visual fidelity. The <code>speed</code> parameter
+controls encoding performance, with lower numbers yielding smaller files
+at the cost of processing time.</p>
+<h2 id="converting-avif-to-jpeg-or-png">Converting AVIF to JPEG or
+PNG</h2>
+<p>To convert an AVIF file to another format for legacy browser
+support:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> PIL <span class="im">import</span> Image</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pillow_heif</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>pillow_heif.register_avif_opener()</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> Image.<span class="bu">open</span>(<span class="st">&quot;input.avif&quot;</span>) <span class="im">as</span> img:</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Convert to RGB if saving to JPEG (JPEG does not support alpha channels)</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> img.mode <span class="kw">in</span> (<span class="st">&quot;RGBA&quot;</span>, <span class="st">&quot;LA&quot;</span>):</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>        rgb_img <span class="op">=</span> img.convert(<span class="st">&quot;RGB&quot;</span>)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>        rgb_img.save(<span class="st">&quot;converted.jpg&quot;</span>, <span class="st">&quot;JPEG&quot;</span>, quality<span class="op">=</span><span class="dv">90</span>)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>        img.save(<span class="st">&quot;converted.jpg&quot;</span>, <span class="st">&quot;JPEG&quot;</span>, quality<span class="op">=</span><span class="dv">90</span>)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Convert to PNG (preserves transparency)</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    img.save(<span class="st">&quot;converted.png&quot;</span>, <span class="st">&quot;PNG&quot;</span>)</span></code></pre></div></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

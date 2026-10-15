@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How AVIF Handles High-Contrast UI and Sharp Text - avif</title>
+    <meta name="description" content="This article examines how the AV1 Image File Format (AVIF) processes high-contrast user interfaces, sharp vector graphics, and digital typography. While modern image formats are primarily engineered for photographic scenes, user interface (UI) assets intr">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-avif-handles-high-contrast-ui-and-sharp-text">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How AVIF Handles High-Contrast UI and Sharp Text - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-avif-handles-high-contrast-ui-and-sharp-text" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article examines how the AV1 Image File Format (AVIF) processes high-contrast user interfaces, sharp vector graphics, and digital typography. While modern image formats are primarily engineered for photographic scenes, user interface (UI) assets intr" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-avif-handles-high-contrast-ui-and-sharp-text">How AVIF
+Handles High-Contrast UI and Sharp Text</h1>
+<p>This article examines how the AV1 Image File Format (AVIF) processes
+high-contrast user interfaces, sharp vector graphics, and digital
+typography. While modern image formats are primarily engineered for
+photographic scenes, user interface (UI) assets introduce extreme
+frequency shifts and hard pixel boundaries that challenge standard
+compression algorithms. Below is an analysis of the architectural
+mechanics AVIF employs—such as variable transform sizes, chroma
+subsampling flexibility, and directional intra-prediction—to preserve
+crisp edges and prevent compression artifacts in graphical
+interfaces.</p>
+<h3 id="the-challenge-of-high-contrast-graphic-elements">The Challenge
+of High-Contrast Graphic Elements</h3>
+<p>Graphic user interfaces feature distinct visual characteristics that
+differ fundamentally from natural photographs:</p>
+<ul>
+<li>Single-pixel borders and dividers</li>
+<li>Pure solid-color backgrounds abutting stark contrasting
+elements</li>
+<li>Anti-aliased vector icons</li>
+<li>Micro-typography with sharp transitions from foreground to
+background</li>
+</ul>
+<p>In traditional lossy compression formats (such as JPEG), these abrupt
+tonal shifts generate high-frequency data. Standard frequency transforms
+struggle to represent these sharp discontinuities efficiently, resulting
+in "ringing" artifacts (halos around text) and noticeable edge blur.</p>
+<h3 id="architectural-features-avif-uses-for-sharp-lines">Architectural
+Features AVIF Uses for Sharp Lines</h3>
+<p>Derived from the AV1 video codec, AVIF includes structural tools
+specifically capable of handling hard edges and graphic contrasts:</p>
+<h4 id="1-recursive-partitioning-and-variable-block-sizes">1. Recursive
+Partitioning and Variable Block Sizes</h4>
+<p>Traditional codecs rely on fixed macroblock grids (such as 16x16 or
+8x8 pixels). AVIF uses recursive block partitioning ranging from 128x128
+down to 4x4 pixels, including non-square divisions (like 4x8 or 16x4).
+When encoding UI text or thin horizontal rules, the encoder isolates the
+sharp boundary within smaller, targeted sub-blocks. This confines
+high-frequency quantization noise to the exact edge rather than bleeding
+into adjacent flat UI surfaces.</p>
+<h4 id="2-specialized-discrete-cosine-and-identity-transforms">2.
+Specialized Discrete Cosine and Identity Transforms</h4>
+<p>AVIF does not rely solely on the standard Discrete Cosine Transform
+(DCT). It supports multiple transform types, including the Asymmetric
+Discrete Sine Transform (ADST) and the Identity transform:</p>
+<ul>
+<li><strong>ADST:</strong> Better captures boundaries where contrast
+starts sharply at one side of a block and tapers off.</li>
+<li><strong>Identity Transform:</strong> Bypasses frequency
+transformation entirely in one or both dimensions, encoding raw spatial
+differences. This is exceptionally effective for 1-pixel borders and
+computer-generated text, eliminating the ringing artifacts associated
+with frequency-domain reconstruction.</li>
+</ul>
+<h4 id="3-directional-intra-prediction">3. Directional
+Intra-Prediction</h4>
+<p>AVIF features 56 directional intra-prediction angles. For angled UI
+vectors, diagonal strokes in typography, or slanted iconography, the
+encoder predicts pixel values directly along the line of the stroke. By
+predicting along the edge rather than across it, the codec minimizes the
+residual data required to render sharp contours.</p>
+<h3 id="color-preservation-and-chroma-subsampling">Color Preservation
+and Chroma Subsampling</h3>
+<p>High-contrast interfaces often combine saturated colors, such as
+bright red notification badges on dark themes.</p>
+<ul>
+<li><strong>4:2:0 Subsampling Issues:</strong> By default, web images
+often use YUV 4:2:0 subsampling, which halves the horizontal and
+vertical resolution of color data. On UI graphics, this causes severe
+color bleeding and smearing around colored text and UI elements.</li>
+<li><strong>4:4:4 and RGB Support:</strong> AVIF natively supports
+full-resolution chroma (YUV 4:4:4) as well as direct RGB encoding. In
+4:4:4 mode, color edges remain exactly as sharp as the luminance edges,
+preventing any chromatic fringing around high-contrast borders.</li>
+</ul>
+<h3 id="filtering-and-tuning-for-ui">Filtering and Tuning for UI</h3>
+<p>AVIF uses in-loop filters, including the Deblocking Filter and the
+Constrained Directional Enhancement Filter (CDEF).</p>
+<p>While CDEF prevents ringing artifacts by filtering along the
+direction of identified edges, aggressive filtering can occasionally
+over-smooth fine typography at low bitrates, leading to faint or
+"smudged" text stems. To counteract this in graphic interfaces:</p>
+<ul>
+<li><strong>Lossless Compression:</strong> AVIF supports true lossless
+encoding. For simple UI graphics or icon sheets, AVIF lossless can rival
+or outperform PNG and WebP lossless.</li>
+<li><strong>Encoder Tuning:</strong> Tuning the encoder for fidelity
+metrics like SSIM or Butteraugli—or explicitly reducing deblocking
+filter strengths—preserves the crisp micro-contrast required by user
+interface typography.</li>
+</ul>
+<p>When properly configured with full chroma resolution (4:4:4) and
+appropriate transform selections, AVIF maintains clean, artifact-free
+text and sharp graphic boundaries at significantly smaller file sizes
+than legacy formats.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

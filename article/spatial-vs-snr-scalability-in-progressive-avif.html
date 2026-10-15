@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spatial vs SNR Scalability in Progressive AVIF - avif</title>
+    <meta name="description" content="Progressive AVIF images improve perceived loading times on the web by displaying an initial preview that refines into a full-fidelity image as more data downloads. This progressive rendering is achieved using the layered coding tools inherited from the AV">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/spatial-vs-snr-scalability-in-progressive-avif">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Spatial vs SNR Scalability in Progressive AVIF - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/spatial-vs-snr-scalability-in-progressive-avif" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Progressive AVIF images improve perceived loading times on the web by displaying an initial preview that refines into a full-fidelity image as more data downloads. This progressive rendering is achieved using the layered coding tools inherited from the AV" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="spatial-vs-snr-scalability-in-progressive-avif">Spatial vs SNR
+Scalability in Progressive AVIF</h1>
+<p>Progressive AVIF images improve perceived loading times on the web by
+displaying an initial preview that refines into a full-fidelity image as
+more data downloads. This progressive rendering is achieved using the
+layered coding tools inherited from the AV1 video codec, primarily
+through spatial scalability and Signal-to-Noise Ratio (SNR) scalability.
+While both methods provide a tiered decoding experience, they differ
+fundamentally in how they structure visual data between the initial base
+layer and subsequent enhancement layers.</p>
+<h3 id="what-is-spatial-scalability">What Is Spatial Scalability?</h3>
+<p>Spatial scalability divides the image into layers based on geometric
+resolution.</p>
+<ul>
+<li><strong>The Base Layer:</strong> Encodes a downscaled,
+lower-resolution version of the original image (for example, half the
+width and half the height). Because this layer contains fewer total
+pixels, it has a very small file size and decodes almost instantly.</li>
+<li><strong>The Enhancement Layer:</strong> Encodes the missing
+high-frequency spatial details needed to upscale and reconstruct the
+image to its native, full-resolution dimensions.</li>
+</ul>
+<p>During decoding, a browser displaying an image using spatial
+scalability will first show a low-resolution version scaled up to fit
+the container, which appears soft or blurry. Once the enhancement layer
+arrives, the image snaps into sharp focus at its full pixel
+dimensions.</p>
+<h3 id="what-is-snr-scalability">What Is SNR Scalability?</h3>
+<p>SNR (quality) scalability divides the image into layers based on
+compression fidelity rather than physical dimensions.</p>
+<ul>
+<li><strong>The Base Layer:</strong> Encodes the image at its full
+spatial dimensions (1:1 pixel resolution), but with coarse quantization.
+This creates a heavily compressed, low-bitrate version of the complete
+image.</li>
+<li><strong>The Enhancement Layer:</strong> Encodes residual data—the
+difference between the coarsely compressed base layer and the original
+source image. It refines the transform coefficients to eliminate
+compression artifacts.</li>
+</ul>
+<p>During decoding, an image using SNR scalability appears immediately
+at its final dimensions without any geometric upscaling. Initially, the
+image may exhibit noticeable banding, ringing, or block artifacts, which
+quickly clear up as the enhancement data refines the visual quality.</p>
+<h3 id="key-differences">Key Differences</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Feature</th>
+<th style="text-align: left;">Spatial Scalability</th>
+<th style="text-align: left;">SNR Scalability</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Base Layer
+Dimensions</strong></td>
+<td style="text-align: left;">Downsampled (e.g., 25% to 50% of
+original)</td>
+<td style="text-align: left;">Full original dimensions (100%)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Visual Artifacts</strong></td>
+<td style="text-align: left;">Blurry or soft appearance</td>
+<td style="text-align: left;">Compression noise, blocking, or
+banding</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Decoder Workload</strong></td>
+<td style="text-align: left;">Requires interpolation and upscaling
+steps</td>
+<td style="text-align: left;">Requires residual coefficient addition at
+native resolution</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Bandwidth
+Distribution</strong></td>
+<td style="text-align: left;">Highly compact base layer; larger
+enhancement layer</td>
+<td style="text-align: left;">Moderate base layer; variable refinement
+layers</td>
+</tr>
+</tbody>
+</table>
+<h3 id="choosing-between-spatial-and-snr-scalability">Choosing Between
+Spatial and SNR Scalability</h3>
+<p>Spatial scalability is best suited for scenarios where bandwidth is
+severely constrained and delivering an immediate structural layout of
+the image takes precedence over fine detail. It prevents layout shifts
+while maintaining smooth transitions through standard bilinear or
+bicubic upscaling.</p>
+<p>SNR scalability is ideal when preserving the geometry and edge
+boundaries of an image is critical from the first frame. Because it does
+not rely on spatial resampling, it prevents the geometric softness
+typical of upscaled images, making it well-suited for images containing
+high-contrast borders, text, or intricate line work.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

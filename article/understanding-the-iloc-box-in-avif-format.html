@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Understanding the iloc Box in AVIF Format - avif</title>
+    <meta name="description" content="This article provides a technical overview of the Item Location Box (iloc) within the AV1 Image File Format (AVIF). It explains what the iloc box is, how it functions as a spatial directory for file payloads, its structural parameters within the underlyin">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/understanding-the-iloc-box-in-avif-format">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Understanding the iloc Box in AVIF Format - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/understanding-the-iloc-box-in-avif-format" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article provides a technical overview of the Item Location Box (iloc) within the AV1 Image File Format (AVIF). It explains what the iloc box is, how it functions as a spatial directory for file payloads, its structural parameters within the underlyin" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="understanding-the-iloc-box-in-avif-format">Understanding the
+iloc Box in AVIF Format</h1>
+<p>This article provides a technical overview of the Item Location Box
+(<code>iloc</code>) within the AV1 Image File Format (AVIF). It explains
+what the <code>iloc</code> box is, how it functions as a spatial
+directory for file payloads, its structural parameters within the
+underlying ISO Base Media File Format, and why it is critical for
+decoding image data, transparency channels, and auxiliary metadata.</p>
+<hr />
+<h3 id="what-is-the-iloc-box">What Is the 'iloc' Box?</h3>
+<p>The AVIF format is built upon the ISO Base Media File Format
+(ISOBMFF) and the High Efficiency Image File Format (HEIF) container
+standard. In this architecture, raw compressed image data is separated
+from metadata and structural descriptions.</p>
+<p>The <code>iloc</code> (Item Location) box is a fundamental structural
+atom that acts as an address book or lookup table. While descriptive
+boxes (such as <code>iinf</code> for Item Information) assign
+identifiers and types to distinct items in an image file, the
+<code>iloc</code> box provides the exact physical coordinates—offsets
+and lengths—where the raw payload for each item resides within the
+file.</p>
+<h3 id="primary-functions-of-the-iloc-box">Primary Functions of the
+'iloc' Box</h3>
+<ol type="1">
+<li><p><strong>Mapping Item IDs to Byte Offsets</strong><br />
+Every distinct element of an AVIF file—including the primary AV1
+bitstream, auxiliary alpha (transparency) channels, depth maps,
+thumbnails, and Exif/XMP metadata blocks—is assigned a numerical
+<code>item_ID</code>. The <code>iloc</code> box explicitly maps each
+<code>item_ID</code> to its storage location, typically pointing to byte
+ranges inside the <code>mdat</code> (Media Data) box.</p></li>
+<li><p><strong>Managing Data Extents</strong><br />
+The <code>iloc</code> box defines whether an item’s data is stored
+contiguously or broken into multiple segments called "extents." For each
+item, the box specifies an <code>extent_count</code>. If an item is
+split across non-contiguous chunks in the file, the <code>iloc</code>
+box lists the offset and length for each individual extent so the parser
+can reconstruct the continuous byte stream.</p></li>
+<li><p><strong>Defining Offset Precision and Construction
+Methods</strong><br />
+The header of the <code>iloc</code> box defines the size (in bytes) of
+offset and length fields (typically 4 or 8 bytes) to optimize file
+overhead for both small images and files larger than 4 gigabytes. It
+also indicates the <code>construction_method</code>, informing the
+reader whether offsets are calculated relative to the start of the file
+or relative to other structural elements, such as the <code>idat</code>
+(Item Data) box.</p></li>
+</ol>
+<h3 id="structure-of-an-iloc-entry">Structure of an 'iloc' Entry</h3>
+<p>For each registered item, an <code>iloc</code> entry contains the
+following core parameters:</p>
+<ul>
+<li><strong>Item_ID:</strong> A unique 16-bit or 32-bit identifier
+matching the item defined in the <code>iinf</code> box.</li>
+<li><strong>Data_reference_index:</strong> An index pointing to the data
+reference box (<code>dref</code>), indicating whether the payload is
+inside the current file or stored externally.</li>
+<li><strong>Base_offset:</strong> A baseline byte offset applied to all
+extents belonging to this item.</li>
+<li><strong>Extent_offset:</strong> The location of a specific data
+segment relative to the base offset or file origin.</li>
+<li><strong>Extent_length:</strong> The total size in bytes of the
+specific data segment.</li>
+</ul>
+<h3 id="why-the-iloc-box-is-crucial-for-avif">Why the 'iloc' Box Is
+Crucial for AVIF</h3>
+<p>Without the <code>iloc</code> box, a decoder would have no mechanism
+to extract the compressed AV1 video frames that constitute the image. It
+allows AVIF decoders to quickly parse the lightweight structural
+metadata at the beginning of the file and selectively read only the
+necessary byte ranges via targeted read operations (such as HTTP Range
+Requests). This design enables rapid header inspection, selective
+decoding of metadata, and efficient rendering in web browsers.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Shader Decoding Memory Alignment Rules - avif</title>
+    <meta name="description" content="Decoding AVIF (AV1 Image File Format) images for use in graphics shaders requires strict adherence to memory alignment constraints across both CPU staging and GPU execution pipelines. Because AVIF relies on the AV1 video codec—often outputting YUV color s">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/avif-shader-decoding-memory-alignment-rules">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AVIF Shader Decoding Memory Alignment Rules - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/avif-shader-decoding-memory-alignment-rules" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Decoding AVIF (AV1 Image File Format) images for use in graphics shaders requires strict adherence to memory alignment constraints across both CPU staging and GPU execution pipelines. Because AVIF relies on the AV1 video codec—often outputting YUV color s" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="avif-shader-decoding-memory-alignment-rules">AVIF Shader
+Decoding Memory Alignment Rules</h1>
+<p>Decoding AVIF (AV1 Image File Format) images for use in graphics
+shaders requires strict adherence to memory alignment constraints across
+both CPU staging and GPU execution pipelines. Because AVIF relies on the
+AV1 video codec—often outputting YUV color spaces at 8-bit, 10-bit, or
+12-bit depths—the decoded data must be correctly aligned to satisfy SIMD
+CPU decoding, driver transfer thresholds, and GPU hardware sampling
+architectures. Failing to align memory properly causes visual shearing,
+illegal memory access crashes, or costly fallback paths in graphics APIs
+such as Vulkan, DirectX 12, Metal, and WebGPU.</p>
+<h3 id="cpu-decoder-simd-alignment">CPU Decoder SIMD Alignment</h3>
+<p>Before image data reaches a shader, CPU-based AV1 decoders (such as
+<code>dav1d</code> or <code>libgav1</code>) unpack the compressed
+bitstream. Modern decoders rely heavily on SIMD instructions (SSE4.1,
+AVX2, AVX-512, and ARM NEON).</p>
+<ul>
+<li><strong>Heap Allocation Boundaries:</strong> Decoder working buffers
+and target planar buffers must be aligned to at least 16-byte
+(SSE/NEON), 32-byte (AVX2), or 64-byte (AVX-512) boundaries.</li>
+<li><strong>Stride Padding:</strong> Each decoded scanline
+(stride/pitch) must be padded to a multiple of 16, 32, or 64 bytes,
+rather than tightly fitting the pixel width. Unaligned memory access in
+AV1 motion compensation and loop restoration filters degrades decoding
+throughput or triggers segmentation faults.</li>
+</ul>
+<h3 id="staging-buffer-to-texture-transfer-alignment">Staging Buffer to
+Texture Transfer Alignment</h3>
+<p>When transferring decoded AVIF pixel buffers from CPU host memory to
+GPU device memory, graphics APIs impose hardware-level pitch and offset
+restrictions.</p>
+<ul>
+<li><strong>Row Pitch (Stride) Alignment:</strong> Graphics APIs require
+the memory offset between consecutive rows of a staging buffer to match
+hardware boundaries. For example, Direct3D 12 and WebGPU mandate that
+the row pitch (<code>bytesPerRow</code>) must be an integer multiple of
+256 bytes (<code>D3D12_TEXTURE_DATA_PITCH_ALIGNMENT</code>). Vulkan
+requires implementations to satisfy
+<code>VkPhysicalDeviceLimits::optimalBufferCopyRowPitchAlignment</code>.</li>
+<li><strong>Buffer Offset Alignment:</strong> The base address offset
+where the image or plane starts within a staging buffer must satisfy the
+API’s base alignment constraint (typically a multiple of 512 bytes in
+D3D12 or governed by <code>optimalBufferCopyOffsetAlignment</code> in
+Vulkan).</li>
+</ul>
+<h3 id="pixel-format-and-chroma-plane-alignment">Pixel Format and Chroma
+Plane Alignment</h3>
+<p>AVIF natively encodes content using discrete Y, U, and V chroma
+planes, commonly in YUV 4:2:0, 4:2:2, or 4:4:4 sampling formats.</p>
+<ul>
+<li><strong>High Bit-Depth (10-bit and 12-bit):</strong> AV1 natively
+represents 10-bit and 12-bit components in 16-bit (short) scalar
+containers. Each channel element must align on a 2-byte boundary. When
+binding raw multi-channel textures (such as <code>R16_UNORM</code>),
+rows must remain word-aligned.</li>
+<li><strong>Chroma Subsampling Dimensions:</strong> For 4:2:0 subsampled
+images, the UV planes are half the width and height of the Y plane. If
+odd image dimensions are decoded, chroma plane memory allocation and
+pitch must round up to the nearest even dimension or SIMD chunk boundary
+to prevent out-of-bounds reading during shader sampling.</li>
+</ul>
+<h3 id="shader-storage-and-uniform-buffer-alignment-ssbo--ubo">Shader
+Storage and Uniform Buffer Alignment (SSBO / UBO)</h3>
+<p>If the AVIF data is passed to compute shaders for custom debanding,
+color-space conversion, or direct software-rasterized decoding, shader
+memory layout rules apply:</p>
+<ul>
+<li><strong>std140 Layout (Uniform Buffers):</strong> Scalar elements
+and vectors align based on their size, rounded up to powers of two. A
+<code>vec3</code> or <code>vec4</code> requires 16-byte alignment. Array
+elements are rounded up to 16 bytes.</li>
+<li><strong>std430 Layout (Compute Storage Buffers):</strong> Tighter
+alignment than <code>std140</code>, but arrays of structures still
+require members to align to their naturally declared sizes (e.g., 4
+bytes for 32-bit floats, 8 bytes for 64-bit vectors, 16 bytes for
+4-component vectors).</li>
+<li><strong>Texel Buffers:</strong> When using buffer views
+(<code>texelBuffer</code>), the starting address must align to
+<code>minTexelBufferOffsetAlignment</code> in Vulkan or equivalent
+hardware limits.</li>
+</ul>
+<h3 id="custom-yuv-to-rgb-compute-shader-alignment">Custom YUV-to-RGB
+Compute Shader Alignment</h3>
+<p>When converting multi-planar AVIF images to RGB within a compute
+shader:</p>
+<ul>
+<li>Compute workgroups typically execute in 8x8 or 16x16 pixel
+blocks.</li>
+<li>Shared memory (<code>groupshared</code> / <code>shared</code>)
+allocations for caching YUV values must be mapped to 4-byte or 16-byte
+bank-conflict-free boundaries to ensure coalesced reads across shader
+threads.</li>
+<li>If planar data is kept separate and sampled via planar textures,
+bind each plane with individual linear strides matching the power-of-two
+boundaries designated by the target platform.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

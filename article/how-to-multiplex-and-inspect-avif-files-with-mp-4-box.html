@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Multiplex and Inspect AVIF Files with MP4Box - avif</title>
+    <meta name="description" content="This article explores how MP4Box, a core multimedia packager from the open-source GPAC framework, facilitates both the multiplexing of raw AV1 bitstreams into AVIF (AV1 Image File Format) files and the in-depth structural inspection of their internal boxe">
+    <link rel="canonical" href="https://salivity.github.io/avif/article/how-to-multiplex-and-inspect-avif-files-with-mp-4-box">
+    <link rel="search" type="application/opensearchdescription+xml" title="avif" href="/avif/opensearch.xml">
+    <link rel="icon" href="/avif/favicon.ico">
+    <link rel="stylesheet" href="/avif/css/style.css">
+    <link media="print" rel="stylesheet" href="/avif/css/print.css">
+    <script src="/avif/js/fuse.min.js"></script>
+    <script src="/avif/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How to Multiplex and Inspect AVIF Files with MP4Box - avif" />
+    <meta property="og:url" content="https://salivity.github.io/avif/article/how-to-multiplex-and-inspect-avif-files-with-mp-4-box" />
+    <meta property="og:image" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/avif/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explores how MP4Box, a core multimedia packager from the open-source GPAC framework, facilitates both the multiplexing of raw AV1 bitstreams into AVIF (AV1 Image File Format) files and the in-depth structural inspection of their internal boxe" />
+    <link rel="manifest" href="/avif/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/avif/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>avif</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/avif/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-to-multiplex-and-inspect-avif-files-with-mp4box">How to
+Multiplex and Inspect AVIF Files with MP4Box</h1>
+<p>This article explores how MP4Box, a core multimedia packager from the
+open-source GPAC framework, facilitates both the multiplexing of raw AV1
+bitstreams into AVIF (AV1 Image File Format) files and the in-depth
+structural inspection of their internal boxes. By leveraging MP4Box,
+developers can package still images, alpha channels, and image sequences
+into standards-compliant containers while troubleshooting metadata, item
+references, and container architecture.</p>
+<h2 id="why-mp4box-for-avif">Why MP4Box for AVIF?</h2>
+<p>The AVIF format is derived from the High Efficiency Image File Format
+(HEIF), which in turn relies on the ISO Base Media File Format
+(ISOBMFF). Because MP4Box was engineered specifically to manipulate
+ISOBMFF structures, it provides native, low-level access to the
+containers that wrap AV1 payloads. This makes it an ideal tool for
+generating and debugging AVIF files compared to standard raster image
+editors.</p>
+<h2 id="multiplexing-avif-files">Multiplexing AVIF Files</h2>
+<p>Multiplexing (or muxing) in the context of AVIF involves taking a raw
+AV1 image item (often an Open Bitstream Unit, or OBU) and structuring it
+within ISOBMFF item boxes alongside the appropriate metadata and
+properties.</p>
+<h3 id="basic-single-item-encapsulation">Basic Single-Item
+Encapsulation</h3>
+<p>To create an AVIF still picture from an AV1 bitstream or video frame,
+MP4Box imports the track and defines it as an image item rather than a
+continuous media track:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mp4box</span> <span class="at">-add</span> image.obu:primary <span class="at">-new</span> output.avif</span></code></pre></div>
+<p>In this command:</p>
+<ul>
+<li><code>image.obu</code> is the raw AV1 still payload.</li>
+<li><code>:primary</code> instructs MP4Box to assign this element as the
+primary item (<code>pitm</code>) in the container.</li>
+<li>The output filename extension <code>.avif</code> triggers the
+assignment of the correct major brand (<code>avif</code>) and compatible
+brands (<code>mif1</code>, <code>miaf</code>).</li>
+</ul>
+<h3 id="handling-alpha-channels-and-auxiliary-items">Handling Alpha
+Channels and Auxiliary Items</h3>
+<p>AVIF handles transparency by multiplexing a secondary monochrome AV1
+image track designated as an auxiliary item. MP4Box associates these
+items using an <code>auxl</code> (auxiliary) reference type:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mp4box</span> <span class="at">-add</span> color.obu:primary <span class="at">-add</span> alpha.obu:aux=alpha <span class="at">-new</span> transparent.avif</span></code></pre></div>
+<p>This packages both planes into a single container, directing
+conforming decoders to render the alpha layer over the primary color
+frame.</p>
+<h3 id="packaging-image-sequences-avifs">Packaging Image Sequences
+(AVIFS)</h3>
+<p>MP4Box can package multiple AV1 frames into an animated AVIF (AVIFS).
+Instead of treating frames merely as independent metadata items, it
+structures them as a timed media track using typical ISOBMFF track
+(<code>trak</code>) and movie (<code>moov</code>) structures:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mp4box</span> <span class="at">-add</span> animation.obu:fps=24 <span class="at">-new</span> animated.avifs</span></code></pre></div>
+<h2 id="inspecting-avif-files">Inspecting AVIF Files</h2>
+<p>Beyond creation, MP4Box provides robust diagnostic capabilities to
+analyze compliance, inspect file topology, and debug rendering
+errors.</p>
+<h3 id="structural-box-dumps">Structural Box Dumps</h3>
+<p>To verify that an AVIF file correctly adheres to the MIAF
+(Multi-Image Application Format) or AVIF specifications, you can
+generate a complete dump of the file's box tree:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mp4box</span> <span class="at">-diso</span> sample.avif</span></code></pre></div>
+<p>This produces an XML-formatted structural breakdown containing:</p>
+<ul>
+<li><strong><code>ftyp</code> (File Type Box):</strong> Confirms
+compatible brands (<code>avif</code>, <code>avis</code>,
+<code>mif1</code>).</li>
+<li><strong><code>meta</code> (Metadata Box):</strong> Hosts the static
+image items.</li>
+<li><strong><code>iinf</code> (Item Information Box):</strong> Lists all
+stored items, such as primary images, auxiliary alpha planes, and
+Exif/XMP metadata payloads.</li>
+<li><strong><code>iloc</code> (Item Location Box):</strong> Specifies
+byte offsets and lengths for each image segment inside the
+container.</li>
+<li><strong><code>iprp</code> (Item Properties Box):</strong> Contains
+essential visual parameters, such as pixel aspect ratios
+(<code>pasp</code>), clean aperture (<code>clap</code>), and color
+profile information (<code>colr</code>).</li>
+</ul>
+<h3 id="summary-and-track-information">Summary and Track
+Information</h3>
+<p>For a fast overview of file tracks, brands, and container settings
+without dumping the entire XML hierarchy, use the <code>-info</code>
+command:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mp4box</span> <span class="at">-info</span> sample.avif</span></code></pre></div>
+<p>This returns high-level diagnostic data, identifying whether the file
+is configured as a collection of static items, a timed sequence, or an
+image collection with embedded previews.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/avif'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            utterancesScript.setAttribute('theme', currentTheme === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="https://smvc.dev/contact">Contact</a></li>
+                <li><a href="/avif/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/avif/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>
